@@ -94,3 +94,7 @@ Once you have the ribbon.xml file and the \Res folder containing the bitmap imag
 3) Compile and run, that's all their is to it! **NOTE:** This will not run from the IDE, since when running from the IDE, like in VB6, it uses the resources in twinBASIC, not our resources. Since the object extracts the resources itself from the handle to the exe, it won't be able to find the ribbon resources.
    
 **The end result, the completed project containing the results of these steps, is in UIRibbonDemo.twinproj.** The rest of the files, including intermediates, are also provided. 
+
+---
+
+I'll be adding more advanced demos shortly!
