@@ -1,6 +1,7 @@
 # UIRibbonDemos
 ## Windows UI Ribbon Framework Demos
 
+**Update: Crashing has been fixed.**
 
 Windows applications frequently make use of the UI Ribbon in newer applications, including Explorer, Office, Wordpard, etc. While there's some controls implementing this kind of toolbar from scratch, and some exorbitantly expensive commercial controls that may or may not use the OS component ::cough:: CodeJock ::cough:: there's not been an implementation using the simple COM interfaces Microsoft applications use. This repository will show how to use those, with both simple and advanced demos.
 
@@ -38,7 +39,7 @@ Once you have the ribbon.xml file and the \Res folder containing the bitmap imag
 1) The form sets everything up, then the class handles the events the ribbon raises to let us know about command clicks and other information.
 2) The Form code declares a variable for the UI Ribbon Framework coclass, the events class, and a handler for the command click it raises:
    ```
-       Private pFramework As UIRibbonFramework
+    Private pFramework As UIRibbonFramework
     Private WithEvents pUIApp As clsRibbonEvents
     
     Private Sub Form_Load() Handles Form.Load
@@ -61,34 +62,30 @@ Once you have the ribbon.xml file and the \Res folder containing the bitmap imag
    
    All of those interfaces and the GetModuleHandle API are already declared in tbShellLib; that's the entirety of the form code. In the class, we have:
    ```
-    Implements IUIApplication
-    Implements IUICommandHandler
-    
-    Public Event OnRibbonCmdExecute(ByVal commandId As Long, ByVal verb As UI_EXECUTIONVERB, ByVal key As LongPtr, currentValue As Variant, ByVal commandExecutionProperties As IUISimplePropertySet, returnValue As Long)
-    Public Event OnRibbonUpdateProperty(ByVal commandId As Long, ByVal key As LongPtr, currentValue As Variant, newValue As Variant, returnValue As Long)
-    
-    Private Sub IUIApplication_OnViewChanged(ByVal viewId As Long, ByVal typeID As UI_VIEWTYPE, ByVal view As IUnknown, ByVal verb As UI_VIEWVERB, ByVal uReasonCode As Long) Implements IUIApplication.OnViewChanged
-        Err.ReturnHResult = E_NOTIMPL
-    End Sub
-    
-    Private Sub IUIApplication_OnDestroyUICommand(ByVal commandId As Long, ByVal typeID As UI_COMMANDTYPE, ByVal commandHandler As IUICommandHandler) Implements IUIApplication.OnDestroyUICommand
-    End Sub
-    
-    Private Sub IUIApplication_OnCreateUICommand(ByVal commandId As Long, ByVal typeID As UI_COMMANDTYPE, commandHandler As IUICommandHandler) Implements IUIApplication.OnCreateUICommand
-        Set commandHandler = Me
-    End Sub
-    
-    Private Sub IUICommandHandler_Execute(ByVal commandId As Long, ByVal verb As UI_EXECUTIONVERB, key As PROPERTYKEY, currentValue As Variant, ByVal commandExecutionProperties As IUISimplePropertySet) Implements IUICommandHandler.Execute
-        Dim hr As Long
-        RaiseEvent OnRibbonCmdExecute(commandId, verb, VarPtr(key), currentValue, commandExecutionProperties, hr)
-        Err.ReturnHResult = hr
-    End Sub
-    
-    Private Sub IUICommandHandler_UpdateProperty(ByVal commandId As Long, key As PROPERTYKEY, currentValue As Variant, newValue As Variant) Implements IUICommandHandler.UpdateProperty
-        Dim hr As Long
-        RaiseEvent OnRibbonUpdateProperty(commandId, VarPtr(key), currentValue, newValue, hr)
-        Err.ReturnHResult = hr
-    End Sub
+        Private Sub IUICommandHandler_Execute(ByVal commandId As Long, ByVal verb As UI_EXECUTIONVERB, key As PROPERTYKEY, currentValue As Variant, ByVal commandExecutionProperties As IUISimplePropertySet) Implements IUICommandHandler.Execute
+            Dim hr As Long
+            Dim pv As Variant
+            If VarPtr(currentValue) <> 0 Then
+                VariantCopy pv, currentValue
+            End If
+            RaiseEvent OnRibbonCmdExecute(commandId, verb, VarPtr(key), pv, commandExecutionProperties, hr)
+            Err.ReturnHResult = hr
+        End Sub
+        
+        Private Sub IUICommandHandler_UpdateProperty(ByVal commandId As Long, key As PROPERTYKEY, currentValue As Variant, newValue As Variant) Implements IUICommandHandler.UpdateProperty
+            Dim hr As Long
+            Dim pv As Variant
+            Dim pnv As Variant
+            Dim bValid As Boolean
+            If VarPtr(currentValue) <> 0 Then
+                VariantCopy pv, currentValue
+            End If
+            RaiseEvent OnRibbonUpdateProperty(commandId, VarPtr(key), pv, pnv, bValid, hr)
+            If bValid Then
+                VariantCopy newValue, pnv
+            End If
+            Err.ReturnHResult = hr
+        End Sub
    ```
 
 3) Compile and run, that's all there is to it! **NOTE:** This will not run from the IDE, since when running from the IDE, like in VB6, it uses the resources in twinBASIC, not our resources. Since the object extracts the resources itself from the handle to the exe, it won't be able to find the ribbon resources.
