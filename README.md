@@ -10,7 +10,7 @@ Windows applications frequently make use of the UI Ribbon in newer applications,
 1) Windows 7 or newer
 2) You'll need either the Windows SDK v7.0 or newer, or to otherwise have obtained uicc.exe and rc.exe from it or Visual Studio.
 3) An up to date twinBASIC; not sure where the cutoff would be but always good to have a more recent release.
-4) Becoming familiar with the XAML-based [Ribbon Markup Language](https://learn.microsoft.com/en-us/windows/win32/windowsribbon/windowsribbon-schema) to create the .xml files describing controls and commands. A good example for learning the syntax [also accompanies this demo](https://www.codeproject.com/Articles/160542/Windows-7-Goodies-in-C-Introduction-to-the-Ribbon), although the example itself is C++. 
+4) Becoming familiar with the XML-based [Ribbon Markup Language](https://learn.microsoft.com/en-us/windows/win32/windowsribbon/windowsribbon-schema) to create the .xml files describing controls and commands. A good example for learning the syntax [also accompanies this demo](https://www.codeproject.com/Articles/160542/Windows-7-Goodies-in-C-Introduction-to-the-Ribbon), although the example itself is C++. 
 
 ### First demo - Hello Ribbon!
 
