@@ -1,7 +1,7 @@
 # UIRibbonDemos
 ## Windows UI Ribbon Framework Demos
 
-**Update (July 28th): The Intermediate Demo is now available! Scroll down to check it out!**
+**Update (July 28th): The Intermediate Demo is now available! Scroll down to check it out!** The finished project is UIRibbonDemoIntermediateA.twinproj, and the intermediates are the ones with an I suffix.
 
 **Update: Crashing has been fixed.**
 
@@ -28,7 +28,7 @@ We'll start from the xml:
 Once you have the ribbon.xml file and the \Res folder containing the bitmap images for your controls, you can proceed to preparing the project.
 1) Use uicc.exe to compile the XML. This is easiest if you have Visual Studio command prompt available, but you can substitute full paths or drop uicc.exe in the ribbon folder. We want not just the compiled file, but we want uicc to prepare a resource file containing all the strings and bitmaps correctly named so importation into twinBASIC is nice and simple. For this we use the following command:
     
-   `uicc.exe ribbon.xml ribbon.bml /res:ribbon.rc`
+   `uicc.exe ribbon.xml ribbon.bml /res:ribbon.rc`/header:ribbon.h
 
    The first file is the compiled binary file; while you can use that for manual importation, it's already copied into ribbon.rc, so you don't need to worry about that for our method.
 
