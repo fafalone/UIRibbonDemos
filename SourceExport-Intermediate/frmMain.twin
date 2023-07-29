@@ -1,0 +1,1500 @@
+[ Description ("Windows UI Ribbon Framework Demo - Intermediate") ]
+[ FormDesignerId ("E49F24B9-B08B-4999-B944-F6F945E18407") ]
+[ PredeclaredId ]
+Class frmMain
+ 
+    #Const dbg_enablefont = 1 'Enable interaction with the font control
+   
+    
+    #Region "ReadMe"
+    /*
+        Windows Ribbon Framework UI Demo - Intermediate
+        Main Form
+        
+        This intermediate demo gets into some of the more complex features beyond the basic proof 
+        of concept of the original demo. In addition to standard buttons, the following ribbon 
+        features are implemented:
+        
+        -Toggle Buttons: 
+            These are buttons that stay pushed down to indicate they're selected. The Framework
+            object's GetUICommandProperty and SetUICommandProperty are used to read and set the
+            status of these buttons, which are used to display more features below.
+
+    -Dropdown Buttons:
+        On the Design context tab, you'll find an Edit button with an arrow indicating a 
+        dropdown. This button displays a dropdown menu of basic edit commands (not yet tied
+        to the TextBox or any other function).
+
+    -SplitButtons:
+        In the File menu, the Open and Print buttons are now split buttons that show more
+        buttons on the side.
+        
+    -CheckBoxes and Column Breaks:
+        The main menu has a group of CheckBoxes that are simple boolean properties, with a
+        column break and then 3 small icon buttons, using the advanced SizeDefinition fields.
+        
+    -HelpButton:
+        The Help Button is now displayed by the minimize ribbon button.            
+        
+    -Context Tabs: 
+        From the Main tab, you can use Select to Show, Unselect to Hide, or Toggle to switch 
+        back and forth, two 'Context Tabs': Tabs that are only shown when you want to display
+        extra features for some part of your program. 
+                    
+    -Dropdown Color Pickers:
+        The Colors tab shows 3 different types of Color Pickers. They each have different
+        preset selections to choose from, and each have a further popup for a full color picker
+        dialog where you can select from the full spectrum.
+        
+    -Font Picker Control
+        This is by far the most complex control in the Ribbon. It displays a full set of font
+        font options like you see in Wordpad, including an automatically populated dropdown
+        showing each font rendered in it's own face. This is tied to a RichEdit control, and 
+        you can use it to set the font of the current selection. If you move the caret in the
+        RichEdit control, the font displayed in the Ribbon is updated to that of the current
+        selection.
+        You'll find a lot of useful code for this, including dealing with true NULL Variants
+        that crash VB when improperly handled, reading and setting values in an IPropertyStore,
+        and converting back and forth between two types normally unsupported in VB and which
+        cause errors when not specially handled: Variants of type VT_UI4 (unsigned long), and
+        VT_LPWSTR, a string type similar to but different in important ways from VB/tB native
+        strings (VT_BSTR). Finally, we get a chance to use tB's new Decimal type! VB6 allowed
+        some use of these in a Variant, but without the real native type, it would require 
+        difficult manual handling for our purposes.
+        
+    -Icon-only Button Group
+        Implemented as a Paragraph format set, this shows how to use the advanced SizeDefinition
+        options to make a set of icon-only buttons arranged in rows. One of these  is a dropdown.
+        These buttons are functional and are applied to the selection on the RichEdit control.
+        
+    -MiniToolbar and Context Popups
+        This feature allows for a popup anywhere on the form of one or both of a mini-toolbar
+        and popup menu. These can have controls like dropdown buttons, toggle buttons, and 
+        more. You can show different combinations of things based on the current view. This 
+        demo has 4 different options you can select from the Colors tab. Click one of the
+        'Activate Context' buttons, then the CommandButton to show it.
+            
+        
+        Stay tuned for the Advanced Demo! There's a few more controls to show off-- the Gallery
+        controls are especially fun (think the Shapes box and Brushes dropdown in Paint), as well
+        as options for different views, scaling policies, high contrast and high dpi handling, and
+        even more! At the end of this demo, you'll be able to make professional-grade ribbons for
+        your tB applications.
+        
+        
+        Author: Jon Johnson (fafalone)
+        Project repository: https://github.com/fafalone/UIRibbonDemos
+        License: CC0 1.0 Universal, see LICENCE.md for more info.
+        Last updated: 24 July 2023 :: First major release.
+        
+        This project was developed exclusively in twinBASIC; there's no VB6 version, and the code
+        takes advantage of new language features wheverever beneficial, so it's possible to back
+        port but would require some changes.
+        
+        Requirements: 
+        -The UI Ribbon is a Windows 7 and newer feature.
+        -The code in this app depends on tbShellLib, my expansive library for Windows programming
+         which covers large swathes of built in COM interfaces and APIs from major system DLLs,
+         they for instance cover everything used in this project, which is why you see no Declares
+         or UDTs here. It's included as a twinBASIC Package, which you can add to our own projects
+         from the twinSERV package server; more info at https://github.com/fafalone/tbShellLib
+         
+        Thanks:
+        -This project is based on just about every C/C++ Ribbon project I could find, including:
+        --Windows 7 SDK Samples
+        --Arik Poznanski's Ribbon with C++ Series: 
+          http://blogs.microsoft.co.il/arik/2011/06/03/ribbon-with-c-part-1-introduction-to-the-windows-ribbon-framework/
+        --Stephen Wiria's Windows Ribbon Framework in Win32 C Application:
+          https://www.codeproject.com/Articles/119319/Windows-Ribbon-Framework-in-Win32-C-Application
+        --Michael Dunn's Windows 7 Goodies in C++: Introduction to the Ribbon:
+          https://www.codeproject.com/Articles/160542/Windows-7-Goodies-in-C-Introduction-to-the-Ribbon
+        --firehacker for clever new InIDE method  
+        -And of course, thanks to Wayne Phillips for his incredible work in creating twinBASIC!
+    */
+    #End Region
+    
+    [ Description ("Main object for the UI Ribbon Framework") ]
+    Private pFramework As UIRibbonFramework
+    
+    [ Description ("Our class that handles events from the Ribbon and fowards them to us.") ]
+    Private WithEvents pUIApp As clsRibbonEvents
+   
+    [ Description ("Handle to the last exe build to enable running from the IDE.") ]
+    Private hLastExe As LongPtr
+    
+    [ Description ("Handle to the RichEdit DLL") ]
+    Private hREDll As LongPtr
+
+    [ Description ("The hWnd of the RichEdit control.") ]
+    Private hRE As LongPtr
+
+    [ Description ("Handle to the IBeam cursor for the RichEdit window.") ]
+    Private hCurRE As LongPtr
+    
+    [ Description ("The default font settings for the RichEdit control.") ]
+    Private tDefChFmt As CHARFORMAT2W
+
+    [ Description ("The current font settings for the RichEdit control.") ]
+    Private tCurChFmt As CHARFORMAT2W
+
+    [ Description ("The context id for which Context Popup will be displayed.") ]
+    Private mCtx As Long
+    
+    Private Const TWIPS_PER_POINT = 20
+    Private TWIPS_PER_INDENT As Long
+    
+    Private Const szHelpTitle = "twinBASIC UI Ribbon Demo - Intermediate"
+    Private Const szHelpHeader = "twinBASIC Windows UI Ribbon Demo"
+    Private Const szHelpMessage = "This is the internedmiate level Windows UI Ribbon Framework Demo, created " & _
+                                  "by Jon Johnson based on the C/C++ Ribbon projects from the Windows 7 SDK, " & _
+                                  "<a href=""http://blogs.microsoft.co.il/arik/2011/06/03/ribbon-with-c-part-1-introduction-to-the-windows-ribbon-framework/"">Arik Poznanski</a> on blogs.microsoft.co.il, " & _
+                                  "<a href=""https://www.codeproject.com/Articles/119319/Windows-Ribbon-Framework-in-Win32-C-Application"">Stephen Wiria</a> on CodeProject, and " & _
+                                  "<a href=""https://www.codeproject.com/Articles/160542/Windows-7-Goodies-in-C-Introduction-to-the-Ribbon"">Michael Dunn</a> on CodeProject." & vbcrlf & vbcrlf & _
+                                  "For the readme, filing bug reports, original source, and more Ribbon demos for twinBASIC, visit the project's GitHub repository:" & vbcrlf & _
+                                  "<a href=""https://github.com/fafalone/UIRibbonDemos"">https://github.com/fafalone/UIRibbonDemos</a>"
+    Private Const szHelpFooter = "Copyright ©2023 Jon Johnson. Licensed under the Creative Commons Zero v1.0 Universal license. See code or repository for more  information."
+    Private Const szHelpIconRes = "101"
+    
+    Public Enum eAlign
+        AlignLeft
+        AlignCenter
+        AlignRight
+        AlignJustify
+    End Enum
+    Private mCurAlign As eAlign
+     
+    Private Enum LineSpacing
+        LS_1
+        LS_115
+        LS_15
+        LS_2
+    End Enum
+    Private mCurSpacing As LineSpacing
+    
+    Private mCurIndent As Long
+    Private Const mDefTab As Long = 720 'twips
+    
+    #Region "CmdIDs"
+    'Taken from ribbon.h where they're autogenerated
+    Public Const cmdApplicationMenu  = 600
+    Public Const IDC_TABMAIN  = 1001
+    Public Const cmdGroupMain  = 1002
+    Public Const IDC_TABTABLE  = 1003
+    Public Const IDC_TABDESIGN  = 1004
+    Public Const IDC_TABLAYOUT  = 1005
+    Public Const cmdGroupDesign  = 1006
+    Public Const cmdGroupLayout  = 1007
+    Public Const IDC_SELECT  = 1050
+    Public Const IDC_UNSELECT  = 1060
+    Public Const IDC_DESIGN1  = 1010
+    Public Const IDC_DESIGN2  = 1011
+    Public Const IDC_DESIGN3  = 1012
+    Public Const IDC_LAYOUT1  = 1013
+    Public Const IDC_LAYOUT2  = 1014
+    Public Const IDC_TABCOLOR  = 1999
+    Public Const cmdButtonsGroup  = 2000
+    Public Const cmdDropDownColorPickerGroup  = 2001
+    Public Const IDC_COLORTHEME  = 2002
+    Public Const IDC_COLORSTD  = 2003
+    Public Const IDC_CLRHILITE  = 204
+    Public Const IDC_LISTCOLORS  = 2006
+    Public Const IDC_NEW  = 7001
+    Public Const IDC_OPEN  = 8000
+    Public Const IDC_SAVE  = 9000
+    Public Const IDC_SAVEAS  = 9101
+    Public Const IDC_SAVEASMORE  = 9106
+    Public Const CmdHeaderSave  = 9107
+    Public Const IDC_RTF  = 9109
+    Public Const IDC_OPENXML  = 9114
+    Public Const IDC_ODF  = 9119
+    Public Const IDC_TXT  = 9214
+    Public Const IDC_FMTOTHER  = 9129
+    Public Const IDC_EXIT  = 20000
+    Public Const cmdGroupFileActions  = 355
+    Public Const cmdQAT  = 306
+    Public Const cmdCustomizeQAT  = 307
+    Public Const cmdRecentItems  = 1775
+    Public Const cmdGroupRichFont  = 1777
+    Public Const IDC_RICHFONT  = 1779
+    Public Const IDC_TOGGLE1  = 1778
+    Public Const cmdGroup4  = 2
+    Public Const cmdFileMenu  = 3
+    Public Const cmdMRUList  = 4
+    Public Const cmdGroup6  = 5
+    Public Const IDC_EDITDROPDOWN  = 6
+    Public Const IDC_RIBBONHELP  = 27664
+    Public Const IDC_OPENFILEMORE  = 20500
+    Public Const IDC_OPENFILE  = 27601
+    Public Const IDC_OPENURL  = 22774
+    Public Const IDC_PRINTMORE  = 20501
+    Public Const CmdHeaderPrint  = 20511
+    Public Const IDC_PRINT  = 27607
+    Public Const IDC_PRINTSETUP  = 17606
+    Public Const IDC_QUICKPRINT  = 2532
+    Public Const IDC_PRINTPREVIEW  = 2536
+    Public Const cmdTab1  = 7 /* These comments are optional and are inserted into the header file. */
+    Public Const cmdGroup1  = 8 /* Group #1 */
+    Public Const IDC_CMD_CONTEXT1  = 30071 /* Button that activates context 1 */
+    Public Const IDC_CMD_CONTEXT2  = 30072 /* Button that activates context 2 */
+    Public Const IDC_CMD_CONTEXT3  = 30073 /* Button that activates context 3 */
+    Public Const IDC_CMD_CONTEXT4  = 30074 /* Button that activates context 4 */
+    Public Const IDC_CUT  = 64 /* Cut button */
+    Public Const IDC_COPY  = 23116 /* Copy button */
+    Public Const IDC_PASTE  = 23117 /* Paste button */
+    Public Const IDC_CTXTOGGLE  = 9 /* Toggle Button */
+    Public Const IDC_BUTTON1  = 24161 /* Button #1 */
+    Public Const IDC_BUTTON2  = 21161 /* Button #2 */
+    Public Const IDC_BUTTON3  = 21163 /* Button #3 */
+    Public Const IDC_BUTTONS  = 21165 /* DropDownButton that contains the three buttons */
+    Public Const IDC_CMD_CONTEXTMAP1  = 10 /* the Context Map for Context 1 */
+    Public Const IDC_CMD_CONTEXTMAP2  = 11 /* the Context Map for Context 2 */
+    Public Const IDC_CMD_CONTEXTMAP3  = 12 /* the Context Map for Context 3 */
+    Public Const IDC_CMD_CONTEXTMAP4  = 13 /* the Context Map for Context 4 */
+    Public Const IDC_CHECK1  = 76
+    Public Const cmdCheck2  = 77
+    Public Const cmdCheckHdr  = 78
+    Public Const IDC_PARAGRAPH  = 79
+    Public Const IDC_INDENT  = 80
+    Public Const IDC_OUTDENT  = 81
+    Public Const IDC_LINESPACING  = 82
+    Public Const IDC_LINESPACE1  = 83
+    Public Const IDC_LINESPACE115  = 84
+    Public Const IDC_LINESPACE15  = 85
+    Public Const IDC_LINESPACE2  = 86
+    Public Const IDC_ALIGNLEFT  = 87
+    Public Const IDC_ALIGNRIGHT  = 88
+    Public Const IDC_ALIGNCENTER  = 4733
+    Public Const IDC_JUSTIFY  = 4738
+    Public Const IDC_MORE  = 21151
+
+    #End Region
+
+    Private Sub LogMsg(sMsg As String)
+        Debug.Print sMsg
+        List1.AddItem sMsg
+        List1.TopIndex = List1.ListCount
+    End Sub
+    
+    Private Sub OnLoad() Handles Form.Load
+        CreateRichEdit
+        Set pFramework = New UIRibbonFramework
+        Set pUIApp = New clsRibbonEvents
+        pFramework.Initialize Me.hWnd, pUIApp
+        LogMsg "Successfully initialized Ribbon Framework"
+        Dim InIde As Boolean: Debug.Assert MakeTrue(InIde)
+        If InIde Then
+            'Attempt to load resources from last .exe
+            If (App.LastBuildPath = "") Or (PathFileExists(App.LastBuildPath) = 0) Then
+                MsgBox("To run from the IDE you must build first, or replace this routine with one loading a DLL containing your resources.", vbCritical + vbOKOnly, App.Title)
+                GoTo out
+            End If
+            hLastExe = LoadLibraryEx(App.LastBuildPath, 0, LOAD_LIBRARY_AS_DATAFILE Or LOAD_LIBRARY_AS_IMAGE_RESOURCE)
+            pFramework.LoadUI hLastExe, StrPtr("APPLICATION_RIBBON")
+        Else
+            pFramework.LoadUI GetModuleHandleW(), StrPtr("APPLICATION_RIBBON")
+        End If
+        LogMsg "Successfully loaded UI"
+        pFramework.SetUICommandProperty(IDC_ALIGNLEFT, UI_PKEY_BooleanValue, CVar(True)) 'Set initial alignment = left
+        Exit Sub
+    out: 
+        Set pFramework = Nothing
+        Unload Me
+    End Sub
+    Private Function MakeTrue(ByRef x As Boolean) As Boolean
+        x = True: MakeTrue = True
+    End Function
+    Private Sub OnTerminate() Handles Form.Terminate
+        If pFramework IsNot Nothing Then pFramework.Destroy()
+        Set pFramework = Nothing
+        Set pUIApp = Nothing
+        If hRE Then DestroyWindow hRE
+        If hREDll Then FreeLibrary hREDll
+        If hLastExe Then FreeLibrary hLastExe
+    End Sub
+
+    Private Sub OnContextPopup() Handles Command1.Click
+        If mCtx = 0 Then Exit Sub
+        Dim pt As POINT
+        Dim pCtxMenu As IUIContextualUI
+        
+        If pFramework IsNot Nothing Then
+            pFramework.GetView mCtx, IID_IUIContextualUI, pCtxMenu
+            If pCtxMenu IsNot Nothing Then
+                GetCursorPos pt
+                pCtxMenu.ShowAtLocation pt.x, pt.y
+            End If
+        End If
+    End Sub
+
+    
+    Private Sub ShowHelp()
+        Dim tdc As TASKDIALOGCONFIG
+        tdc.cbSize = LenB(Of TASKDIALOGCONFIG)
+        tdc.hInstance = App.hInstance
+        tdc.hWndParent = Me.hWnd
+        tdc.dwCommonButtons = TDCBF_CLOSE_BUTTON
+        tdc.dwFlags = TDF_ENABLE_HYPERLINKS
+        tdc.pfCallback = AddressOf TaskDialogCallbackProc
+        tdc.pszMainIcon = MAKEINTRESOURCE(CLng(TD_SHIELD_GRAY_ICON))
+        tdc.pszFooterIcon = MAKEINTRESOURCE(CLng(TD_INFORMATION_ICON))
+        tdc.pszWindowTitle = StrPtr(szHelpTitle)
+        tdc.pszMainInstruction = StrPtr(szHelpHeader)
+        tdc.pszContent = StrPtr(szHelpMessage)
+        tdc.pszFooter = StrPtr(szHelpFooter)
+        
+        Dim lRes As Long = TaskDialogIndirect(tdc)
+        
+    End Sub
+    
+    Private Sub CreateRichEdit()
+        Dim szClass As String
+        hREDll = LoadLibrary("msftedit.dll")
+        If hREDll Then
+            'Use newer RichEdit if available
+            szClass = MSFTEDIT_CLASS
+        Else
+            hREDll = LoadLibrary("riched20.dll")
+            szClass = RICHEDIT_CLASSW
+        End If
+        If hREDll Then
+            Dim rc As RECT
+            GetClientRect pbREHost.hWnd, rc
+            hRE = CreateWindowExW(0, StrPtr(szClass), 0, _
+                    ES_MULTILINE Or ES_SAVESEL Or WS_VISIBLE Or WS_CHILD Or WS_BORDER Or WS_TABSTOP, _
+                    0, 0, rc.Right, rc.Bottom, pbREHost.hWnd, 0, App.hInstance, ByVal 0&)
+                    
+            If hRE Then
+                Dim hFont As LongPtr = CreateGDIFontFromOLEFont(pbREHost.Font)
+                SendMessage hRE, WM_SETFONT, hFont, ByVal 1&
+                tDefChFmt.cbSize = LenB(Of CHARFORMAT2W)
+                SendMessage hRE, EM_GETCHARFORMAT, SCF_DEFAULT, tDefChFmt
+                SendMessage hRE, EM_SETEVENTMASK, 0, ByVal ENM_SELCHANGE
+                SendMessage hRE, EM_SETOPTIONS, ECOOP_OR, ByVal ECO_NOHIDESEL
+                Subclass2 pbREHost.hWnd, AddressOf PBWndProc, pbREHost.hWnd
+                Subclass2 hRE, AddressOf PBWndProc, hRE
+            Else
+                FreeLibrary hREDll
+                Debug.Print "CreateRichEd Error=" & Err.LastDllError
+            End If
+        Else
+            Debug.Print "Couldn't load RichEdit DLL"
+        End If
+    End Sub
+
+    
+    [ Description ("Returns an HFONT for an StdFont") ]
+    Public Function CreateGDIFontFromOLEFont(ByVal Font As IFont) As LongPtr
+    If Font Is Nothing Then Exit Function
+    Dim LF As LOGFONT
+    ' hFont will be cleared when the IFont reference goes out of scope or is set to nothing.
+    GetObjectW Font.hFont, LenB(LF), LF
+    CreateGDIFontFromOLEFont = CreateFontIndirect(LF)
+    End Function
+    
+    [ Description ("Retrieve a CHARFORMAT2W type from properties in an IPropertyStore interface.") ]
+    Private Function PropStoreToCHRFMT(pps As IPropertyStore, tCFMT As CHARFORMAT2W) As Boolean
+        On Error GoTo e0
+        Dim propvar As Variant
+        Dim uValue As Long
+        Dim pos As Long
+        ZeroMemory tCFMT, LenB(tCFMT)
+        With tCFMT
+            .cbSize = LenB(Of CHARFORMAT2W)
+            If SUCCEEDED(pps.GetValue(UI_PKEY_FontProperties_Bold, propvar)) Then
+                If VariantUI4ToI4(propvar, uValue) Then
+                    If uValue <> UI_FONTPROPERTIES_NOTAVAILABLE Then
+                        .dwMask = .dwMask Or CFM_BOLD
+                        If uValue = UI_FONTPROPERTIES_SET Then .dwEffects = .dwEffects Or CFE_BOLD
+                    End If
+                End If
+            End If
+            PropVariantClear propvar
+            pos += 1
+            If SUCCEEDED(pps.GetValue(UI_PKEY_FontProperties_Italic, propvar)) Then
+                If VariantUI4ToI4(propvar, uValue) Then
+                    If uValue <> UI_FONTPROPERTIES_NOTAVAILABLE Then
+                        .dwMask = .dwMask Or CFM_ITALIC
+                        If uValue = UI_FONTPROPERTIES_SET Then .dwEffects = .dwEffects Or CFE_ITALIC
+                    End If
+                End If
+            End If
+            PropVariantClear propvar
+            pos += 1
+            If SUCCEEDED(pps.GetValue(UI_PKEY_FontProperties_Underline, propvar)) Then
+                If VariantUI4ToI4(propvar, uValue) Then
+                    If uValue <> UI_FONTUNDERLINE_NOTAVAILABLE Then
+                        .dwMask = .dwMask Or CFM_UNDERLINE
+                        If uValue = UI_FONTUNDERLINE_SET Then .dwEffects = .dwEffects Or CFE_UNDERLINE
+                    End If
+                End If
+            End If
+            PropVariantClear propvar
+            pos += 1
+            If SUCCEEDED(pps.GetValue(UI_PKEY_FontProperties_Strikethrough, propvar)) Then
+                If VariantUI4ToI4(propvar, uValue) Then
+                    If uValue <> UI_FONTPROPERTIES_NOTAVAILABLE Then
+                        .dwMask = .dwMask Or CFM_STRIKEOUT
+                        If uValue = UI_FONTPROPERTIES_SET Then .dwEffects = .dwEffects Or CFE_STRIKEOUT
+                    End If
+                End If
+            End If
+            PropVariantClear propvar
+            pos += 1
+            If SUCCEEDED(pps.GetValue(UI_PKEY_FontProperties_VerticalPositioning, propvar)) Then
+                If VariantUI4ToI4(propvar, uValue) Then
+                    If uValue <> UI_FONTVERTICALPOSITION_NOTAVAILABLE Then
+                        .dwMask = .dwMask Or CFM_SUPERSCRIPT Or CFM_SUBSCRIPT
+                        If uValue <> UI_FONTPROPERTIES_NOTSET Then
+                                If uValue = UI_FONTVERTICALPOSITION_SUPERSCRIPT Then
+                                    .dwEffects = .dwEffects Or CFE_SUPERSCRIPT
+                                Else
+                                    .dwEffects = .dwEffects Or CFE_SUBSCRIPT
+                                End If
+                        End If
+                    End If
+                End If
+            End If
+            PropVariantClear propvar
+            pos += 1
+            If SUCCEEDED(pps.GetValue(UI_PKEY_FontProperties_Family, propvar)) Then
+                Dim pszFamily As String
+                If VariantLPWSTRtoSTR(propvar, pszFamily) Then
+                    Debug.Print "psToCf pszFamily=" & Chr$(34) & pszFamily & Chr$(34)
+                    If lstrcmp(pszFamily, "") Then
+                        CopyMemory(.szFaceName(0), ByVal StrPtr(pszFamily), LenB(pszFamily))
+                        .dwMask = .dwMask Or CFM_FACE
+                    End If
+                End If
+            End If
+            PropVariantClear propvar
+            pos += 1
+            If SUCCEEDED(pps.GetValue(UI_PKEY_FontProperties_Size, propvar)) Then
+                Dim decSize As Decimal
+                Dim dSize As Double
+                decSize = propvar
+                dSize = CDbl(decSize)
+                If dSize > 0 Then
+                    .yHeight = (dSize * TWIPS_PER_POINT)
+                    .dwMask = .dwMask Or CFM_SIZE
+                End If
+            End If
+            PropVariantClear propvar
+            pos += 1
+            If SUCCEEDED(pps.GetValue(UI_PKEY_FontProperties_ForegroundColorType, propvar)) Then
+                If VariantUI4ToI4(propvar, uValue) Then
+                    If uValue = UI_SWATCHCOLORTYPE_AUTOMATIC Then
+                        .dwMask = .dwMask Or CFM_COLOR
+                        .dwEffects = .dwEffects Or CFE_AUTOCOLOR
+                    End If
+                End If
+            End If
+            PropVariantClear propvar
+            pos += 1
+            If SUCCEEDED(pps.GetValue(UI_PKEY_FontProperties_ForegroundColor, propvar)) Then
+                If VariantUI4ToI4(propvar, uValue) Then
+                    .dwMask = .dwMask Or CFM_COLOR
+                    .crTextColor = uValue
+                End If
+            End If
+            PropVariantClear propvar
+            pos += 1
+            If SUCCEEDED(pps.GetValue(UI_PKEY_FontProperties_BackgroundColorType, propvar)) Then
+                If VariantUI4ToI4(propvar, uValue) Then
+                    If uValue = UI_SWATCHCOLORTYPE_AUTOMATIC Then
+                        .dwMask = .dwMask Or CFM_BACKCOLOR
+                        .dwEffects = .dwEffects Or CFE_AUTOBACKCOLOR
+                    End If
+                End If
+            End If
+            PropVariantClear propvar
+            pos += 1
+            If SUCCEEDED(pps.GetValue(UI_PKEY_FontProperties_BackgroundColor, propvar)) Then
+                If VariantUI4ToI4(propvar, uValue) Then
+                    .dwMask = .dwMask Or CFM_BACKCOLOR
+                    .crBackColor = uValue
+                End If
+            End If
+            pos += 1
+        End With
+        Return True
+    e0:
+        LogMsg "Error in PropStoreToCHRFMT::pos=" & pos & ",number=" & Err.Number & ",desc=" & Err.Description
+        Return False
+    End Function
+    
+    [ Description ("Configure an IPropertyStore interface from properties in a CHARFORMAT2W type.") ]
+    Private Function CHRFMTToPropStore(pps As IPropertyStore, tCFMT As CHARFORMAT2W) As Boolean
+        Dim propvar As Variant
+        Dim psz As String
+        Dim pv As Variant
+        Dim pos As Long
+        On Error GoTo e0
+        With tCFMT
+            If (.dwMask And CFM_BOLD) Then
+                If (.dwEffects And CFE_BOLD) Then
+                    InitPropVariantFromUInt32 UI_FONTPROPERTIES_SET, propvar
+                Else
+                    InitPropVariantFromUInt32 UI_FONTPROPERTIES_NOTSET, propvar
+                End If
+            Else
+                InitPropVariantFromUInt32 UI_FONTPROPERTIES_NOTAVAILABLE, propvar
+            End If
+            'VariantSetType propvar, VT_UI4, VT_I4
+            pps.SetValue UI_PKEY_FontProperties_Bold, propvar
+            VariantClear propvar
+            pos += 1
+            
+            If (.dwMask And CFM_ITALIC) Then
+                If (.dwEffects And CFE_ITALIC) Then
+                    propvar = CLng(UI_FONTPROPERTIES_SET)
+                Else
+                    propvar = CLng(UI_FONTPROPERTIES_NOTSET)
+                End If
+            Else
+                propvar = CLng(UI_FONTPROPERTIES_NOTAVAILABLE)
+            End If
+            VariantSetType propvar, VT_UI4, VT_I4
+            pps.SetValue UI_PKEY_FontProperties_Italic, propvar
+            VariantClear propvar
+            pos += 1
+            
+            If (.dwMask And CFM_UNDERLINE) Then
+                If (.dwEffects And CFE_UNDERLINE) Then
+                    propvar = CLng(UI_FONTUNDERLINE_SET)
+                Else
+                    propvar = CLng(UI_FONTUNDERLINE_NOTSET)
+                End If
+            Else
+                propvar = CLng(UI_FONTUNDERLINE_NOTAVAILABLE)
+            End If
+            VariantSetType propvar, VT_UI4, VT_I4
+            pps.SetValue UI_PKEY_FontProperties_Underline, propvar
+            VariantClear propvar
+            pos += 1
+            
+            If (.dwMask And CFM_STRIKEOUT) Then
+                If (.dwEffects And CFE_STRIKEOUT) Then
+                    propvar = CLng(UI_FONTPROPERTIES_SET)
+                Else
+                    propvar = CLng(UI_FONTPROPERTIES_NOTSET)
+                End If
+            Else
+                propvar = CLng(UI_FONTPROPERTIES_NOTAVAILABLE)
+            End If
+            VariantSetType propvar, VT_UI4, VT_I4
+            pps.SetValue UI_PKEY_FontProperties_Strikethrough, propvar
+            VariantClear propvar
+            pos += 1
+            
+            propvar = CLng(UI_FONTVERTICALPOSITION_NOTAVAILABLE)
+            If (.dwMask And CFM_SUBSCRIPT) Then
+                If (.dwEffects And CFE_SUBSCRIPT) Then
+                    propvar = CLng(UI_FONTVERTICALPOSITION_SUBSCRIPT)
+                End If
+            ElseIf (.dwMask And CFM_SUPERSCRIPT) Then
+                If (.dwEffects And CFE_SUPERSCRIPT) Then
+                    propvar = CLng(UI_FONTVERTICALPOSITION_SUPERSCRIPT)
+                End If
+            ElseIf (.dwMask And CFM_OFFSET) Then
+                If .yOffset > 0 Then
+                    propvar = CLng(UI_FONTVERTICALPOSITION_SUPERSCRIPT)
+                ElseIf .yOffset < 0 Then
+                    propvar = CLng(UI_FONTVERTICALPOSITION_SUBSCRIPT)
+                Else
+                    propvar = CLng(UI_FONTVERTICALPOSITION_NOTAVAILABLE)
+                End If
+            End If
+            VariantSetType propvar, VT_UI4, VT_I4
+            pps.SetValue UI_PKEY_FontProperties_VerticalPositioning, propvar
+            VariantClear propvar
+            pos += 1
+            
+            If (.dwMask And CFM_FACE) Then
+                Dim i As Long
+                psz = ""
+                For i = 0 To 31
+                    If .szFaceName(i) Then
+                        psz = psz & ChrW2(.szFaceName(i))
+                    End If
+                Next
+                Debug.Print "CfTops pszFamily=" & Chr$(34) & psz & Chr$(34)
+            Else
+                psz = ""
+            End If
+            Dim lpAlloc As LongPtr = CoTaskMemAlloc((lstrlenW(.szFaceName(0)) + 1) * 2)
+            ZeroMemory ByVal lpAlloc, (lstrlenW(.szFaceName(0)) + 1) * 2
+            CopyMemory ByVal lpAlloc, .szFaceName(0), lstrlenW(.szFaceName(0)) * 2
+            VariantSetType propvar, VT_LPWSTR
+            CopyMemory ByVal PointerAdd(VarPtr(propvar), 8), lpAlloc, LenB(Of LongPtr)
+            Debug.Print "psz=" & psz
+            pps.SetValue UI_PKEY_FontProperties_Family, propvar
+            VariantClear propvar
+            
+            'Surprisingly, this does not work:
+            ' If (.dwMask And CFM_FACE) Then
+            '     Dim i As Long
+            '     For i = 0 To 31
+            '         If .szFaceName(i) Then
+            '             psz = psz & ChrW2(.szFaceName(i))
+            '         End If
+            '     Next
+            ' Else
+            '     psz = ""
+            ' End If
+            ' PropVariantChangeType propvar, pv, 0, VT_LPWSTR
+            ' pps.SetValue UI_PKEY_FontProperties_Family, propvar
+            ' VariantClear propvar
+
+            pos += 1
+            Dim decSize As Decimal
+            If (.dwMask And CFM_SIZE) Then
+                propvar = CVar(CDec(CDbl(.yHeight) / TWIPS_PER_POINT))
+            Else
+                propvar = decSize
+            End If
+            pps.SetValue UI_PKEY_FontProperties_Size, propvar
+            VariantClear propvar
+            pos += 1
+            
+            If (.dwMask And CFM_COLOR) And ((.dwEffects And CFE_AUTOCOLOR) = 0) Then
+                propvar = CLng(UI_SWATCHCOLORTYPE_RGB)
+                VariantSetType propvar, VT_UI4, VT_I4
+                pps.SetValue UI_PKEY_FontProperties_ForegroundColorType, propvar
+                VariantClear propvar
+                
+                propvar = .crTextColor
+                VariantSetType propvar, VT_UI4, VT_I4
+                pps.SetValue UI_PKEY_FontProperties_ForegroundColor, propvar
+                
+            ElseIf (.dwMask And CFM_COLOR) And (.dwEffects And CFE_AUTOCOLOR) Then
+                propvar = CLng(UI_SWATCHCOLORTYPE_AUTOMATIC)
+                VariantSetType propvar, VT_UI4, VT_I4
+                pps.SetValue UI_PKEY_FontProperties_ForegroundColorType, propvar
+            End If
+            VariantClear propvar
+            pos += 1
+            
+            If (.dwMask And CFM_BACKCOLOR) And ((.dwEffects And CFE_AUTOBACKCOLOR) = 0) Then
+                propvar = CLng(UI_SWATCHCOLORTYPE_RGB)
+                VariantSetType propvar, VT_UI4, VT_I4
+                pps.SetValue UI_PKEY_FontProperties_BackgroundColorType, propvar
+                VariantClear propvar
+                
+                propvar = .crBackColor
+                VariantSetType propvar, VT_UI4, VT_I4
+                pps.SetValue UI_PKEY_FontProperties_BackgroundColor, propvar
+                
+            Else
+                propvar = CLng(UI_SWATCHCOLORTYPE_NOCOLOR)
+                VariantSetType propvar, VT_UI4, VT_I4
+                pps.SetValue UI_PKEY_FontProperties_BackgroundColorType, propvar
+            End If
+            VariantClear propvar
+        End With
+        Return True
+    e0:
+    LogMsg "Error in CHRFMTToPropStore::pos=" & pos & ",number=" & Err.Number & ",desc=" & Err.Description
+    Return False
+    End Function
+    
+    Private Sub SetFontValues(pProps As IPropertyStore)
+        LogMsg "Setting font values..."
+        Dim tFmt As CHARFORMAT2W
+        If PropStoreToCHRFMT(pProps, tFmt) Then
+            SendMessage hRE, EM_SETCHARFORMAT, SCF_SELECTION, tFmt
+        Else
+            LogMsg "Error: Failed to convert between property store and chrfmt."
+        End If
+    End Sub
+    
+    Private Sub GetFontValues(pps As IPropertyStore)
+        If hRE Then
+            Dim tFmt As CHARFORMAT2W
+            tFmt.cbSize = LenB(Of CHARFORMAT2W)
+            SendMessage hRE, EM_GETCHARFORMAT, SCF_SELECTION, tFmt
+            If CHRFMTToPropStore(pps, tFmt) = False Then
+                LogMsg("Error: Failed to convert between chrfmt and property store.")
+            ' Else
+            '     LogMsg "Successfully converted CHRFMT to PropStore for GetFontValues"
+            End If
+        Else
+            LogMsg "Warning: Received GetFontValues request before RichEd creation."
+        End If
+    End Sub
+    
+    [ Description ("Synchronizes the ribbon alignment selection when the selection in the RichEdit box changes.") ]
+    Private Sub SyncAlignment()
+        Dim tPF As PARAFORMAT2
+        tPF.cbSize = LenB(Of PARAFORMAT2)
+        tPF.dwMask = PFM_ALIGNMENT
+        Dim hr As LongPtr = SendMessage(hRE, EM_GETPARAFORMAT, 0, tPF)
+        Debug.Print "SyncAlignment hr=" & hr & ",err=" & Err.LastDllError & ",align=" & tPF.wAlignment
+        Select Case tPF.wAlignment
+            Case PFA_LEFT: mCurAlign = AlignLeft
+            Case PFA_CENTER: mCurAlign = AlignCenter
+            Case PFA_RIGHT: mCurAlign = AlignRight
+            Case PFA_JUSTIFY: mCurAlign = AlignJustify
+        End Select
+        
+        pFramework.InvalidateUICommand IDC_ALIGNLEFT, UI_INVALIDATIONS_VALUE, vbNullPtr
+        pFramework.InvalidateUICommand IDC_ALIGNCENTER, UI_INVALIDATIONS_VALUE, vbNullPtr
+        pFramework.InvalidateUICommand IDC_ALIGNRIGHT, UI_INVALIDATIONS_VALUE, vbNullPtr
+        pFramework.InvalidateUICommand IDC_JUSTIFY, UI_INVALIDATIONS_VALUE, vbNullPtr
+    End Sub
+    
+    [ Description ("Sets the paragraph alignment of the RichEdit control's current selection.") ]
+    Private Sub SetAlignment()
+        Dim tPF As PARAFORMAT2
+        tPF.cbSize = LenB(Of PARAFORMAT2)
+        tPF.dwMask = PFM_ALIGNMENT
+        Select Case mCurAlign
+            Case AlignLeft: tPF.wAlignment = PFA_LEFT
+            Case AlignCenter: tPF.wAlignment = PFA_CENTER
+            Case AlignRight: tPF.wAlignment = PFA_RIGHT
+            Case AlignJustify: tPF.wAlignment = PFA_JUSTIFY
+        End Select
+        SendMessage(hRE, EM_SETPARAFORMAT, 0, tPF)
+    End Sub
+    
+    [ Description ("Updates the line spacing indicated by the ribbon in reponse to a selchange on the RichEdit control.") ]
+    Private Sub SyncLineSpacing()
+    	Dim pf As PARAFORMAT2
+        pf.cbSize = LenB(Of PARAFORMAT2)
+        pf.dwMask = PFM_LINESPACING
+        pf.bLineSpacingRule = tomLineSpaceMultiple
+        SendMessage(hRE, EM_GETPARAFORMAT, 0, pf)
+        If pf.dyLineSpacing = 20 Then mCurSpacing = LS_1
+        If Round(CSng(pf.dyLineSpacing) / 20, 2) = 1.15 Then mCurSpacing = LS_115
+        If Round(CSng(pf.dyLineSpacing) / 20, 1) = 1.5 Then mCurSpacing = LS_15
+        If pf.dyLineSpacing = 40 Then mCurSpacing = LS_2
+        
+        pFramework.InvalidateUICommand IDC_LINESPACE1, UI_INVALIDATIONS_VALUE, vbNullPtr
+        pFramework.InvalidateUICommand IDC_LINESPACE115, UI_INVALIDATIONS_VALUE, vbNullPtr
+        pFramework.InvalidateUICommand IDC_LINESPACE15, UI_INVALIDATIONS_VALUE, vbNullPtr
+        pFramework.InvalidateUICommand IDC_LINESPACE2, UI_INVALIDATIONS_VALUE, vbNullPtr
+    End Sub
+    
+    [ Description ("Increments or decrements the current paragraph indent on the RichEdit control. Note: RichEdit indenting works quite different from here :)") ]
+    Private Sub AdjustIndent(bOutdent As Boolean)
+        If bOutdent Then
+    	    mCurIndent -= mDefTab
+            If mCurIndent < 0 Then mCurIndent = 0
+        Else
+            mCurIndent += mDefTab
+        End If
+        Dim tPF As PARAFORMAT2
+        tPF.cbSize = LenB(Of PARAFORMAT2)
+        tPF.dwMask = PFM_STARTINDENT 'Or PFM_OFFSET
+        tPF.dxStartIndent = mCurIndent
+        SendMessage(hRE, EM_SETPARAFORMAT, 0, tPF)
+    End Sub
+        
+    [ Description ("Sets the line spacing of the RichEdit control.") ]
+    Private Sub SetLineSpacing()
+        'Use the tom COM interfaces here since it lets us specify a Single for spacing multiple
+    	Dim pRichOle As IRichEditOle
+        Dim pRange As ITextRange
+        Dim pRichDoc As ITextDocument
+        Dim pPara As ITextPara
+        Dim pSel As ITextSelection
+        
+        SendMessage hRE, EM_GETOLEINTERFACE, 0, pRichOle
+        If pRichOle IsNot Nothing Then
+            Set pRichDoc = pRichOle
+            Set pSel = pRichDoc.Selection
+            If pSel IsNot Nothing Then
+                Set pRange = pSel
+                Set pPara = pRange.Para
+                If pPara IsNot Nothing Then
+                    Dim fSpace As Single
+                    Select Case mCurSpacing
+                        Case LS_1: fSpace = 1
+                        Case LS_115: fSpace = 1.15
+                        Case LS_15: fSpace = 1.5
+                        Case LS_2: fSpace = 2
+                    End Select
+                    pPara.SetLineSpacing tomLineSpaceMultiple, fSpace
+                Else
+                    LogMsg "Error: Failed to get ITextPara from ITextRange. " & Err.LastHResult
+                End If
+            Else
+                LogMsg "Error: Failed to get ITextSelection from ITextDocument" & Err.LastHResult
+            End If
+        Else
+            LogMsg "Error: Failed to get IRichEditOle from RichEdit control. " & Err.LastDllError
+        End If
+    End Sub
+    
+    Private Sub OnRibbonCmdExecute(ByVal commandId As Long, ByVal verb As UI_EXECUTIONVERB, ByVal key As LongPtr, currentValue As Variant, ByVal bCurValWasNull As Boolean, ByVal commandExecutionProperties As IUISimplePropertySet, returnValue As Long) Handles pUIApp.OnRibbonCmdExecute
+        'On Error GoTo e0
+        Dim pos As Long
+        
+        If verb = UI_EXECUTIONVERB_EXECUTE Then
+            LogMsg "You clicked: CommandId=" & commandId & " (" & GetCommandIdStr(commandId) & "), Verb=" & verb & ", ValueType=" & VTtoStr(CInt(VarType(currentValue)))
+        End If
+        
+        #If dbg_enablefont Then
+        On Error GoTo e1
+        Dim pk As PROPERTYKEY
+        
+        If key Then
+            CopyMemory pk, ByVal key, LenB(Of PROPERTYKEY)
+        End If
+        pos += 1
+        If IsEqualPKEY(pk, UI_PKEY_FontProperties) Then
+            'Handle clicks from the Font control
+            Dim hr As Long
+            Dim vChanges As Variant
+            Dim pChanges As IPropertyStore
+            If verb = UI_EXECUTIONVERB_EXECUTE Then
+                LogMsg "Executing font change..."
+                hr = E_POINTER
+                pos += 1
+                If commandExecutionProperties IsNot Nothing Then
+                    commandExecutionProperties.GetValue(UI_PKEY_FontProperties_ChangedProperties, vChanges)
+                    hr = Err.LastHResult
+                    pos += 1
+                    If SUCCEEDED(hr) Then
+                        Set pChanges = vChanges
+                        pos += 1
+                        SetFontValues pChanges
+                        pos += 1
+                    End If
+                End If
+            ElseIf verb = UI_EXECUTIONVERB_PREVIEW Then
+                hr = E_POINTER
+                pos += 10
+                If commandExecutionProperties IsNot Nothing Then
+                    commandExecutionProperties.GetValue(UI_PKEY_FontProperties_ChangedProperties, vChanges)
+                    hr = Err.LastHResult
+                    pos += 1
+                    If SUCCEEDED(hr) Then
+                        Set pChanges = vChanges
+                        pos += 1
+                        SetFontValues pChanges
+                        pos += 1
+                    End If
+                End If
+                
+            ElseIf verb = UI_EXECUTIONVERB_CANCELPREVIEW Then
+                hr = E_POINTER
+                pos += 20
+                If bCurValWasNull = False Then
+                    hr = S_OK
+                    Set pChanges = currentValue
+                    pos += 1
+                    SetFontValues pChanges
+                    pos += 1
+                End If
+            End If
+            returnValue = hr
+            Exit Sub
+        End If
+        #End If
+        
+       'On Error GoTo e0
+        Dim vNew As Variant
+        Dim vbEnabled As Variant
+
+        Select Case commandId
+            Case IDC_SELECT
+                Dim lActive As Long = UI_CONTEXTAVAILABILITY_ACTIVE
+                InitPropVariantFromUInt32 lActive, vNew 'We need a VT_UI4; plain long is VT_I4
+                pFramework.SetUICommandProperty(IDC_TABTABLE, UI_PKEY_ContextAvailable, vNew)
+            Case IDC_UNSELECT
+                Dim lInactive As Long = UI_CONTEXTAVAILABILITY_NOTAVAILABLE
+                InitPropVariantFromUInt32 lActive, vNew 'We need a VT_UI4; plain long is VT_I4
+                pFramework.SetUICommandProperty(IDC_TABTABLE, UI_PKEY_ContextAvailable, vNew)
+            Case IDC_TOGGLE1
+                Dim lToggle As Long
+                pFramework.GetUICommandProperty(IDC_TOGGLE1, UI_PKEY_BooleanValue, vbEnabled)
+                If CBool(vbEnabled) = True Then 'It's a VT_BOOL: VARIANT_BOOL, the same type VB uses. Convenient!
+                lToggle = UI_CONTEXTAVAILABILITY_NOTAVAILABLE
+                Else
+                lToggle = UI_CONTEXTAVAILABILITY_ACTIVE
+                End If
+                InitPropVariantFromUInt32 lActive, vNew 'We need a VT_UI4; plain long is VT_I4
+                pFramework.SetUICommandProperty(IDC_TABTABLE, UI_PKEY_ContextAvailable, vNew)
+            
+            
+            Case IDC_CMD_CONTEXT1
+                pFramework.GetUICommandProperty(commandId, UI_PKEY_BooleanValue, vbEnabled)
+                If CBool(vbEnabled) = True Then
+                mCtx = CtxFromCmdId(commandId)
+                pFramework.SetUICommandProperty(IDC_CMD_CONTEXT2, UI_PKEY_BooleanValue, CVar(False))
+                pFramework.SetUICommandProperty(IDC_CMD_CONTEXT3, UI_PKEY_BooleanValue, CVar(False))
+                pFramework.SetUICommandProperty(IDC_CMD_CONTEXT4, UI_PKEY_BooleanValue, CVar(False))
+                Else
+                mCtx = 0
+                End If
+            Case IDC_CMD_CONTEXT2
+                pFramework.GetUICommandProperty(commandId, UI_PKEY_BooleanValue, vbEnabled)
+                If CBool(vbEnabled) = True Then
+                mCtx = CtxFromCmdId(commandId)
+                pFramework.SetUICommandProperty(IDC_CMD_CONTEXT1, UI_PKEY_BooleanValue, CVar(False))
+                pFramework.SetUICommandProperty(IDC_CMD_CONTEXT3, UI_PKEY_BooleanValue, CVar(False))
+                pFramework.SetUICommandProperty(IDC_CMD_CONTEXT4, UI_PKEY_BooleanValue, CVar(False))
+                Else
+                mCtx = 0
+                End If
+            Case IDC_CMD_CONTEXT3
+                pFramework.GetUICommandProperty(commandId, UI_PKEY_BooleanValue, vbEnabled)
+                If CBool(vbEnabled) = True Then
+                mCtx = CtxFromCmdId(commandId)
+                pFramework.SetUICommandProperty(IDC_CMD_CONTEXT1, UI_PKEY_BooleanValue, CVar(False))
+                pFramework.SetUICommandProperty(IDC_CMD_CONTEXT2, UI_PKEY_BooleanValue, CVar(False))
+                pFramework.SetUICommandProperty(IDC_CMD_CONTEXT4, UI_PKEY_BooleanValue, CVar(False))
+                Else
+                mCtx = 0
+                End If
+            Case IDC_CMD_CONTEXT4
+                pFramework.GetUICommandProperty(commandId, UI_PKEY_BooleanValue, vbEnabled)
+                If CBool(vbEnabled) = True Then
+                mCtx = CtxFromCmdId(commandId)
+                pFramework.SetUICommandProperty(IDC_CMD_CONTEXT1, UI_PKEY_BooleanValue, CVar(False))
+                pFramework.SetUICommandProperty(IDC_CMD_CONTEXT2, UI_PKEY_BooleanValue, CVar(False))
+                pFramework.SetUICommandProperty(IDC_CMD_CONTEXT3, UI_PKEY_BooleanValue, CVar(False))
+                Else
+                mCtx = 0
+                End If
+                
+            Case IDC_COLORTHEME, IDC_COLORSTD, IDC_CLRHILITE
+                Dim type As Long
+                'If (verb = UI_EXECUTIONVERB_EXECUTE) Or (verb = UI_EXECUTIONVERB_PREVIEW) Then
+                    If VariantUI4ToI4(currentValue, type) Then
+                        Dim clr As Long
+                        If type = UI_SWATCHCOLORTYPE_NOCOLOR Then
+                            If commandId = IDC_COLORTHEME Then
+                                lblNone.Visible = True
+                                pbClrTheme.Visible = False
+                            ElseIf commandId = IDC_COLORSTD Then
+                                lblNone2.Visible = True
+                                pbClrStd.Visible = False
+                            Else
+                                lblNone3.Visible = True
+                                pbClrHighlight.Visible = False
+                            End If
+                        ElseIf type = UI_SWATCHCOLORTYPE_AUTOMATIC Then
+                            clr = GetSysColor(COLOR_WINDOWTEXT)
+                            If commandId = IDC_COLORTHEME Then
+                                lblNone.Visible = False
+                                pbClrTheme.BackColor = clr
+                                pbClrTheme.Visible = True
+                                pbClrTheme.Refresh
+                            ElseIf commandId = IDC_COLORSTD Then
+                                lblNone2.Visible = False
+                                pbClrStd.BackColor = clr
+                                pbClrStd.Visible = True
+                                pbClrStd.Refresh
+                            Else
+                                lblNone3.Visible = False
+                                pbClrHighlight.BackColor = clr
+                                pbClrHighlight.Visible = True
+                                pbClrHighlight.Refresh
+                            End If
+                        ElseIf type = UI_SWATCHCOLORTYPE_RGB Then
+                            Dim vClr As Variant
+                            If commandExecutionProperties IsNot Nothing Then
+                                commandExecutionProperties.GetValue UI_PKEY_Color, vClr
+                                If VariantUI4ToI4(vClr, clr) Then
+                                    If commandId = IDC_COLORTHEME Then
+                                        lblNone.Visible = False
+                                        pbClrTheme.BackColor = clr
+                                        pbClrTheme.Visible = True
+                                        pbClrTheme.Refresh
+                                    ElseIf commandId = IDC_COLORSTD Then
+                                        lblNone2.Visible = False
+                                        pbClrStd.BackColor = clr
+                                        pbClrStd.Visible = True
+                                        pbClrStd.Refresh
+                                    Else
+                                        lblNone3.Visible = False
+                                        pbClrHighlight.BackColor = clr
+                                        pbClrHighlight.Visible = True
+                                        pbClrHighlight.Refresh
+                                    End If
+                                Else
+                                    LogMsg "Error: vClr->clr failed"
+                                End If
+                            End If
+                        End If
+                    End If
+
+            
+            Case IDC_ALIGNLEFT, IDC_ALIGNCENTER, IDC_ALIGNRIGHT, IDC_JUSTIFY
+                If commandId = IDC_ALIGNLEFT Then mCurAlign = AlignLeft
+                If commandId = IDC_ALIGNCENTER Then mCurAlign = AlignCenter
+                If commandId = IDC_ALIGNRIGHT Then mCurAlign = AlignRight
+                If commandId = IDC_JUSTIFY Then mCurAlign = AlignJustify
+                SetAlignment
+                pFramework.InvalidateUICommand IDC_ALIGNLEFT, UI_INVALIDATIONS_VALUE, vbNullPtr
+                pFramework.InvalidateUICommand IDC_ALIGNCENTER, UI_INVALIDATIONS_VALUE, vbNullPtr
+                pFramework.InvalidateUICommand IDC_ALIGNRIGHT, UI_INVALIDATIONS_VALUE, vbNullPtr
+                pFramework.InvalidateUICommand IDC_JUSTIFY, UI_INVALIDATIONS_VALUE, vbNullPtr
+        
+            Case IDC_LINESPACE1, IDC_LINESPACE115, IDC_LINESPACE15, IDC_LINESPACE2
+                If commandId = IDC_LINESPACE1 Then mCurSpacing = LS_1
+                If commandId = IDC_LINESPACE115 Then mCurSpacing = LS_115
+                If commandId = IDC_LINESPACE15 Then mCurSpacing = LS_15
+                If commandId = IDC_LINESPACE2 Then mCurSpacing = LS_2
+                SetLineSpacing
+                pFramework.InvalidateUICommand IDC_LINESPACE1, UI_INVALIDATIONS_VALUE, vbNullPtr
+                pFramework.InvalidateUICommand IDC_LINESPACE115, UI_INVALIDATIONS_VALUE, vbNullPtr
+                pFramework.InvalidateUICommand IDC_LINESPACE15, UI_INVALIDATIONS_VALUE, vbNullPtr
+                pFramework.InvalidateUICommand IDC_LINESPACE2, UI_INVALIDATIONS_VALUE, vbNullPtr
+            
+            Case IDC_INDENT
+                AdjustIndent False
+            Case IDC_OUTDENT
+                AdjustIndent True
+                
+            Case IDC_CUT
+                If verb = UI_EXECUTIONVERB_EXECUTE Then SendMessage hRE, WM_CUT, 0, ByVal 0
+                
+            Case IDC_COPY
+                If verb = UI_EXECUTIONVERB_EXECUTE Then SendMessage hRE, WM_COPY, 0, ByVal 0
+                
+            Case IDC_PASTE
+                If verb = UI_EXECUTIONVERB_EXECUTE Then SendMessage hRE, WM_PASTE, 0, ByVal 0
+                
+            Case IDC_RIBBONHELP
+                ShowHelp
+                
+            Case IDC_EXIT
+                Unload Me
+            Case Else
+                LogMsg "No action currently defined for commandId=" & commandId & "(" & GetCommandIdStr(commandId) & ")"
+                'returnValue = E_NOTIMPL
+        End Select
+        
+        
+    Exit Sub
+    e0:
+        LogMsg "Error in OnRibbonCmdExecute: " & Err.Number & ", " & Err.Description
+        Exit Sub
+    e1:
+    LogMsg "Error in OnRibbonCmdExecute font block (pos=" & pos & "): " & Err.Number & ", " & Err.Description
+    Exit Sub
+    End Sub
+    
+    Private Sub OnRibbonUpdateProperty(ByVal commandId As Long, ByVal key As LongPtr, currentValue As Variant, ByVal bCurValWasNull As Boolean, newValue As Variant, bSetNewValue As Boolean, returnValue As Long) Handles pUIApp.OnRibbonUpdateProperty
+    On Error GoTo e0
+    Dim pos As Long
+    Dim pk As PROPERTYKEY
+    If (commandId = IDC_ALIGNLEFT) Or (commandId = IDC_ALIGNCENTER) Or (commandId = IDC_ALIGNRIGHT) Or (commandId = IDC_JUSTIFY) Then
+        If key Then
+            CopyMemory pk, ByVal key, LenB(Of PROPERTYKEY)
+        End If
+        If IsEqualPKEY(pk, UI_PKEY_BooleanValue) Then
+            If commandId = IDC_ALIGNLEFT Then
+                newValue = IIf(mCurAlign = AlignLeft, CVar(True), CVar(False))
+            End If
+            If commandId = IDC_ALIGNCENTER Then
+                newValue = IIf(mCurAlign = AlignCenter, CVar(True), CVar(False))
+            End If
+            If commandId = IDC_ALIGNRIGHT Then
+                newValue = IIf(mCurAlign = AlignRight, CVar(True), CVar(False))
+            End If
+            If commandId = IDC_JUSTIFY Then
+                newValue = IIf(mCurAlign = AlignJustify, CVar(True), CVar(False))
+            End If
+            bSetNewValue = True
+            Exit Sub
+        End If
+    End If
+
+    If (commandId = IDC_LINESPACE1) Or (commandId = IDC_LINESPACE115) Or (commandId = IDC_LINESPACE115) Or (commandId = IDC_LINESPACE2) Then
+        If key Then
+            CopyMemory pk, ByVal key, LenB(Of PROPERTYKEY)
+        End If
+        If IsEqualPKEY(pk, UI_PKEY_BooleanValue) Then
+            If commandId = IDC_LINESPACE1 Then
+                newValue = IIf(mCurSpacing = LS_1, CVar(True), CVar(False))
+            End If
+            If commandId = IDC_LINESPACE115 Then
+                newValue = IIf(mCurSpacing = LS_115, CVar(True), CVar(False))
+            End If
+            If commandId = IDC_LINESPACE15 Then
+                newValue = IIf(mCurSpacing = LS_15, CVar(True), CVar(False))
+            End If
+            If commandId = IDC_LINESPACE2 Then
+                newValue = IIf(mCurSpacing = LS_2, CVar(True), CVar(False))
+            End If
+            bSetNewValue = True
+            Exit Sub
+        End If
+    End If
+#If dbg_enablefont Then
+    If key Then
+        CopyMemory pk, ByVal key, LenB(Of PROPERTYKEY)
+        pos += 1
+        If IsEqualPKEY(pk, UI_PKEY_FontProperties) Then
+            pos += 1
+            If bCurValWasNull = False Then
+                Dim pValues As IPropertyStore
+                Set pValues = currentValue
+                pos += 1
+                GetFontValues pValues
+                pos += 1
+                newValue = pValues
+                pos += 1
+                bSetNewValue = True
+            Else
+                pos += 10
+                returnValue = E_POINTER
+            End If
+        End If
+    End If
+#End If
+    Exit Sub
+    e0:
+        LogMsg "Error in OnRibbonUpdateProperty (pos=" & pos & "): " & Err.Number & ", " & Err.Description
+    End Sub
+    
+    Private Function CtxFromCmdId(cmdId As Long) As Long
+        Select Case cmdId
+            Case IDC_CMD_CONTEXT1: Return IDC_CMD_CONTEXTMAP1
+            Case IDC_CMD_CONTEXT2: Return IDC_CMD_CONTEXTMAP2
+            Case IDC_CMD_CONTEXT3: Return IDC_CMD_CONTEXTMAP3
+            Case IDC_CMD_CONTEXT4: Return IDC_CMD_CONTEXTMAP4
+        End Select
+    End Function
+    
+#Region "Helpers"
+    [ Description ("Converts a Variant/PROPVARIANT of unsupported unsigned long to a VB Long (VT_I4) as-is. Returns False if Variant has a null pointer or is not VT_UI4.") ]
+    Private Function VariantUI4ToI4(pvar As Variant, pOut As Long) As Boolean
+        'Handle unsigned long
+        Dim vt As Integer
+        If VarPtr(pvar) <> 0 Then
+            CopyMemory vt, ByVal VarPtr(pvar), 2
+            If (vt = VT_UI4) Then
+                CopyMemory pOut, ByVal PointerAdd(VarPtr(pvar), 8), 4
+                Return True
+            End If
+        End If
+    End Function
+    
+    [ Description ("Sets a Variant to the specified type without any alteration to the data. WARNING: Many data formats are incompatible, use VariantChangeType unless you have a specific need for this.") ]
+    Private Sub VariantSetType(pvar As Variant, [ TypeHint (VARENUM) ] ByVal vt As Integer, [ TypeHint (VARENUM) ] Optional ByVal vtOnlyIf As Integer = -1)
+        If VarPtr(pvar) = 0 Then Exit Sub
+        If vtOnlyIf <> -1 Then
+            If VarType(pvar) <> vtOnlyIf Then
+                LogMsg "Illegal VariantSetType request; Type=" & VTtoStr(VarType(pvar)) & ", Requested=" & VTtoStr(vt)
+                Exit Sub
+            End If
+        End If
+        CopyMemory pvar, vt, 2
+    End Sub
+    
+    
+    [ Description ("Retrieves a tB-style String from an VT_LPWSTR Variant. Returns False if not VT_LPWSTR or PropVariantToStringAlloc returns a nullptr.") ]
+    Private Function VariantLPWSTRtoSTR(pVar As Variant, pOut As String) As Boolean
+        Dim vt As Integer
+        If VarPtr(pVar) <> 0 Then
+            CopyMemory vt, ByVal VarPtr(pVar), 2
+            If (vt = VT_LPWSTR) Then
+                Dim lp As LongPtr
+                PropVariantToStringAlloc pVar, lp
+                If lp Then
+                    pOut = LPWSTRtoStr(lp, True)
+                    Return True
+                End If
+            End If
+        End If
+    End Function
+    
+    [ Description ("Performs an unsigned add on a LongPtr (Long or LongLong)") ]
+    Private Function PointerAdd(ByVal Start As LongPtr, ByVal Incr As LongPtr) As LongPtr
+        #If Win64 Then
+        Return ((Start Xor &H8000000000000000) + Incr) Xor &H8000000000000000
+        #Else
+        Return ((Start Xor &H80000000) + Incr) Xor &H80000000
+        #End If
+    End Function
+    
+    Public Function GET_X_LPARAM(ByVal lParam As LongPtr) As Long
+    GET_X_LPARAM = CLng(lParam) And &H7FFF&
+    If CLng(lParam) And &H8000& Then GET_X_LPARAM = GET_X_LPARAM Or &HFFFF8000
+    End Function
+    Public Function GET_Y_LPARAM(ByVal lParam As LongPtr) As Long
+    GET_Y_LPARAM = (CLng(lParam) And &H7FFF0000) \ &H10000
+    If CLng(lParam) And &H80000000 Then GET_Y_LPARAM = GET_Y_LPARAM Or &HFFFF8000
+    End Function
+             
+    Private Function VTtoStr([ TypeHint (VARENUM) ] ByVal lVal As Integer) As String
+    Dim sRet As String
+    If (lVal And VT_VECTOR) = VT_VECTOR Then
+        sRet = sRet & "VT_VECTOR Or "
+        lVal = lVal And Not VT_VECTOR
+    End If
+    If (lVal And VT_ARRAY) = VT_ARRAY Then
+         sRet = sRet & "VT_ARRAY Or "
+         lVal = lVal And Not VT_ARRAY
+    End If
+         
+    If (lVal And VT_BYREF) = VT_BYREF Then
+        sRet = sRet & "VT_BYREF Or "
+        lVal = lVal And Not VT_BYREF
+    End If
+
+     If (lVal = VT_EMPTY) Then sRet = sRet & "VT_EMPTY"
+     If (lVal = VT_NULL) Then sRet = sRet & "VT_NULL"
+     If (lVal = VT_I2) Then sRet = sRet & "VT_I2"
+     If (lVal = VT_I4) Then sRet = sRet & "VT_I4"
+     If (lVal = VT_R4) Then sRet = sRet & "VT_R4"
+     If (lVal = VT_R8) Then sRet = sRet & "VT_R8"
+     If (lVal = VT_CY) Then sRet = sRet & "VT_CY"
+     If (lVal = VT_DATE) Then sRet = sRet & "VT_DATE"
+     If (lVal = VT_BSTR) Then sRet = sRet & "VT_BSTR"
+     If (lVal = VT_DISPATCH) Then sRet = sRet & "VT_DISPATCH"
+     If (lVal = VT_ERROR) Then sRet = sRet & "VT_ERROR"
+     If (lVal = VT_BOOL) Then sRet = sRet & "VT_BOOL"
+     If (lVal = VT_VARIANT) Then sRet = sRet & "VT_VARIANT"
+     If (lVal = VT_UNKNOWN) Then sRet = sRet & "VT_UNKNOWN"
+     If (lVal = VT_DECIMAL) Then sRet = sRet & "VT_DECIMAL"
+     If (lVal = VT_I1) Then sRet = sRet & "VT_I1"
+     If (lVal = VT_UI1) Then sRet = sRet & "VT_UI1"
+     If (lVal = VT_UI2) Then sRet = sRet & "VT_UI2"
+     If (lVal = VT_UI4) Then sRet = sRet & "VT_UI4"
+     If (lVal = VT_I8) Then sRet = sRet & "VT_I8"
+     If (lVal = VT_UI8) Then sRet = sRet & "VT_UI8"
+     If (lVal = VT_INT) Then sRet = sRet & "VT_INT"
+     If (lVal = VT_UINT) Then sRet = sRet & "VT_UINT"
+     If (lVal = VT_VOID) Then sRet = sRet & "VT_VOID"
+     If (lVal = VT_HRESULT) Then sRet = sRet & "VT_HRESULT"
+     If (lVal = VT_PTR) Then sRet = sRet & "VT_PTR"
+     If (lVal = VT_SAFEARRAY) Then sRet = sRet & "VT_SAFEARRAY"
+     If (lVal = VT_CARRAY) Then sRet = sRet & "VT_CARRAY"
+     If (lVal = VT_USERDEFINED) Then sRet = sRet & "VT_USERDEFINED"
+     If (lVal = VT_LPSTR) Then sRet = sRet & "VT_LPSTR"
+     If (lVal = VT_LPWSTR) Then sRet = sRet & "VT_LPWSTR"
+     If (lVal = VT_RECORD) Then sRet = sRet & "VT_RECORD"
+     If (lVal = VT_INT_PTR) Then sRet = sRet & "VT_INT_PTR"
+     If (lVal = VT_UINT_PTR) Then sRet = sRet & "VT_UINT_PTR"
+     If (lVal = VT_FILETIME) Then sRet = sRet & "VT_FILETIME"
+     If (lVal = VT_BLOB) Then sRet = sRet & "VT_BLOB"
+     If (lVal = VT_STREAM) Then sRet = sRet & "VT_STREAM"
+     If (lVal = VT_STORAGE) Then sRet = sRet & "VT_STORAGE"
+     If (lVal = VT_STREAMED_OBJECT) Then sRet = sRet & "VT_STREAMED_OBJECT"
+     If (lVal = VT_STORED_OBJECT) Then sRet = sRet & "VT_STORED_OBJECT"
+     If (lVal = VT_BLOB_OBJECT) Then sRet = sRet & "VT_BLOB_OBJECT"
+     If (lVal = VT_CF) Then sRet = sRet & "VT_CF"
+     If (lVal = VT_CLSID) Then sRet = sRet & "VT_CLSID"
+     If (lVal = VT_STREAMED_PROPSET) Then sRet = sRet & "VT_STREAMED_PROPSET"
+     If (lVal = VT_STORED_PROPSET) Then sRet = sRet & "VT_STORED_PROPSET"
+     If (lVal = VT_BLOB_PROPSET) Then sRet = sRet & "VT_BLOB_PROPSET"
+     If (lVal = VT_VERBOSE_ENUM) Then sRet = sRet & "VT_VERBOSE_ENUM"
+     If (lVal = VT_BSTR_BLOB) Then sRet = sRet & "VT_BSTR_BLOB"
+    If sRet = "" Then
+         sRet = "(unknown)"
+    End If
+    VTtoStr = sRet
+    End Function
+
+    Private Function GetCommandIdStr(lVal As Long) As String
+    Dim sRet As String
+     If lVal = cmdApplicationMenu Then sRet = "cmdApplicationMenu"
+     If lVal = IDC_TABMAIN Then sRet = "IDC_TABMAIN"
+     If lVal = cmdGroupMain Then sRet = "cmdGroupMain"
+     If lVal = IDC_TABTABLE Then sRet = "IDC_TABTABLE"
+     If lVal = IDC_TABDESIGN Then sRet = "IDC_TABDESIGN"
+     If lVal = IDC_TABLAYOUT Then sRet = "IDC_TABLAYOUT"
+     If lVal = cmdGroupDesign Then sRet = "cmdGroupDesign"
+     If lVal = cmdGroupLayout Then sRet = "cmdGroupLayout"
+     If lVal = IDC_SELECT Then sRet = "IDC_SELECT"
+     If lVal = IDC_UNSELECT Then sRet = "IDC_UNSELECT"
+     If lVal = IDC_DESIGN1 Then sRet = "IDC_DESIGN1"
+     If lVal = IDC_DESIGN2 Then sRet = "IDC_DESIGN2"
+     If lVal = IDC_DESIGN3 Then sRet = "IDC_DESIGN3"
+     If lVal = IDC_LAYOUT1 Then sRet = "IDC_LAYOUT1"
+     If lVal = IDC_LAYOUT2 Then sRet = "IDC_LAYOUT2"
+     If lVal = IDC_TABCOLOR Then sRet = "IDC_TABCOLOR"
+     If lVal = cmdButtonsGroup Then sRet = "cmdButtonsGroup"
+     If lVal = cmdDropDownColorPickerGroup Then sRet = "cmdDropDownColorPickerGroup"
+     If lVal = IDC_COLORTHEME Then sRet = "IDC_COLORTHEME"
+     If lVal = IDC_COLORSTD Then sRet = "IDC_COLORSTD"
+     If lVal = IDC_CLRHILITE Then sRet = "IDC_CLRHILITE"
+     If lVal = IDC_LISTCOLORS Then sRet = "IDC_LISTCOLORS"
+     If lVal = IDC_NEW Then sRet = "IDC_NEW"
+     If lVal = IDC_OPEN Then sRet = "IDC_OPEN"
+     If lVal = IDC_SAVE Then sRet = "IDC_SAVE"
+     If lVal = IDC_SAVEAS Then sRet = "IDC_SAVEAS"
+     If lVal = IDC_SAVEASMORE Then sRet = "IDC_SAVEASMORE"
+     If lVal = CmdHeaderSave Then sRet = "CmdHeaderSave"
+     If lVal = IDC_RTF Then sRet = "IDC_RTF"
+     If lVal = IDC_OPENXML Then sRet = "IDC_OPENXML"
+     If lVal = IDC_ODF Then sRet = "IDC_ODF"
+     If lVal = IDC_TXT Then sRet = "IDC_TXT"
+     If lVal = IDC_FMTOTHER Then sRet = "IDC_FMTOTHER"
+     If lVal = IDC_EXIT Then sRet = "IDC_EXIT"
+     If lVal = cmdGroupFileActions Then sRet = "cmdGroupFileActions"
+     If lVal = cmdQAT Then sRet = "cmdQAT"
+     If lVal = cmdCustomizeQAT Then sRet = "cmdCustomizeQAT"
+     If lVal = cmdRecentItems Then sRet = "cmdRecentItems"
+     If lVal = cmdGroupRichFont Then sRet = "cmdGroupRichFont"
+     If lVal = IDC_RICHFONT Then sRet = "IDC_RICHFONT"
+     If lVal = IDC_TOGGLE1 Then sRet = "IDC_TOGGLE1"
+     If lVal = cmdGroup4 Then sRet = "cmdGroup4"
+     If lVal = cmdFileMenu Then sRet = "cmdFileMenu"
+     If lVal = cmdMRUList Then sRet = "cmdMRUList"
+     If lVal = cmdGroup6 Then sRet = "cmdGroup6"
+     If lVal = IDC_EDITDROPDOWN Then sRet = "IDC_EDITDROPDOWN"
+     If lVal = IDC_RIBBONHELP Then sRet = "IDC_RIBBONHELP"
+     If lVal = IDC_OPENFILEMORE Then sRet = "IDC_OPENFILEMORE"
+     If lVal = IDC_OPENFILE Then sRet = "IDC_OPENFILE"
+     If lVal = IDC_OPENURL Then sRet = "IDC_OPENURL"
+     If lVal = IDC_PRINTMORE Then sRet = "IDC_PRINTMORE"
+     If lVal = CmdHeaderPrint Then sRet = "CmdHeaderPrint"
+     If lVal = IDC_PRINT Then sRet = "IDC_PRINT"
+     If lVal = IDC_PRINTSETUP Then sRet = "IDC_PRINTSETUP"
+     If lVal = IDC_QUICKPRINT Then sRet = "IDC_QUICKPRINT"
+     If lVal = IDC_PRINTPREVIEW Then sRet = "IDC_PRINTPREVIEW"
+     If lVal = cmdTab1 Then sRet = "cmdTab1"
+     If lVal = cmdGroup1 Then sRet = "cmdGroup1"
+     If lVal = IDC_CMD_CONTEXT1 Then sRet = "IDC_CMD_CONTEXT1"
+     If lVal = IDC_CMD_CONTEXT2 Then sRet = "IDC_CMD_CONTEXT2"
+     If lVal = IDC_CMD_CONTEXT3 Then sRet = "IDC_CMD_CONTEXT3"
+     If lVal = IDC_CMD_CONTEXT4 Then sRet = "IDC_CMD_CONTEXT4"
+     If lVal = IDC_CUT Then sRet = "IDC_CUT"
+     If lVal = IDC_COPY Then sRet = "IDC_COPY"
+     If lVal = IDC_PASTE Then sRet = "IDC_PASTE"
+     If lVal = IDC_CTXTOGGLE Then sRet = "IDC_CTXTOGGLE"
+     If lVal = IDC_BUTTON1 Then sRet = "IDC_BUTTON1"
+     If lVal = IDC_BUTTON2 Then sRet = "IDC_BUTTON2"
+     If lVal = IDC_BUTTON3 Then sRet = "IDC_BUTTON3"
+     If lVal = IDC_BUTTONS Then sRet = "IDC_BUTTONS"
+     If lVal = IDC_CMD_CONTEXTMAP1 Then sRet = "IDC_CMD_CONTEXTMAP1"
+     If lVal = IDC_CMD_CONTEXTMAP2 Then sRet = "IDC_CMD_CONTEXTMAP2"
+     If lVal = IDC_CMD_CONTEXTMAP3 Then sRet = "IDC_CMD_CONTEXTMAP3"
+     If lVal = IDC_CMD_CONTEXTMAP4 Then sRet = "IDC_CMD_CONTEXTMAP4"
+     If lVal = IDC_CHECK1 Then sRet = "IDC_CHECK1"
+     If lVal = cmdCheck2 Then sRet = "cmdCheck2"
+     If lVal = cmdCheckHdr Then sRet = "cmdCheckHdr"
+     If lVal = IDC_PARAGRAPH Then sRet = "IDC_PARAGRAPH"
+     If lVal = IDC_INDENT Then sRet = "IDC_INDENT"
+     If lVal = IDC_OUTDENT Then sRet = "IDC_OUTDENT"
+     If lVal = IDC_LINESPACING Then sRet = "IDC_LINESPACING"
+     If lVal = IDC_LINESPACE1 Then sRet = "IDC_LINESPACE1"
+     If lVal = IDC_LINESPACE115 Then sRet = "IDC_LINESPACE115"
+     If lVal = IDC_LINESPACE15 Then sRet = "IDC_LINESPACE15"
+     If lVal = IDC_LINESPACE2 Then sRet = "IDC_LINESPACE2"
+     If lVal = IDC_ALIGNLEFT Then sRet = "IDC_ALIGNLEFT"
+     If lVal = IDC_ALIGNRIGHT Then sRet = "IDC_ALIGNRIGHT"
+     If lVal = IDC_ALIGNCENTER Then sRet = "IDC_ALIGNCENTER"
+     If lVal = IDC_JUSTIFY Then sRet = "IDC_JUSTIFY"
+     If lVal = IDC_MORE Then sRet = "IDC_MORE"
+    If sRet = "" Then sRet = "(unknown)"
+    GetCommandIdStr = sRet
+    End Function
+
+
+    Private Function MAKEINTRESOURCE(ByVal dwVal As Long) As Long
+       MAKEINTRESOURCE = &HFFFF& And dwVal
+    End Function
+    
+    Private Function ChrW2(ByVal AscW2 As Long) As String
+        Dim s As String
+        
+        If AscW2 <= &HFFFF& Then
+            ChrW2 = ChrW(AscW2)
+        Else
+            AscW2 = AscW2 And &HFFFF&
+            s = DecToBin(AscW2)
+            s = String$(20 - Len(s), "0") & s
+            ChrW2 = ChrW(BinToDec(Left$(s, 10)) + &HD800&) & ChrW2 & ChrW(BinToDec(Right$(s, 10)) + &HDC00&)
+        End If
+    End Function
+    ' Converts decimal to binary
+    [ IgnoreWarnings (TB0003) ]
+    Private Function DecToBin(ByVal nNumber) As String
+        Do While nNumber > 0
+            DecToBin = nNumber Mod 2 & DecToBin
+            nNumber = nNumber \ 2
+        Loop
+        If DecToBin = "" Then DecToBin = "0"
+    End Function
+    
+    ' Converts binary to decimal
+    Private Function BinToDec(ByVal nBinary As String) As Long
+        Dim c As Long
+        Dim iLen As Long
+        
+        iLen = Len(nBinary)
+        For c = iLen To 1 Step -1
+            If Mid$(nBinary, c, 1) = "1" Then
+                BinToDec = BinToDec + 2 ^ (iLen - c)
+            End If
+        Next
+    End Function
+
+#End Region
+
+#Region "Subclassing"
+    Private Function Subclass2(hWnd As LongPtr, lpFN As LongPtr, Optional uId As LongPtr = 0&, Optional dwRefData As LongPtr = 0&) As Boolean
+    If uId = 0 Then uId = hWnd
+        Subclass2 = SetWindowSubclass(hWnd, lpFN, uId, dwRefData):      Debug.Assert Subclass2
+    End Function
+
+    Private Function UnSubclass2(hWnd As LongPtr, ByVal lpFN As LongPtr, pid As LongPtr) As Boolean
+        UnSubclass2 = RemoveWindowSubclass(hWnd, lpFN, pid)
+    End Function
+    
+    [ Description ("Subclassing procedure for the RichEdit control and the PictureBox hosting it.") ]
+    Private Function PBWndProc(ByVal hWnd As LongPtr, ByVal uMsg As Long, ByVal wParam As LongPtr, ByVal lParam As LongPtr, ByVal uIdSubclass As LongPtr, ByVal dwRefData As LongPtr) As LongPtr
+        Select Case uMsg
+        
+        Case WM_NOTIFYFORMAT
+            Return NFR_UNICODE
+          
+        Case WM_SETCURSOR
+            If hCurRE = 0 Then
+                hCurRE = LoadCursor(App.hInstance, ByVal IDC_IBEAM)
+                SetCursor hCurRE
+            End If
+        
+        Case WM_CONTEXTMENU
+            Dim pt As POINT
+            Dim pCtxMenu As IUIContextualUI
+            If pFramework IsNot Nothing Then
+                pFramework.GetView IDC_CMD_CONTEXTMAP1, IID_IUIContextualUI, pCtxMenu
+                If pCtxMenu IsNot Nothing Then
+                    pt.x = GET_X_LPARAM(lParam): pt.y = GET_Y_LPARAM(lParam)
+                    pCtxMenu.ShowAtLocation pt.x, pt.y
+                End If
+                Return S_OK
+            End If
+            
+                        
+        Case WM_NOTIFY
+            Dim tNMH As NMHDR
+            CopyMemory tNMH, ByVal lParam, LenB(Of NMHDR)
+            If tNMH.hWndFrom = hRE Then
+                If tNMH.Code = EN_SELCHANGE Then
+                    Debug.Print "Received EN_SELCHANGE"
+                    If pFramework IsNot Nothing Then
+                        SyncAlignment
+                        SyncLineSpacing
+                        pFramework.InvalidateUICommand IDC_RICHFONT, UI_INVALIDATIONS_ALLPROPERTIES, vbNullPtr
+                    End If
+                End If
+            End If
+            
+        Case WM_DESTROY
+            Call UnSubclass2(hWnd, AddressOf PBWndProc, uIdSubclass)
+        End Select
+        PBWndProc = DefSubclassProc(hWnd, uMsg, wParam, lParam)
+    End Function
+    
+    Public Function TaskDialogCallbackProc(ByVal hwnd As LongPtr, ByVal uNotification As Long, ByVal wParam As LongPtr, ByVal lParam As LongPtr, ByVal lpRefData As LongPtr) As LongPtr
+        Select Case uNotification
+            'Replace the shield icon with our app icon
+            Case TDN_DIALOG_CONSTRUCTED
+                SendMessageW hwnd, TDM_UPDATE_ICON, TDIE_ICON_MAIN, ByVal StrPtr(szHelpIconRes)
+            
+            'lParam is a pointer to the URL, so just forward it to execute with default browser.
+            Case TDN_HYPERLINK_CLICKED
+                Call ShellExecuteW(0, 0, lParam, 0, 0, SW_SHOWNORMAL)
+        End Select
+    End Function
+#End Region
+End Class

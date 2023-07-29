@@ -1,0 +1,71 @@
+[ Description ("") ]
+[ FormDesignerId ("6D393482-82F0-45C3-B441-A8093D57E3AB") ]
+[ PredeclaredId ]
+Class Form1
+    Private pFramework As UIRibbonFramework
+    Private WithEvents pUIApp As clsRibbonEvents
+    Private hLastExe As LongPtr
+    
+    Private Sub Form_Load() Handles Form.Load
+        Set pFramework = New UIRibbonFramework
+        Set pUIApp = New clsRibbonEvents
+        pFramework.Initialize Me.hWnd, pUIApp
+        If IsIDE() Then
+            'Attempt to load resources from last .exe
+            If (App.LastBuildPath = "") Or (PathFileExists(App.LastBuildPath) = 0) Then
+                MsgBox("To run from the IDE you must build first, or replace this routine with one loading a DLL containing your resources.", vbCritical + vbOKOnly, App.Title)
+                Unload Me
+            Else
+                hLastExe = LoadLibraryEx(App.LastBuildPath, 0, LOAD_LIBRARY_AS_DATAFILE Or LOAD_LIBRARY_AS_IMAGE_RESOURCE)
+                pFramework.LoadUI hLastExe, StrPtr("APPLICATION_RIBBON")
+            End If
+        Else
+            pFramework.LoadUI GetModuleHandleW(), StrPtr("APPLICATION_RIBBON")
+        End If
+        
+        Debug.Print App.LastBuildPath
+        Debug.Print App.EXEName
+    End Sub
+    
+    Private Sub Form_Terminate() Handles Form.Terminate
+        If pFramework IsNot Nothing Then pFramework.Destroy
+        Set pFramework = Nothing
+        Set pUIApp = Nothing
+        If hLastExe Then FreeLibrary hLastExe
+    End Sub
+    
+    Private Sub pUIApp_OnRibbonCmdExecute(ByVal commandId As Long, ByVal verb As UI_EXECUTIONVERB, ByVal key As LongPtr, currentValue As Variant, ByVal commandExecutionProperties As IUISimplePropertySet, returnValue As Long) Handles pUIApp.OnRibbonCmdExecute
+        List1.AddItem "You clicked: CommandId=" & commandId & ", Verb=" & verb
+    End Sub
+    
+    Private Sub Form_Resize() Handles Form.Resize
+        InvalidateRect Me.hWnd, vbNullPtr, 0
+        RedrawWindow Me.hWnd, vbNullPtr, 0, RDW_UPDATENOW
+        Me.Refresh
+    End Sub
+
+
+    Private Function IsIDE() As Boolean
+    '  On Error GoTo Out
+    '  Debug.Print 1 / 0
+    'Out:
+    '  IsIDE = Err
+    'IsIDE = gide
+       Dim buff As String
+       Dim Success As Long
+   
+       buff = Space$(MAX_PATH)
+       Success = GetModuleFileName(App.hInstance, buff, Len(buff))
+   
+       If Success > 0 Then
+         'Change the VB exe name here as appropriate
+         'for your version. The case change ensures this
+         'works regardless as to how the exe is cased on
+         'the machine.
+          IsIDE = InStr(LCase$(buff), "twinbasic") > 0
+       End If
+
+    End Function
+
+
+End Class

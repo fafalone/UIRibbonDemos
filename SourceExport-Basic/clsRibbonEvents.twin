@@ -1,0 +1,50 @@
+Class clsRibbonEvents
+
+Implements IUIApplication
+Implements IUICommandHandler
+
+[ Description ("Raised when a command is executed. key is a pointer to a PROPERTYKEY you can copy if needed.") ]
+Public Event OnRibbonCmdExecute(ByVal commandId As Long, ByVal verb As UI_EXECUTIONVERB, ByVal key As LongPtr, currentValue As Variant, ByVal commandExecutionProperties As IUISimplePropertySet, returnValue As Long)
+[ Description ("Raised when a property is updated. key is a pointer to a PROPERTYKEY. If you set newValue, set bValid to True.") ]
+Public Event OnRibbonUpdateProperty(ByVal commandId As Long, ByVal key As LongPtr, currentValue As Variant, newValue As Variant, bSetNewValue As Boolean, returnValue As Long)
+
+Private Sub IUIApplication_OnViewChanged(ByVal viewId As Long, ByVal typeID As UI_VIEWTYPE, ByVal view As IUnknown, ByVal verb As UI_VIEWVERB, ByVal uReasonCode As Long) Implements IUIApplication.OnViewChanged
+	Err.ReturnHResult = E_NOTIMPL
+End Sub
+
+Private Sub IUIApplication_OnDestroyUICommand(ByVal commandId As Long, ByVal typeID As UI_COMMANDTYPE, ByVal commandHandler As IUICommandHandler) Implements IUIApplication.OnDestroyUICommand
+End Sub
+
+Private Sub IUIApplication_OnCreateUICommand(ByVal commandId As Long, ByVal typeID As UI_COMMANDTYPE, commandHandler As IUICommandHandler) Implements IUIApplication.OnCreateUICommand
+	Set commandHandler = Me
+End Sub
+
+
+Private Sub IUICommandHandler_Execute(ByVal commandId As Long, ByVal verb As UI_EXECUTIONVERB, key As PROPERTYKEY, currentValue As Variant, ByVal commandExecutionProperties As IUISimplePropertySet) Implements IUICommandHandler.Execute
+	Dim hr As Long
+	Dim pv As Variant
+	If VarPtr(currentValue) <> 0 Then
+		VariantCopy pv, currentValue
+	End If
+	RaiseEvent OnRibbonCmdExecute(commandId, verb, VarPtr(key), pv, commandExecutionProperties, hr)
+	Err.ReturnHResult = hr
+End Sub
+
+Private Sub IUICommandHandler_UpdateProperty(ByVal commandId As Long, key As PROPERTYKEY, currentValue As Variant, newValue As Variant) Implements IUICommandHandler.UpdateProperty
+	Dim hr As Long
+    Dim pv As Variant
+	Dim pnv As Variant
+	Dim bValid As Boolean
+    If VarPtr(currentValue) <> 0 Then
+        VariantCopy pv, currentValue
+    End If
+	RaiseEvent OnRibbonUpdateProperty(commandId, VarPtr(key), pv, pnv, bValid, hr)
+	If bValid Then
+		VariantCopy newValue, pnv
+	End If
+    Err.ReturnHResult = hr
+End Sub
+
+
+
+End Class
