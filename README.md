@@ -1,6 +1,8 @@
 # UIRibbonDemos
 ## Windows UI Ribbon Framework Demos
 
+**Update (July 28th): The Intermediate Demo is now available! Scroll down to check it out!**
+
 **Update: Crashing has been fixed.**
 
 Windows applications frequently make use of the UI Ribbon in newer applications, including Explorer, Office, Wordpard, etc. While there's some controls implementing this kind of toolbar from scratch, and some exorbitantly expensive commercial controls that may or may not use the OS component ::cough:: CodeJock ::cough:: there's not been an implementation using the simple COM interfaces Microsoft applications use. This repository will show how to use those, with both simple and advanced demos.
@@ -17,6 +19,8 @@ Windows applications frequently make use of the UI Ribbon in newer applications,
 ![Screeshot1](https://i.imgur.com/Ns39N3J.jpg)
 
 For our first ribbon application, we'll use this simple one, based on a [pure C version by Stephen Wiria](https://www.codeproject.com/Articles/119319/Windows-Ribbon-Framework-in-Win32-C-Application).
+
+The final .twinproj for this is UIRibbDemo.twinproj.
 
 We'll start from the xml:
 
@@ -35,7 +39,7 @@ Once you have the ribbon.xml file and the \Res folder containing the bitmap imag
 2) You'll want to add a Form, and a class named clsRibbonEvents. Then open up the Settings, set the name, and anything else you want, and go down to `COM Type Library / Active-X References`, click the TWINPACK PACKAGES button, and add a reference to `twinBASIC Shell Library v4.13.175` (or the latest version).
 3) Save the project, and you're now ready to code, which is actually simpler than everything we've done so far.
 
-#### Code for the ribbon
+#### The Basic Demo
 1) The form sets everything up, then the class handles the events the ribbon raises to let us know about command clicks and other information.
 2) The Form code declares a variable for the UI Ribbon Framework coclass, the events class, and a handler for the command click it raises:
    ```
@@ -88,10 +92,240 @@ Once you have the ribbon.xml file and the \Res folder containing the bitmap imag
         End Sub
    ```
 
-3) Compile and run, that's all there is to it! **NOTE:** This will not run from the IDE, since when running from the IDE, like in VB6, it uses the resources in twinBASIC, not our resources. Since the object extracts the resources itself from the handle to the exe, it won't be able to find the ribbon resources.
+3) Compile and run, that's all there is to it! **NOTE:** This can run from the IDE, but must be compiled first in order to generate a resource containing binary that can be loaded. You'll need to do this before every run from the IDE, regardless of whether you've made any changes.
    
 **The end result, the completed project containing the results of these steps, is in UIRibbonDemo.twinproj.** The rest of the files, including intermediates, are also provided. 
 
 ---
 
-I'll be adding more advanced demos shortly!
+## GUI-based Ribbon Designer
+Before getting into the Intermediate Demo, it's worth noting I found a GUI-based designer that simplifies the XML generation by quite a bit. It's open source, but written in Delphi. You can compile it from the free IDE. It's contained in [JAM-Software's RibbonFramework for Delphi](https://github.com/JAM-Software/RibbonFramework). It will save the XML, but the Build feature isn't helpful for us. You'll still need to know the concepts below.
+
+## The Intermediate Demo
+
+Now that we've estashlished how to get your application to show a Ribbon and the basic functionality, let's dig into some of the features!
+
+### Font Control
+The highlight of this demo is showing how to link up the Font Control and some additional buttons to a RichEdit control:
+
+![FontControl](https://i.imgur.com/qHyhR3O.gif)
+
+This is by far the most complex control in the Ribbon. It displays a full set of font font options like you see in Wordpad, including an automatically populated dropdown showing each font rendered in it's own face. This is tied to a RichEdit control, and  you can use it to set the font of the current selection. If you move the caret in the RichEdit control, the font displayed in the Ribbon is updated to that of the current selection.\
+You'll find a lot of useful code for this, including dealing with true NULL Variants that crash VB when improperly handled, reading and setting values in an IPropertyStore, and converting back and forth between two types normally unsupported in VB and which cause errors when not specially handled: Variants of type VT_UI4 (unsigned long), and VT_LPWSTR, a string type similar to but different in important ways from VB/tB native strings (VT_BSTR). Finally, we get a chance to use tB's new Decimal type! VB6 allowed some use of these in a Variant, but  without the real native type, it would require difficult manual handling for our purposes.
+
+It's placed in the control with a Command entry and View entry:
+
+```
+    <Command Name="cmdRichFont" Id="1779">
+      <Command.Keytip>
+        <String Id="1780">F</String>
+      </Command.Keytip>
+    </Command>
+    <Group CommandName="cmdGroupRichFont" SizeDefinition="OneFontControl">
+        <FontControl CommandName="cmdRichFont" FontType="RichFont"/>
+    </Group>
+```
+
+`FontType` here refers to the version of the font control you want; this one has the most options, and there's a basic and medium version too. Note that the buttons and other controls on it all come up automatically; you don't need to supply your own images or commands.
+
+### Dropdown Buttons
+On the Design context tab, you'll find an Edit button with an arrow indicating a dropdown. This button displays a dropdown menu of basic edit commands. You'll note these same commands are re-used in a couple other places; you don't need to define different ones for e.g. the context menu or other tab.
+
+![image](https://github.com/fafalone/UIRibbonDemos/assets/7834493/c8a5da92-0b8c-45fa-910b-6238eab9db11)
+
+Thankfully, this one is easy:
+
+```
+            <Group CommandName="cmdGroup6" SizeDefinition="OneButton">
+              <DropDownButton CommandName="cmdDropDownButton">
+                <MenuGroup>
+                  <Button CommandName="cmdCut"/>
+                  <Button CommandName="cmdCopy"/>
+                  <Button CommandName="cmdPaste"/>
+                </MenuGroup>
+              </DropDownButton>
+            </Group>
+```
+
+### SplitButtons:
+The original demo showed the use of a SplitButton on the Application Menu; this demo shows you how to make a much nicer version:
+
+![image](https://github.com/fafalone/UIRibbonDemos/assets/7834493/5359b897-0d70-40ec-b50d-b4ad7329e683)
+
+It also shows making a smaller SplitButton on a regular Tab:
+
+![image](https://github.com/fafalone/UIRibbonDemos/assets/7834493/14d75214-33b9-4946-972a-f2b8150fc275)
+
+Since these are mutually exclusive, when one changes, we need to update the others. So when we get an execute command, we store the selection in a module-level variable, then invalidate the other 3:\
+pFramework.InvalidateUICommand IDC_LINESPACE1, UI_INVALIDATIONS_VALUE, vbNullPtr`\
+When it's invalidated, it triggers the `RibbonUpdateProperty` event, where we compare them against the module level setting and set their property manually:
+
+```
+    If (commandId = IDC_LINESPACE1) Or (commandId = IDC_LINESPACE115) Or (commandId = IDC_LINESPACE115) Or (commandId = IDC_LINESPACE2) Then
+        If key Then
+            CopyMemory pk, ByVal key, LenB(Of PROPERTYKEY)
+        End If
+        If IsEqualPKEY(pk, UI_PKEY_BooleanValue) Then
+            If commandId = IDC_LINESPACE1 Then
+                newValue = IIf(mCurSpacing = LS_1, CVar(True), CVar(False))
+            End If
+            'repeats for others
+```
+
+### CheckBoxes and Column Breaks:
+Visible in the picture in the Font Control section a while back, the main tab has a group of CheckBoxes that are simple boolean properties, with a column break and then 3 small icon buttons, using the advanced SizeDefinition fields. You first create a name map, then a custom size definition, which allows Row and ColumnBreak tags; then following that, you just list the commands in order:
+
+```
+          <Group CommandName="cmdCheckHdr">
+            <SizeDefinition>
+              <ControlNameMap>
+                <ControlNameDefinition Name="Check1"/>
+                <ControlNameDefinition Name="Check2"/>
+                <ControlNameDefinition Name="Cut"/>
+                <ControlNameDefinition Name="Copy"/>
+                <ControlNameDefinition Name="Paste"/>
+              </ControlNameMap>
+              <GroupSizeDefinition Size="Large">
+                <Row>
+                  <ControlSizeDefinition ControlName="Check1"/>
+                </Row>
+                <Row>
+                  <ControlSizeDefinition ControlName="Check2"/>
+                </Row>
+                <ColumnBreak/>
+...
+            <CheckBox CommandName="cmdCheck1"/>
+            <CheckBox CommandName="cmdCheck2"/>
+            <Button CommandName="cmdCut"/>
+            <Button CommandName="cmdCopy"/>
+            <Button CommandName="cmdPaste"/>
+```
+
+Omitted: Create the same GroupSizeDefinition for Small and Medium. 
+
+### HelpButton:
+The Help Button is now displayed by the minimize ribbon button, up in the top right:
+
+![image](https://github.com/fafalone/UIRibbonDemos/assets/7834493/4200b618-feff-4dcd-908c-4af3de59a535)
+
+This is another command where the image is provided for us. It's a direct child of the `<Ribbon>` group:
+
+```
+      <Ribbon.HelpButton>
+        <HelpButton CommandName="Help"/>
+      </Ribbon.HelpButton>
+```
+
+
+### Context Tabs: 
+Astute observers may have noticed an earlier pic with a Tab outlined in green you don't initially see on the form. These are the two 'Context Tabs': Tabs that are only shown when you want to display extra features for some part of your program.  From the Main tab, you can use Select to Show, Unselect to Hide, or Toggle to switch back and forth. These are defined in the `<Ribbon.ContextualTabs>` element. Controlling their visibility is simple, you just set the ContextAvailable property key of their parent command: `pFramework.SetUICommandProperty(IDC_TABTABLE, UI_PKEY_ContextAvailable, vNew)`. This is one place we have to deal with a VT_UI4 Variant. You have to be very careful with these; if VB so much as glances at them it throws an automation error. How it's generally handled in this project, it to manually change the type without touching the data by overwriting the first 2 bytes; tbShellLib has a helper for this replicating an inline available to C/C++ programmers:
+
+```
+Public Function InitPropVariantFromUInt32(ByVal ulVal As Long, ppropvar As Variant) As Long
+ppropvar = ulVal
+Dim vt As Integer = VT_UI4
+CopyMemory ppropvar, vt, 2    'Overwrite VT_I4 with VT_UI4
+End Function
+```
+            
+### Dropdown Color Pickers:
+The Colors tab shows 3 different types of Color Pickers. They each have different preset selections to choose from, and each have a further popup for a full color picker dialog where you can select from the full spectrum.
+
+![image](https://github.com/fafalone/UIRibbonDemos/assets/7834493/235701e5-390f-447f-8c32-13f788b74d80)
+
+The entire popup is generated for you; you need only supply the button and icon for the dropdown.
+
+```
+          <Group CommandName="cmdButtonsGroup" SizeDefinition="OneButton">
+            <Button CommandName="cmdButtonListColors"/>
+          </Group>
+          <Group CommandName="cmdDropDownColorPickerGroup" SizeDefinition="ThreeButtons">
+            <DropDownColorPicker CommandName="cmdDropDownColorPickerThemeColors"/>
+            <DropDownColorPicker CommandName="cmdDropDownColorPickerStandardColors" ColorTemplate="StandardColors"/>
+            <DropDownColorPicker CommandName="cmdDropDownColorPickerHighlightColors" ColorTemplate="HighlightColors"/>
+          </Group>
+```
+
+"Automatic" is an excuse to get the color from Windows with `GetSysColor(COLOR_WINDOWTEXT)`. Otherwise, besides none, an RGB value is specified. It's also a VT_UI4 variant, but it's a COLORREF, so we want the data as-is. Again, we simply overwrite the data type. But this time, we need to get the data from the `commandExecutionProperties`, since the command is the dropdown parent, not an individual button:
+
+```
+ElseIf type = UI_SWATCHCOLORTYPE_RGB Then
+    Dim vClr As Variant
+    If commandExecutionProperties IsNot Nothing Then
+        commandExecutionProperties.GetValue UI_PKEY_Color, vClr
+        If VariantUI4ToI4(vClr, clr) Then
+```
+
+### Icon-only Button Group
+![image](https://github.com/fafalone/UIRibbonDemos/assets/7834493/f3aa3f98-9521-436b-8440-4112e06403ec)
+
+Implemented as a Paragraph format set, this shows how to use the advanced SizeDefinition options to make a set of icon-only buttons arranged in rows. One of these  is a dropdown. These buttons are functional and are applied to the selection on the RichEdit control. This is actually one of the harder things to implement in this demo, because icon-only buttons arranged in rows are not the default. This uses a custom size definition similar to the CheckBox / Button group, but defined separately. After the name map, we can specify groups with the IsLabelVisible property set to False:
+
+```
+              <ControlGroup>
+                <ControlSizeDefinition IsLabelVisible="false" ControlName="ButtonIndent"/>
+                <ControlSizeDefinition IsLabelVisible="false" ControlName="ButtonOutdent"/>
+              </ControlGroup>
+```
+
+We then link it up by name: `<Group CommandName="cmdGroupParagraph" SizeDefinition="ParagraphLayout">`, when listing all the buttons.
+
+
+### MiniToolbar and Context Popups
+![image](https://github.com/fafalone/UIRibbonDemos/assets/7834493/f5791a05-9ad0-4844-831d-3fba0d8ee756)
+
+This feature allows for a popup anywhere on the form of one or both of a mini-toolbar and popup menu. These can have controls like dropdown buttons, toggle buttons, and  more. You can show different combinations of things based on the current view. This  demo has 4 different options you can select from the Colors tab. Click one of the 'Activate Context' buttons, then the CommandButton to show it. The mutually exclusive Toggle Buttons should be easy to understand at this point, they work like the Line Spacing split button, in setting them all after one is clicked. So we'll skip to the popups. After the `</Ribbon>` tag closes out the Ribbon, you can specify `<ContextPopup>` groups, each with a `<ContextPopup.MiniToolbars>` and/or `<ContextPopup.ContextMenus>` group. You then lay out the elements like normal for each, e.g.
+
+```
+        <MiniToolbar Name="MiniToolbar3">
+          <MenuGroup>
+            <Button CommandName="cmdButton1"/>
+            <Button CommandName="cmdButton2"/>
+            <Button CommandName="cmdButton3"/>
+          </MenuGroup>
+        </MiniToolbar>
+
+        <ContextMenu Name="ContextMenu1">
+          <MenuGroup>
+            <Button CommandName="cmdCut"/>
+            <Button CommandName="cmdCopy"/>
+            <Button CommandName="cmdPaste"/>
+          </MenuGroup>
+          <MenuGroup>
+            <DropDownButton CommandName="cmdMore">
+              <Button CommandName="cmdButton1"/>
+              <Button CommandName="cmdButton2"/>
+              <Button CommandName="cmdButton3"/>
+            </DropDownButton>
+          </MenuGroup>
+        </ContextMenu>
+```
+Once you done that, you map them to a context to define which one can show. You can have one menu and one minitoolbar per context; you can have one of each but not two or more of any one. 
+
+```
+      <ContextPopup.ContextMaps>
+        <ContextMap CommandName="cmdContextMap1" ContextMenu="ContextMenu1"/>
+        <ContextMap CommandName="cmdContextMap2" ContextMenu="ContextMenu2" MiniToolbar="MiniToolbar2"/>
+        <ContextMap CommandName="cmdContextMap3" MiniToolbar="MiniToolbar3"/>
+        <ContextMap CommandName="cmdContextMap4" ContextMenu="ContextMenu4"/>
+      </ContextPopup.ContextMaps>
+```
+The id of those commands is what we pass in mCtx to display the popup:
+
+```
+        If mCtx = 0 Then Exit Sub
+        Dim pt As POINT
+        Dim pCtxMenu As IUIContextualUI
+        
+        If pFramework IsNot Nothing Then
+            pFramework.GetView mCtx, IID_IUIContextualUI, pCtxMenu
+            If pCtxMenu IsNot Nothing Then
+                GetCursorPos pt
+                pCtxMenu.ShowAtLocation pt.x, pt.y
+            End If
+        End If
+```
+
+---
+
+That's all for now! Stay tuned for the Advanced Demo, where we'll implement Gallery controls like the Shape Box and Brush dropdown in Paint, ComboBoxes, Spinner Controls, multiple ribbon modes, supplying multiple resolution images for high-DPI and high-contrast alternatives, and more!
