@@ -1,0 +1,729 @@
+// ******************************************************************************
+// * This is an automatically generated file containing the ribbon resource for *
+// * your application.                                                          *
+// ******************************************************************************
+
+#include ".\ribbon.h"
+
+STRINGTABLE 
+BEGIN
+    IDC_TABMAIN_LabelTitle_RESID L"Main" /* LabelTitle IDC_TABMAIN_LabelTitle_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
+    cmdGroupMain_LabelTitle_RESID L"Context Tabs" /* LabelTitle cmdGroupMain_LabelTitle_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
+    IDC_TABTABLE_LabelTitle_RESID L"Table Tools" /* LabelTitle IDC_TABTABLE_LabelTitle_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
+    IDC_TABDESIGN_LabelTitle_RESID L"Design" /* LabelTitle IDC_TABDESIGN_LabelTitle_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
+    IDC_TABLAYOUT_LabelTitle_RESID L"Layout" /* LabelTitle IDC_TABLAYOUT_LabelTitle_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
+    cmdGroupDesign_LabelTitle_RESID L"Design Group" /* LabelTitle cmdGroupDesign_LabelTitle_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
+    cmdGroupLayout_LabelTitle_RESID L"Layout Group" /* LabelTitle cmdGroupLayout_LabelTitle_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
+    IDC_SELECT_LabelTitle_RESID L"Select" /* LabelTitle IDC_SELECT_LabelTitle_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
+    IDC_SELECT_LabelDescription_RESID L"Simulates selecting a table" /* LabelDescription IDC_SELECT_LabelDescription_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
+    IDC_SELECT_TooltipTitle_RESID L"Select" /* TooltipTitle IDC_SELECT_TooltipTitle_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
+    IDC_SELECT_TooltipDescription_RESID L"Simulates selecting a table" /* TooltipDescription IDC_SELECT_TooltipDescription_RESID: (null) */
+END
+
+IDC_SELECT_LargeImages_RESID    BITMAP    "Res\\Select32.bmp" /* LargeImages IDC_SELECT_LargeImages_RESID: (null) */
+STRINGTABLE 
+BEGIN
+    IDC_UNSELECT_LabelTitle_RESID L"Unselect" /* LabelTitle IDC_UNSELECT_LabelTitle_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
+    IDC_UNSELECT_LabelDescription_RESID L"Simulates unselecting a table" /* LabelDescription IDC_UNSELECT_LabelDescription_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
+    IDC_UNSELECT_TooltipTitle_RESID L"Unselect" /* TooltipTitle IDC_UNSELECT_TooltipTitle_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
+    IDC_UNSELECT_TooltipDescription_RESID L"Simulates unselecting a table" /* TooltipDescription IDC_UNSELECT_TooltipDescription_RESID: (null) */
+END
+
+IDC_UNSELECT_LargeImages_RESID    BITMAP    "Res\\Unselect32.bmp" /* LargeImages IDC_UNSELECT_LargeImages_RESID: (null) */
+STRINGTABLE 
+BEGIN
+    IDC_DESIGN1_LabelTitle_RESID L"Design 1" /* LabelTitle IDC_DESIGN1_LabelTitle_RESID: (null) */
+END
+
+IDC_DESIGN1_LargeImages_RESID    BITMAP    "Res\\DropA32.bmp" /* LargeImages IDC_DESIGN1_LargeImages_RESID: (null) */
+STRINGTABLE 
+BEGIN
+    IDC_DESIGN2_LabelTitle_RESID L"Design 2" /* LabelTitle IDC_DESIGN2_LabelTitle_RESID: (null) */
+END
+
+IDC_DESIGN2_LargeImages_RESID    BITMAP    "Res\\DropB32.bmp" /* LargeImages IDC_DESIGN2_LargeImages_RESID: (null) */
+STRINGTABLE 
+BEGIN
+    IDC_DESIGN3_LabelTitle_RESID L"Design 3" /* LabelTitle IDC_DESIGN3_LabelTitle_RESID: (null) */
+END
+
+IDC_DESIGN3_LargeImages_RESID    BITMAP    "Res\\DropC32.bmp" /* LargeImages IDC_DESIGN3_LargeImages_RESID: (null) */
+STRINGTABLE 
+BEGIN
+    IDC_LAYOUT1_LabelTitle_RESID L"Layout 1" /* LabelTitle IDC_LAYOUT1_LabelTitle_RESID: (null) */
+END
+
+IDC_LAYOUT1_LargeImages_RESID    BITMAP    "Res\\DropA32.bmp" /* LargeImages IDC_LAYOUT1_LargeImages_RESID: (null) */
+STRINGTABLE 
+BEGIN
+    IDC_LAYOUT2_LabelTitle_RESID L"Layout 2" /* LabelTitle IDC_LAYOUT2_LabelTitle_RESID: (null) */
+END
+
+IDC_LAYOUT2_LargeImages_RESID    BITMAP    "Res\\DropB32.bmp" /* LargeImages IDC_LAYOUT2_LargeImages_RESID: (null) */
+STRINGTABLE 
+BEGIN
+    IDC_TABCOLOR_LabelTitle_RESID L"Colors" /* LabelTitle IDC_TABCOLOR_LabelTitle_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
+    cmdButtonsGroup_LabelTitle_RESID L"Buttons" /* LabelTitle cmdButtonsGroup_LabelTitle_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
+    cmdDropDownColorPickerGroup_LabelTitle_RESID L"Color pickers" /* LabelTitle cmdDropDownColorPickerGroup_LabelTitle_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
+    IDC_COLORTHEME_LabelTitle_RESID L"Theme Colors" /* LabelTitle IDC_COLORTHEME_LabelTitle_RESID: (null) */
+END
+
+IDC_COLORTHEME_LargeImages_RESID    BITMAP    "Res\\Colors32.bmp" /* LargeImages IDC_COLORTHEME_LargeImages_RESID: (null) */
+STRINGTABLE 
+BEGIN
+    IDC_COLORSTD_LabelTitle_RESID L"Standard Colors" /* LabelTitle IDC_COLORSTD_LabelTitle_RESID: (null) */
+END
+
+IDC_COLORSTD_LargeImages_RESID    BITMAP    "Res\\Colors32.bmp" /* LargeImages IDC_COLORSTD_LargeImages_RESID: (null) */
+STRINGTABLE 
+BEGIN
+    IDC_CLRHILITE_LabelTitle_RESID L"Highlight Colors" /* LabelTitle IDC_CLRHILITE_LabelTitle_RESID: (null) */
+END
+
+IDC_CLRHILITE_LargeImages_RESID    BITMAP    "Res\\Colors32.bmp" /* LargeImages IDC_CLRHILITE_LargeImages_RESID: (null) */
+STRINGTABLE 
+BEGIN
+    IDC_LISTCOLORS_LabelTitle_RESID L"List Colors" /* LabelTitle IDC_LISTCOLORS_LabelTitle_RESID: (null) */
+END
+
+IDC_LISTCOLORS_LargeImages_RESID    BITMAP    "Res\\Open32.bmp" /* LargeImages IDC_LISTCOLORS_LargeImages_RESID: (null) */
+STRINGTABLE 
+BEGIN
+    IDC_NEW_LabelTitle_RESID L"New" /* LabelTitle IDC_NEW_LabelTitle_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
+    IDC_NEW_LabelDescription_RESID L"Create new fizzbuzz" /* LabelDescription IDC_NEW_LabelDescription_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
+    IDC_NEW_TooltipTitle_RESID L"New (Ctrl+N)" /* TooltipTitle IDC_NEW_TooltipTitle_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
+    IDC_NEW_TooltipDescription_RESID L"Create new fizzbuzz TT" /* TooltipDescription IDC_NEW_TooltipDescription_RESID: (null) */
+END
+
+IDC_NEW_SmallImages_RESID    BITMAP    "Res\\New16.bmp" /* SmallImages IDC_NEW_SmallImages_RESID: (null) */
+IDC_NEW_LargeImages_RESID    BITMAP    "Res\\New32.bmp" /* LargeImages IDC_NEW_LargeImages_RESID: (null) */
+STRINGTABLE 
+BEGIN
+    IDC_OPEN_LabelTitle_RESID L"Open" /* LabelTitle IDC_OPEN_LabelTitle_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
+    IDC_OPEN_LabelDescription_RESID L"Open a fizzbuzz" /* LabelDescription IDC_OPEN_LabelDescription_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
+    IDC_OPEN_TooltipTitle_RESID L"Open (Ctrl+O)" /* TooltipTitle IDC_OPEN_TooltipTitle_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
+    IDC_OPEN_TooltipDescription_RESID L"Opens an existing fizzbuzz" /* TooltipDescription IDC_OPEN_TooltipDescription_RESID: (null) */
+END
+
+IDC_OPEN_SmallImages_RESID    BITMAP    "Res\\Open16.bmp" /* SmallImages IDC_OPEN_SmallImages_RESID: (null) */
+IDC_OPEN_LargeImages_RESID    BITMAP    "Res\\Open32.bmp" /* LargeImages IDC_OPEN_LargeImages_RESID: (null) */
+STRINGTABLE 
+BEGIN
+    IDC_SAVE_LabelTitle_RESID L"Save" /* LabelTitle IDC_SAVE_LabelTitle_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
+    IDC_SAVE_LabelDescription_RESID L"Save the fizzbuzz" /* LabelDescription IDC_SAVE_LabelDescription_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
+    IDC_SAVE_TooltipTitle_RESID L"Save (Ctrl+S)" /* TooltipTitle IDC_SAVE_TooltipTitle_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
+    IDC_SAVE_TooltipDescription_RESID L"Saves the fizzbuzz" /* TooltipDescription IDC_SAVE_TooltipDescription_RESID: (null) */
+END
+
+IDC_SAVE_SmallImages_RESID    BITMAP    "Res\\Save16.bmp" /* SmallImages IDC_SAVE_SmallImages_RESID: (null) */
+IDC_SAVE_LargeImages_RESID    BITMAP    "Res\\Save32.bmp" /* LargeImages IDC_SAVE_LargeImages_RESID: (null) */
+STRINGTABLE 
+BEGIN
+    IDC_SAVEAS_LabelTitle_RESID L"Save &as" /* LabelTitle IDC_SAVEAS_LabelTitle_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
+    IDC_SAVEAS_TooltipDescription_RESID L"Save the document with a new name or format" /* TooltipDescription IDC_SAVEAS_TooltipDescription_RESID: (null) */
+END
+
+IDC_SAVEAS_SmallImages_RESID    BITMAP    "Res\\SaveAs_S096.bmp" /* SmallImages IDC_SAVEAS_SmallImages_RESID: (null) */
+IDC_SAVEAS_LargeImages_RESID    BITMAP    "Res\\SaveAs_L096.bmp" /* LargeImages IDC_SAVEAS_LargeImages_RESID: (null) */
+STRINGTABLE 
+BEGIN
+    CmdHeaderSave_LabelTitle_RESID L"Save a copy of the document" /* LabelTitle CmdHeaderSave_LabelTitle_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
+    IDC_RTF_LabelTitle_RESID L"&Rich Text document" /* LabelTitle IDC_RTF_LabelTitle_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
+    IDC_RTF_LabelDescription_RESID L"Save the document in the Rich Text format." /* LabelDescription IDC_RTF_LabelDescription_RESID: (null) */
+END
+
+IDC_RTF_SmallImages_RESID    BITMAP    "Res\\RichText_S096.bmp" /* SmallImages IDC_RTF_SmallImages_RESID: (null) */
+IDC_RTF_LargeImages_RESID    BITMAP    "Res\\RichText_L096.bmp" /* LargeImages IDC_RTF_LargeImages_RESID: (null) */
+STRINGTABLE 
+BEGIN
+    IDC_OPENXML_LabelTitle_RESID L"Office Open &XML document" /* LabelTitle IDC_OPENXML_LabelTitle_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
+    IDC_OPENXML_LabelDescription_RESID L"Save the document in the Office Open XML format." /* LabelDescription IDC_OPENXML_LabelDescription_RESID: (null) */
+END
+
+IDC_OPENXML_SmallImages_RESID    BITMAP    "Res\\OfficeXmlDocument_S096.bmp" /* SmallImages IDC_OPENXML_SmallImages_RESID: (null) */
+IDC_OPENXML_LargeImages_RESID    BITMAP    "Res\\OfficeXmlDocument_L096.bmp" /* LargeImages IDC_OPENXML_LargeImages_RESID: (null) */
+STRINGTABLE 
+BEGIN
+    IDC_ODF_LabelTitle_RESID L"Open&Document text" /* LabelTitle IDC_ODF_LabelTitle_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
+    IDC_ODF_LabelDescription_RESID L"Save the document in the OpenDocument format." /* LabelDescription IDC_ODF_LabelDescription_RESID: (null) */
+END
+
+IDC_ODF_SmallImages_RESID    BITMAP    "Res\\OpenDocumentText_S096.bmp" /* SmallImages IDC_ODF_SmallImages_RESID: (null) */
+IDC_ODF_LargeImages_RESID    BITMAP    "Res\\OpenDocumentText_L096.bmp" /* LargeImages IDC_ODF_LargeImages_RESID: (null) */
+STRINGTABLE 
+BEGIN
+    IDC_TXT_LabelTitle_RESID L"&Plain text document" /* LabelTitle IDC_TXT_LabelTitle_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
+    IDC_TXT_LabelDescription_RESID L"Save the document as plain text without line breaks or formatting." /* LabelDescription IDC_TXT_LabelDescription_RESID: (null) */
+END
+
+IDC_TXT_SmallImages_RESID    BITMAP    "Res\\PlainText_S096.bmp" /* SmallImages IDC_TXT_SmallImages_RESID: (null) */
+IDC_TXT_LargeImages_RESID    BITMAP    "Res\\PlainText_L096.bmp" /* LargeImages IDC_TXT_LargeImages_RESID: (null) */
+STRINGTABLE 
+BEGIN
+    IDC_FMTOTHER_LabelTitle_RESID L"&Other formats" /* LabelTitle IDC_FMTOTHER_LabelTitle_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
+    IDC_FMTOTHER_LabelDescription_RESID L"Open the Save as dialog box to select from all possible file types." /* LabelDescription IDC_FMTOTHER_LabelDescription_RESID: (null) */
+END
+
+IDC_FMTOTHER_SmallImages_RESID    BITMAP    "Res\\SaveAs_S096.bmp" /* SmallImages IDC_FMTOTHER_SmallImages_RESID: (null) */
+IDC_FMTOTHER_LargeImages_RESID    BITMAP    "Res\\SaveAs_L096.bmp" /* LargeImages IDC_FMTOTHER_LargeImages_RESID: (null) */
+STRINGTABLE 
+BEGIN
+    IDC_EXIT_LabelTitle_RESID L"Exit" /* LabelTitle IDC_EXIT_LabelTitle_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
+    IDC_EXIT_LabelDescription_RESID L"Exit Application" /* LabelDescription IDC_EXIT_LabelDescription_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
+    IDC_EXIT_TooltipTitle_RESID L"Exits the program." /* TooltipTitle IDC_EXIT_TooltipTitle_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
+    IDC_EXIT_TooltipDescription_RESID L"Closes the program window." /* TooltipDescription IDC_EXIT_TooltipDescription_RESID: (null) */
+END
+
+IDC_EXIT_SmallImages_RESID    BITMAP    "Res\\Exit16.bmp" /* SmallImages IDC_EXIT_SmallImages_RESID: (null) */
+IDC_EXIT_LargeImages_RESID    BITMAP    "Res\\Exit32.bmp" /* LargeImages IDC_EXIT_LargeImages_RESID: (null) */
+STRINGTABLE 
+BEGIN
+    cmdGroupFileActions_LabelTitle_RESID L"File Actions" /* LabelTitle cmdGroupFileActions_LabelTitle_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
+    cmdRecentItems_LabelTitle_RESID L"Recent Items" /* LabelTitle cmdRecentItems_LabelTitle_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
+    cmdGroupRichFont_LabelTitle_RESID L"Rich Font" /* LabelTitle cmdGroupRichFont_LabelTitle_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
+    IDC_RICHFONT_Keytip_RESID L"F" /* Keytip IDC_RICHFONT_Keytip_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
+    IDC_TOGGLE1_LabelTitle_RESID L"Toggle" /* LabelTitle IDC_TOGGLE1_LabelTitle_RESID: (null) */
+END
+
+IDC_TOGGLE1_SmallImages_RESID    BITMAP    "res\\AddTableS.bmp" /* SmallImages IDC_TOGGLE1_SmallImages_RESID: (null) */
+IDC_TOGGLE1_LargeImages_RESID    BITMAP    "res\\AddTableL.bmp" /* LargeImages IDC_TOGGLE1_LargeImages_RESID: (null) */
+STRINGTABLE 
+BEGIN
+    cmdMRUList_LabelTitle_RESID L"MRU List" /* LabelTitle cmdMRUList_LabelTitle_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
+    IDC_EDITDROPDOWN_LabelTitle_RESID L"Edit" /* LabelTitle IDC_EDITDROPDOWN_LabelTitle_RESID: (null) */
+END
+
+IDC_EDITDROPDOWN_LargeImages_RESID    BITMAP    "res\\AddTableL.bmp" /* LargeImages IDC_EDITDROPDOWN_LargeImages_RESID: (null) */
+STRINGTABLE 
+BEGIN
+    IDC_OPENFILE_LabelTitle_RESID L"Open File" /* LabelTitle IDC_OPENFILE_LabelTitle_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
+    IDC_OPENFILE_LabelDescription_RESID L"Open a file from the local system or network share." /* LabelDescription IDC_OPENFILE_LabelDescription_RESID: (null) */
+END
+
+IDC_OPENFILE_LargeImages_RESID    BITMAP    "res\\OpenFileL.bmp" /* LargeImages IDC_OPENFILE_LargeImages_RESID: (null) */
+STRINGTABLE 
+BEGIN
+    IDC_OPENURL_LabelTitle_RESID L"Open URL" /* LabelTitle IDC_OPENURL_LabelTitle_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
+    IDC_OPENURL_LabelDescription_RESID L"Open a file from an Internet URL." /* LabelDescription IDC_OPENURL_LabelDescription_RESID: (null) */
+END
+
+IDC_OPENURL_LargeImages_RESID    BITMAP    "res\\OpenFileL.bmp" /* LargeImages IDC_OPENURL_LargeImages_RESID: (null) */
+STRINGTABLE 
+BEGIN
+    CmdHeaderPrint_LabelTitle_RESID L"Preview and print the document" /* LabelTitle CmdHeaderPrint_LabelTitle_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
+    IDC_PRINT_LabelTitle_RESID L"Print" /* LabelTitle IDC_PRINT_LabelTitle_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
+    IDC_PRINT_LabelDescription_RESID L"Send the document to the currently selected default printer." /* LabelDescription IDC_PRINT_LabelDescription_RESID: (null) */
+END
+
+IDC_PRINT_LargeImages_RESID    BITMAP    "res\\PrintL.bmp" /* LargeImages IDC_PRINT_LargeImages_RESID: (null) */
+STRINGTABLE 
+BEGIN
+    IDC_PRINTSETUP_LabelTitle_RESID L"Print Setup" /* LabelTitle IDC_PRINTSETUP_LabelTitle_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
+    IDC_PRINTSETUP_LabelDescription_RESID L"Change the page layout or other printer settings." /* LabelDescription IDC_PRINTSETUP_LabelDescription_RESID: (null) */
+END
+
+IDC_PRINTSETUP_LargeImages_RESID    BITMAP    "res\\PageSetup_L096.bmp" /* LargeImages IDC_PRINTSETUP_LargeImages_RESID: (null) */
+STRINGTABLE 
+BEGIN
+    IDC_QUICKPRINT_LabelTitle_RESID L"&Quick print" /* LabelTitle IDC_QUICKPRINT_LabelTitle_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
+    IDC_QUICKPRINT_LabelDescription_RESID L"Send the document directly to the default printer without making changes." /* LabelDescription IDC_QUICKPRINT_LabelDescription_RESID: (null) */
+END
+
+IDC_QUICKPRINT_LargeImages_RESID    BITMAP    "Res\\PrintQuick_L096.bmp" /* LargeImages IDC_QUICKPRINT_LargeImages_RESID: (null) */
+STRINGTABLE 
+BEGIN
+    IDC_PRINTPREVIEW_LabelTitle_RESID L"Print pre&view" /* LabelTitle IDC_PRINTPREVIEW_LabelTitle_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
+    IDC_PRINTPREVIEW_LabelDescription_RESID L"Preview and make changes to pages before printing." /* LabelDescription IDC_PRINTPREVIEW_LabelDescription_RESID: (null) */
+END
+
+IDC_PRINTPREVIEW_LargeImages_RESID    BITMAP    "Res\\PrintPreview_L096.bmp" /* LargeImages IDC_PRINTPREVIEW_LargeImages_RESID: (null) */
+STRINGTABLE 
+BEGIN
+    cmdTab1_LabelTitle_RESID L"Tab 1" /* LabelTitle cmdTab1_LabelTitle_RESID: These comments are optional and are inserted into the header file. */
+END
+
+cmdGroup1_SmallImages_RESID    BITMAP    "res\\Button_Image.bmp" /* SmallImages cmdGroup1_SmallImages_RESID: Group #1 */
+STRINGTABLE 
+BEGIN
+    IDC_CMD_CONTEXT1_LabelTitle_RESID L"Activate\nContext 1" /* LabelTitle IDC_CMD_CONTEXT1_LabelTitle_RESID: Button that activates context 1 */
+END
+
+IDC_CMD_CONTEXT1_LargeImages_RESID    BITMAP    "res\\AddTableL.bmp" /* LargeImages IDC_CMD_CONTEXT1_LargeImages_RESID: Button that activates context 1 */
+STRINGTABLE 
+BEGIN
+    IDC_CMD_CONTEXT2_LabelTitle_RESID L"Activate\nContext 2" /* LabelTitle IDC_CMD_CONTEXT2_LabelTitle_RESID: Button that activates context 2 */
+END
+
+IDC_CMD_CONTEXT2_LargeImages_RESID    BITMAP    "res\\AddTableL.bmp" /* LargeImages IDC_CMD_CONTEXT2_LargeImages_RESID: Button that activates context 2 */
+STRINGTABLE 
+BEGIN
+    IDC_CMD_CONTEXT3_LabelTitle_RESID L"Activate\nContext 3" /* LabelTitle IDC_CMD_CONTEXT3_LabelTitle_RESID: Button that activates context 3 */
+END
+
+IDC_CMD_CONTEXT3_LargeImages_RESID    BITMAP    "res\\AddTableL.bmp" /* LargeImages IDC_CMD_CONTEXT3_LargeImages_RESID: Button that activates context 3 */
+STRINGTABLE 
+BEGIN
+    IDC_CMD_CONTEXT4_LabelTitle_RESID L"Activate\nContext 4" /* LabelTitle IDC_CMD_CONTEXT4_LabelTitle_RESID: Button that activates context 4 */
+END
+
+IDC_CMD_CONTEXT4_LargeImages_RESID    BITMAP    "res\\AddTableL.bmp" /* LargeImages IDC_CMD_CONTEXT4_LargeImages_RESID: Button that activates context 4 */
+STRINGTABLE 
+BEGIN
+    IDC_CUT_LabelTitle_RESID L"Cut" /* LabelTitle IDC_CUT_LabelTitle_RESID: Cut button */
+END
+
+STRINGTABLE 
+BEGIN
+    IDC_CUT_TooltipTitle_RESID L"Cut" /* TooltipTitle IDC_CUT_TooltipTitle_RESID: Cut button */
+END
+
+STRINGTABLE 
+BEGIN
+    IDC_CUT_TooltipDescription_RESID L"Moves the selected contents to the clipbaord" /* TooltipDescription IDC_CUT_TooltipDescription_RESID: Cut button */
+END
+
+IDC_CUT_SmallImages_RESID    BITMAP    "res\\Cut.bmp" /* SmallImages IDC_CUT_SmallImages_RESID: Cut button */
+STRINGTABLE 
+BEGIN
+    IDC_COPY_LabelTitle_RESID L"Copy" /* LabelTitle IDC_COPY_LabelTitle_RESID: Copy button */
+END
+
+STRINGTABLE 
+BEGIN
+    IDC_COPY_TooltipTitle_RESID L"Copy" /* TooltipTitle IDC_COPY_TooltipTitle_RESID: Copy button */
+END
+
+STRINGTABLE 
+BEGIN
+    IDC_COPY_TooltipDescription_RESID L"Copies the selected contents to the clipboards." /* TooltipDescription IDC_COPY_TooltipDescription_RESID: Copy button */
+END
+
+IDC_COPY_SmallImages_RESID    BITMAP    "res\\Copy.bmp" /* SmallImages IDC_COPY_SmallImages_RESID: Copy button */
+STRINGTABLE 
+BEGIN
+    IDC_PASTE_LabelTitle_RESID L"Paste" /* LabelTitle IDC_PASTE_LabelTitle_RESID: Paste button */
+END
+
+STRINGTABLE 
+BEGIN
+    IDC_PASTE_TooltipTitle_RESID L"Paste" /* TooltipTitle IDC_PASTE_TooltipTitle_RESID: Paste button */
+END
+
+STRINGTABLE 
+BEGIN
+    IDC_PASTE_TooltipDescription_RESID L"Pastes the contents of the clipboard at the currently selected position." /* TooltipDescription IDC_PASTE_TooltipDescription_RESID: Paste button */
+END
+
+IDC_PASTE_SmallImages_RESID    BITMAP    "Res\\Paste_S096.bmp" /* SmallImages IDC_PASTE_SmallImages_RESID: Paste button */
+STRINGTABLE 
+BEGIN
+    IDC_CTXTOGGLE_LabelTitle_RESID L"ToggleButton" /* LabelTitle IDC_CTXTOGGLE_LabelTitle_RESID: Toggle Button */
+END
+
+IDC_CTXTOGGLE_SmallImages_RESID    BITMAP    "res\\DeleteTableL.bmp" /* SmallImages IDC_CTXTOGGLE_SmallImages_RESID: Toggle Button */
+STRINGTABLE 
+BEGIN
+    IDC_BUTTON1_LabelTitle_RESID L"Button 1" /* LabelTitle IDC_BUTTON1_LabelTitle_RESID: Button #1 */
+END
+
+IDC_BUTTON1_LargeImages_RESID    BITMAP    "res\\OpenHH.bmp" /* LargeImages IDC_BUTTON1_LargeImages_RESID: Button #1 */
+STRINGTABLE 
+BEGIN
+    IDC_BUTTON2_LabelTitle_RESID L"Button 2" /* LabelTitle IDC_BUTTON2_LabelTitle_RESID: Button #2 */
+END
+
+IDC_BUTTON2_LargeImages_RESID    BITMAP    "res\\delete.bmp" /* LargeImages IDC_BUTTON2_LargeImages_RESID: Button #2 */
+STRINGTABLE 
+BEGIN
+    IDC_BUTTON3_LabelTitle_RESID L"Button 3" /* LabelTitle IDC_BUTTON3_LabelTitle_RESID: Button #3 */
+END
+
+IDC_BUTTON3_LargeImages_RESID    BITMAP    "res\\PrintRelationshipsL.bmp" /* LargeImages IDC_BUTTON3_LargeImages_RESID: Button #3 */
+STRINGTABLE 
+BEGIN
+    IDC_BUTTONS_LabelTitle_RESID L"Buttons" /* LabelTitle IDC_BUTTONS_LabelTitle_RESID: DropDownButton that contains the three buttons */
+END
+
+IDC_BUTTONS_LargeImages_RESID    BITMAP    "res\\GraphHH.bmp" /* LargeImages IDC_BUTTONS_LargeImages_RESID: DropDownButton that contains the three buttons */
+STRINGTABLE 
+BEGIN
+    IDC_CHECK1_LabelTitle_RESID L"Some setting" /* LabelTitle IDC_CHECK1_LabelTitle_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
+    IDC_CHECK1_LabelDescription_RESID L"Apply setting 1" /* LabelDescription IDC_CHECK1_LabelDescription_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
+    IDC_CHECK1_TooltipTitle_RESID L"Setting 1" /* TooltipTitle IDC_CHECK1_TooltipTitle_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
+    IDC_CHECK1_TooltipDescription_RESID L"Applies setting 1" /* TooltipDescription IDC_CHECK1_TooltipDescription_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
+    cmdCheck2_LabelTitle_RESID L"Another setting" /* LabelTitle cmdCheck2_LabelTitle_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
+    cmdCheck2_LabelDescription_RESID L"A different setting" /* LabelDescription cmdCheck2_LabelDescription_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
+    cmdCheck2_TooltipTitle_RESID L"Setting 2" /* TooltipTitle cmdCheck2_TooltipTitle_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
+    cmdCheck2_TooltipDescription_RESID L"Applies setting 3" /* TooltipDescription cmdCheck2_TooltipDescription_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
+    cmdCheckHdr_TooltipTitle_RESID L"Misc settings" /* TooltipTitle cmdCheckHdr_TooltipTitle_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
+    cmdCheckHdr_TooltipDescription_RESID L"Applies misc settings" /* TooltipDescription cmdCheckHdr_TooltipDescription_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
+    IDC_PARAGRAPH_LabelTitle_RESID L"Paragraph" /* LabelTitle IDC_PARAGRAPH_LabelTitle_RESID: (null) */
+END
+
+IDC_PARAGRAPH_SmallImages_RESID    BITMAP    "Res\\Paragraph_S096.bmp" /* SmallImages IDC_PARAGRAPH_SmallImages_RESID: (null) */
+STRINGTABLE 
+BEGIN
+    IDC_INDENT_LabelTitle_RESID L"Increase indent" /* LabelTitle IDC_INDENT_LabelTitle_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
+    IDC_INDENT_TooltipTitle_RESID L"Increase indent" /* TooltipTitle IDC_INDENT_TooltipTitle_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
+    IDC_INDENT_TooltipDescription_RESID L"Increase the indent level of the paragraph" /* TooltipDescription IDC_INDENT_TooltipDescription_RESID: (null) */
+END
+
+IDC_INDENT_SmallImages_RESID    BITMAP    "Res\\Indent_S096.bmp" /* SmallImages IDC_INDENT_SmallImages_RESID: (null) */
+STRINGTABLE 
+BEGIN
+    IDC_OUTDENT_LabelTitle_RESID L"Descrease indent" /* LabelTitle IDC_OUTDENT_LabelTitle_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
+    IDC_OUTDENT_TooltipTitle_RESID L"Decrease indent" /* TooltipTitle IDC_OUTDENT_TooltipTitle_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
+    IDC_OUTDENT_TooltipDescription_RESID L"Decrease the indent level of the paragraph." /* TooltipDescription IDC_OUTDENT_TooltipDescription_RESID: (null) */
+END
+
+IDC_OUTDENT_SmallImages_RESID    BITMAP    "Res\\Outdent_S096.bmp" /* SmallImages IDC_OUTDENT_SmallImages_RESID: (null) */
+STRINGTABLE 
+BEGIN
+    IDC_LINESPACING_LabelTitle_RESID L"Line spacing" /* LabelTitle IDC_LINESPACING_LabelTitle_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
+    IDC_LINESPACING_TooltipTitle_RESID L"Line spacing" /* TooltipTitle IDC_LINESPACING_TooltipTitle_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
+    IDC_LINESPACING_TooltipDescription_RESID L"Adjust the line spacing of sentences." /* TooltipDescription IDC_LINESPACING_TooltipDescription_RESID: (null) */
+END
+
+IDC_LINESPACING_SmallImages_RESID    BITMAP    "Res\\LineSpacing_S096.bmp" /* SmallImages IDC_LINESPACING_SmallImages_RESID: (null) */
+STRINGTABLE 
+BEGIN
+    IDC_LINESPACE1_LabelTitle_RESID L"1.0" /* LabelTitle IDC_LINESPACE1_LabelTitle_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
+    IDC_LINESPACE115_LabelTitle_RESID L"1.15" /* LabelTitle IDC_LINESPACE115_LabelTitle_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
+    IDC_LINESPACE15_LabelTitle_RESID L"1.5" /* LabelTitle IDC_LINESPACE15_LabelTitle_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
+    IDC_LINESPACE2_LabelTitle_RESID L"2" /* LabelTitle IDC_LINESPACE2_LabelTitle_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
+    IDC_ALIGNLEFT_LabelTitle_RESID L"Align Left" /* LabelTitle IDC_ALIGNLEFT_LabelTitle_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
+    IDC_ALIGNLEFT_TooltipTitle_RESID L"Align text left" /* TooltipTitle IDC_ALIGNLEFT_TooltipTitle_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
+    IDC_ALIGNLEFT_TooltipDescription_RESID L"Aligns text to the left" /* TooltipDescription IDC_ALIGNLEFT_TooltipDescription_RESID: (null) */
+END
+
+IDC_ALIGNLEFT_SmallImages_RESID    BITMAP    "Res\\AlignLeft_S096.bmp" /* SmallImages IDC_ALIGNLEFT_SmallImages_RESID: (null) */
+STRINGTABLE 
+BEGIN
+    IDC_ALIGNRIGHT_LabelTitle_RESID L"Align Right" /* LabelTitle IDC_ALIGNRIGHT_LabelTitle_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
+    IDC_ALIGNRIGHT_TooltipTitle_RESID L"Align right" /* TooltipTitle IDC_ALIGNRIGHT_TooltipTitle_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
+    IDC_ALIGNRIGHT_TooltipDescription_RESID L"Aligns text to the right" /* TooltipDescription IDC_ALIGNRIGHT_TooltipDescription_RESID: (null) */
+END
+
+IDC_ALIGNRIGHT_SmallImages_RESID    BITMAP    "Res\\AlignRight_S096.bmp" /* SmallImages IDC_ALIGNRIGHT_SmallImages_RESID: (null) */
+STRINGTABLE 
+BEGIN
+    IDC_ALIGNCENTER_LabelTitle_RESID L"Align center" /* LabelTitle IDC_ALIGNCENTER_LabelTitle_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
+    IDC_ALIGNCENTER_TooltipTitle_RESID L"Align center" /* TooltipTitle IDC_ALIGNCENTER_TooltipTitle_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
+    IDC_ALIGNCENTER_TooltipDescription_RESID L"Aligns text towards the center" /* TooltipDescription IDC_ALIGNCENTER_TooltipDescription_RESID: (null) */
+END
+
+IDC_ALIGNCENTER_SmallImages_RESID    BITMAP    "Res\\AlignCenter_S096.bmp" /* SmallImages IDC_ALIGNCENTER_SmallImages_RESID: (null) */
+STRINGTABLE 
+BEGIN
+    IDC_JUSTIFY_LabelTitle_RESID L"Align Justify" /* LabelTitle IDC_JUSTIFY_LabelTitle_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
+    IDC_JUSTIFY_TooltipTitle_RESID L"Align justify" /* TooltipTitle IDC_JUSTIFY_TooltipTitle_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
+    IDC_JUSTIFY_TooltipDescription_RESID L"Align text to both left and right margins, adding extra space between words as necessary. This creates a clean look along the left and right side of the page." /* TooltipDescription IDC_JUSTIFY_TooltipDescription_RESID: (null) */
+END
+
+IDC_JUSTIFY_SmallImages_RESID    BITMAP    "Res\\AlignJustify_S096.bmp" /* SmallImages IDC_JUSTIFY_SmallImages_RESID: (null) */
+STRINGTABLE 
+BEGIN
+    IDC_MORE_LabelTitle_RESID L"More" /* LabelTitle IDC_MORE_LabelTitle_RESID: (null) */
+END
+
+APPLICATION_RIBBON    UIFILE    "ribbon.bml"

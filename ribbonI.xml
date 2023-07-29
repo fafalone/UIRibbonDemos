@@ -1,0 +1,1106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Application xmlns="http://schemas.microsoft.com/windows/2009/Ribbon">
+  <Application.Commands>
+    <Command Name="cmdApplicationMenu" Id="600"/>
+    <Command Name="cmdTabMain" Symbol="IDC_TABMAIN" Id="1001">
+      <Command.LabelTitle>
+        <String Id="1001">Main</String>
+      </Command.LabelTitle>
+    </Command>
+    <Command Name="cmdGroupMain" Id="1002">
+      <Command.LabelTitle>
+        <String Id="1002">Context Tabs</String>
+      </Command.LabelTitle>
+    </Command>
+    <Command Name="cmdTabGroupTableTools" Symbol="IDC_TABTABLE" Id="1003">
+      <Command.LabelTitle>
+        <String Id="1003">Table Tools</String>
+      </Command.LabelTitle>
+    </Command>
+    <Command Name="cmdTabDesign" Symbol="IDC_TABDESIGN" Id="1004">
+      <Command.LabelTitle>
+        <String Id="1004">Design</String>
+      </Command.LabelTitle>
+    </Command>
+    <Command Name="cmdTabLayout" Symbol="IDC_TABLAYOUT" Id="1005">
+      <Command.LabelTitle>
+        <String Id="1005">Layout</String>
+      </Command.LabelTitle>
+    </Command>
+    <Command Name="cmdGroupDesign" Id="1006">
+      <Command.LabelTitle>
+        <String Id="1006">Design Group</String>
+      </Command.LabelTitle>
+    </Command>
+    <Command Name="cmdGroupLayout" Id="1007">
+      <Command.LabelTitle>
+        <String Id="1007">Layout Group</String>
+      </Command.LabelTitle>
+    </Command>
+    <Command Name="cmdButtonSelect" Symbol="IDC_SELECT" Id="1050">
+      <Command.LabelTitle>
+        <String Id="1050">Select</String>
+      </Command.LabelTitle>
+      <Command.LabelDescription>
+        <String Id="1051">Simulates selecting a table</String>
+      </Command.LabelDescription>
+      <Command.TooltipTitle>
+        <String Id="1052">Select</String>
+      </Command.TooltipTitle>
+      <Command.TooltipDescription>
+        <String Id="1053">Simulates selecting a table</String>
+      </Command.TooltipDescription>
+      <Command.LargeImages>
+        <Image Id="150">Res/Select32.bmp</Image>
+      </Command.LargeImages>
+    </Command>
+    <Command Name="cmdButtonUnselect" Symbol="IDC_UNSELECT" Id="1060">
+      <Command.LabelTitle>
+        <String Id="1060">Unselect</String>
+      </Command.LabelTitle>
+      <Command.LabelDescription>
+        <String Id="1061">Simulates unselecting a table</String>
+      </Command.LabelDescription>
+      <Command.TooltipTitle>
+        <String Id="1062">Unselect</String>
+      </Command.TooltipTitle>
+      <Command.TooltipDescription>
+        <String Id="1063">Simulates unselecting a table</String>
+      </Command.TooltipDescription>
+      <Command.LargeImages>
+        <Image Id="160">Res/Unselect32.bmp</Image>
+      </Command.LargeImages>
+    </Command>
+    <Command Name="cmdButtonDesign1" Symbol="IDC_DESIGN1" Id="1010">
+      <Command.LabelTitle>
+        <String Id="1010">Design 1</String>
+      </Command.LabelTitle>
+      <Command.LargeImages>
+        <Image Id="110">Res/DropA32.bmp</Image>
+      </Command.LargeImages>
+    </Command>
+    <Command Name="cmdButtonDesign2" Symbol="IDC_DESIGN2" Id="1011">
+      <Command.LabelTitle>
+        <String Id="1011">Design 2</String>
+      </Command.LabelTitle>
+      <Command.LargeImages>
+        <Image Id="111">Res/DropB32.bmp</Image>
+      </Command.LargeImages>
+    </Command>
+    <Command Name="cmdButtonDesign3" Symbol="IDC_DESIGN3" Id="1012">
+      <Command.LabelTitle>
+        <String Id="10112">Design 3</String>
+      </Command.LabelTitle>
+      <Command.LargeImages>
+        <Image Id="112">Res/DropC32.bmp</Image>
+      </Command.LargeImages>
+    </Command>
+    <Command Name="cmdButtonLayout1" Symbol="IDC_LAYOUT1" Id="1013">
+      <Command.LabelTitle>
+        <String Id="1013">Layout 1</String>
+      </Command.LabelTitle>
+      <Command.LargeImages>
+        <Image Id="113">Res/DropA32.bmp</Image>
+      </Command.LargeImages>
+    </Command>
+    <Command Name="cmdButtonLayout2" Symbol="IDC_LAYOUT2" Id="1014">
+      <Command.LabelTitle>
+        <String Id="1014">Layout 2</String>
+      </Command.LabelTitle>
+      <Command.LargeImages>
+        <Image Id="114">Res/DropB32.bmp</Image>
+      </Command.LargeImages>
+    </Command>
+    <Command Name="cmdTab" Symbol="IDC_TABCOLOR" Id="1999">
+      <Command.LabelTitle>
+        <String Id="1999">Colors</String>
+      </Command.LabelTitle>
+    </Command>
+    <Command Name="cmdButtonsGroup" Id="2000">
+      <Command.LabelTitle>
+        <String Id="2000">Buttons</String>
+      </Command.LabelTitle>
+    </Command>
+    <Command Name="cmdDropDownColorPickerGroup" Id="2001">
+      <Command.LabelTitle>
+        <String Id="2001">Color pickers</String>
+      </Command.LabelTitle>
+    </Command>
+    <Command Name="cmdDropDownColorPickerThemeColors" Symbol="IDC_COLORTHEME" Id="2002">
+      <Command.LabelTitle>
+        <String Id="2002">Theme Colors</String>
+      </Command.LabelTitle>
+      <Command.LargeImages>
+        <Image Id="202">Res/Colors32.bmp</Image>
+      </Command.LargeImages>
+    </Command>
+    <Command Name="cmdDropDownColorPickerStandardColors" Symbol="IDC_COLORSTD" Id="2003">
+      <Command.LabelTitle>
+        <String Id="2003">Standard Colors</String>
+      </Command.LabelTitle>
+      <Command.LargeImages>
+        <Image Id="203">Res/Colors32.bmp</Image>
+      </Command.LargeImages>
+    </Command>
+    <Command Name="cmdDropDownColorPickerHighlightColors" Symbol="IDC_CLRHILITE" Id="204">
+      <Command.LabelTitle>
+        <String Id="2004">Highlight Colors</String>
+      </Command.LabelTitle>
+      <Command.LargeImages>
+        <Image Id="204">Res/Colors32.bmp</Image>
+      </Command.LargeImages>
+    </Command>
+    <Command Name="cmdButtonListColors" Symbol="IDC_LISTCOLORS" Id="2006">
+      <Command.LabelTitle>
+        <String Id="2006">List Colors</String>
+      </Command.LabelTitle>
+      <Command.LargeImages>
+        <Image Id="206">Res/Open32.bmp</Image>
+      </Command.LargeImages>
+    </Command>
+    <Command Name="cmdButtonNew" Symbol="IDC_NEW" Id="7001">
+      <Command.LabelTitle>
+        <String Id="7001">New</String>
+      </Command.LabelTitle>
+      <Command.LabelDescription>
+        <String Id="7002">Create new fizzbuzz</String>
+      </Command.LabelDescription>
+      <Command.TooltipTitle>
+        <String Id="7003">New (Ctrl+N)</String>
+      </Command.TooltipTitle>
+      <Command.TooltipDescription>
+        <String Id="7004">Create new fizzbuzz TT</String>
+      </Command.TooltipDescription>
+      <Command.SmallImages>
+        <Image Id="701">Res/New16.bmp</Image>
+      </Command.SmallImages>
+      <Command.LargeImages>
+        <Image Id="702">Res/New32.bmp</Image>
+      </Command.LargeImages>
+    </Command>
+    <Command Name="cmdButtonOpen" Symbol="IDC_OPEN" Id="8000">
+      <Command.LabelTitle>
+        <String Id="8000">Open</String>
+      </Command.LabelTitle>
+      <Command.LabelDescription>
+        <String Id="8001">Open a fizzbuzz</String>
+      </Command.LabelDescription>
+      <Command.TooltipTitle>
+        <String Id="8002">Open (Ctrl+O)</String>
+      </Command.TooltipTitle>
+      <Command.TooltipDescription>
+        <String Id="8003">Opens an existing fizzbuzz</String>
+      </Command.TooltipDescription>
+      <Command.SmallImages>
+        <Image Id="801">Res/Open16.bmp</Image>
+      </Command.SmallImages>
+      <Command.LargeImages>
+        <Image Id="800">Res/Open32.bmp</Image>
+      </Command.LargeImages>
+    </Command>
+    <Command Name="CmdSaveButton" Symbol="IDC_SAVE" Id="9000">
+      <Command.LabelTitle>
+        <String Id="9100">Save</String>
+      </Command.LabelTitle>
+      <Command.LabelDescription>
+        <String Id="9001">Save the fizzbuzz</String>
+      </Command.LabelDescription>
+      <Command.TooltipTitle>
+        <String Id="9002">Save (Ctrl+S)</String>
+      </Command.TooltipTitle>
+      <Command.TooltipDescription>
+        <String Id="9003">Saves the fizzbuzz</String>
+      </Command.TooltipDescription>
+      <Command.SmallImages>
+        <Image Id="901">Res/Save16.bmp</Image>
+      </Command.SmallImages>
+      <Command.LargeImages>
+        <Image Id="900">Res/Save32.bmp</Image>
+      </Command.LargeImages>
+    </Command>
+    <Command Name="CmdSaveAs" Symbol="IDC_SAVEAS" Id="9101">
+      <Command.LabelTitle>
+        <String Id="9102">Save &amp;as</String>
+      </Command.LabelTitle>
+      <Command.TooltipDescription>
+        <String Id="9103">Save the document with a new name or format</String>
+      </Command.TooltipDescription>
+      <Command.SmallImages>
+        <Image Id="9104">Res/SaveAs_S096.bmp</Image>
+      </Command.SmallImages>
+      <Command.LargeImages>
+        <Image Id="9105">Res/SaveAs_L096.bmp</Image>
+      </Command.LargeImages>
+    </Command>
+    <Command Name="CmdSaveAsMore" Symbol="IDC_SAVEASMORE" Id="9106"/>
+    <Command Name="CmdHeaderSave" Id="9107">
+      <Command.LabelTitle>
+        <String Id="9108">Save a copy of the document</String>
+      </Command.LabelTitle>
+    </Command>
+    <Command Name="CmdRichTextDocument" Symbol="IDC_RTF" Id="9109">
+      <Command.LabelTitle>
+        <String Id="9110">&amp;Rich Text document</String>
+      </Command.LabelTitle>
+      <Command.LabelDescription>
+        <String Id="9111">Save the document in the Rich Text format.</String>
+      </Command.LabelDescription>
+      <Command.SmallImages>
+        <Image Id="9112">Res/RichText_S096.bmp</Image>
+      </Command.SmallImages>
+      <Command.LargeImages>
+        <Image Id="9113">Res/RichText_L096.bmp</Image>
+      </Command.LargeImages>
+    </Command>
+    <Command Name="CmdOfficeOpenXMLDocument" Symbol="IDC_OPENXML" Id="9114">
+      <Command.LabelTitle>
+        <String Id="9115">Office Open &amp;XML document</String>
+      </Command.LabelTitle>
+      <Command.LabelDescription>
+        <String Id="9116">Save the document in the Office Open XML format.</String>
+      </Command.LabelDescription>
+      <Command.SmallImages>
+        <Image Id="9117">Res/OfficeXmlDocument_S096.bmp</Image>
+      </Command.SmallImages>
+      <Command.LargeImages>
+        <Image Id="9118">Res/OfficeXmlDocument_L096.bmp</Image>
+      </Command.LargeImages>
+    </Command>
+    <Command Name="CmdOpenDocumentText" Symbol="IDC_ODF" Id="9119">
+      <Command.LabelTitle>
+        <String Id="9120">Open&amp;Document text</String>
+      </Command.LabelTitle>
+      <Command.LabelDescription>
+        <String Id="9121">Save the document in the OpenDocument format.</String>
+      </Command.LabelDescription>
+      <Command.SmallImages>
+        <Image Id="9122">Res/OpenDocumentText_S096.bmp</Image>
+      </Command.SmallImages>
+      <Command.LargeImages>
+        <Image Id="9123">Res/OpenDocumentText_L096.bmp</Image>
+      </Command.LargeImages>
+    </Command>
+    <Command Name="CmdPlainTextDocument" Symbol="IDC_TXT" Id="9214">
+      <Command.LabelTitle>
+        <String Id="9125">&amp;Plain text document</String>
+      </Command.LabelTitle>
+      <Command.LabelDescription>
+        <String Id="9126">Save the document as plain text without line breaks or formatting.</String>
+      </Command.LabelDescription>
+      <Command.SmallImages>
+        <Image Id="9127">Res/PlainText_S096.bmp</Image>
+      </Command.SmallImages>
+      <Command.LargeImages>
+        <Image Id="9128">Res/PlainText_L096.bmp</Image>
+      </Command.LargeImages>
+    </Command>
+    <Command Name="CmdOtherFormats" Symbol="IDC_FMTOTHER" Id="9129">
+      <Command.LabelTitle>
+        <String Id="9130">&amp;Other formats</String>
+      </Command.LabelTitle>
+      <Command.LabelDescription>
+        <String Id="9131">Open the Save as dialog box to select from all possible file types.</String>
+      </Command.LabelDescription>
+      <Command.SmallImages>
+        <Image Id="9132">Res/SaveAs_S096.bmp</Image>
+      </Command.SmallImages>
+      <Command.LargeImages>
+        <Image Id="9133">Res/SaveAs_L096.bmp</Image>
+      </Command.LargeImages>
+    </Command>
+    <Command Name="cmdButtonExit" Symbol="IDC_EXIT" Id="20000">
+      <Command.LabelTitle>
+        <String Id="20000">Exit</String>
+      </Command.LabelTitle>
+      <Command.LabelDescription>
+        <String Id="20001">Exit Application</String>
+      </Command.LabelDescription>
+      <Command.TooltipTitle>
+        <String Id="20002">Exits the program.</String>
+      </Command.TooltipTitle>
+      <Command.TooltipDescription>
+        <String Id="10003">Closes the program window.</String>
+      </Command.TooltipDescription>
+      <Command.SmallImages>
+        <Image Id="22221">Res/Exit16.bmp</Image>
+      </Command.SmallImages>
+      <Command.LargeImages>
+        <Image Id="22220">Res/Exit32.bmp</Image>
+      </Command.LargeImages>
+    </Command>
+    <Command Name="cmdGroupFileActions" Id="355">
+      <Command.LabelTitle>
+        <String Id="355">File Actions</String>
+      </Command.LabelTitle>
+    </Command>
+    <Command Name="cmdQAT" Id="306"/>
+    <Command Name="cmdCustomizeQAT" Id="307"/>
+    <Command Name="cmdRecentItems" Id="1775">
+      <Command.LabelTitle>
+        <String Id="1776">Recent Items</String>
+      </Command.LabelTitle>
+    </Command>
+    <Command Name="cmdGroupRichFont" Id="1777">
+      <Command.LabelTitle>
+        <String Id="1778">Rich Font</String>
+      </Command.LabelTitle>
+    </Command>
+    <Command Name="cmdRichFont" Symbol="IDC_RICHFONT" Id="1779">
+      <Command.Keytip>
+        <String Id="1780">F</String>
+      </Command.Keytip>
+    </Command>
+    <Command Name="cmdToggleButton1" Symbol="IDC_TOGGLE1" Id="1778">
+      <Command.LabelTitle>
+        <String Id="3260">Toggle</String>
+      </Command.LabelTitle>
+      <Command.SmallImages>
+        <Image Id="3262">res/AddTableS.bmp</Image>
+      </Command.SmallImages>
+      <Command.LargeImages>
+        <Image Id="3261">res/AddTableL.bmp</Image>
+      </Command.LargeImages>
+    </Command>
+    <Command Name="cmdGroup4"/>
+    <Command Name="cmdFileMenu"/>
+    <Command Name="cmdMRUList">
+      <Command.LabelTitle>
+        <String Id="3285">MRU List</String>
+      </Command.LabelTitle>
+    </Command>
+    <Command Name="cmdGroup6"/>
+    <Command Name="cmdDropDownButton" Symbol="IDC_EDITDROPDOWN">
+      <Command.LabelTitle>
+        <String Id="3386">Edit</String>
+      </Command.LabelTitle>
+      <Command.LargeImages>
+        <Image Id="3387">res/AddTableL.bmp</Image>
+      </Command.LargeImages>
+    </Command>
+    <Command Name="Help" Symbol="IDC_RIBBONHELP" Id="27664"/>
+    <Command Name="OpenFileMore" Symbol="IDC_OPENFILEMORE" Id="20500"/>
+    <Command Name="OpenFile" Symbol="IDC_OPENFILE" Id="27601">
+      <Command.LabelTitle>
+        <String Id="2522">Open File</String>
+      </Command.LabelTitle>
+      <Command.LabelDescription>
+        <String Id="2523">Open a file from the local system or network share.</String>
+      </Command.LabelDescription>
+      <Command.LargeImages>
+        <Image Id="4517">res/OpenFileL.bmp</Image>
+      </Command.LargeImages>
+    </Command>
+    <Command Name="OpenURL" Symbol="IDC_OPENURL" Id="22774">
+      <Command.LabelTitle>
+        <String Id="2524">Open URL</String>
+      </Command.LabelTitle>
+      <Command.LabelDescription>
+        <String Id="2525">Open a file from an Internet URL.</String>
+      </Command.LabelDescription>
+      <Command.LargeImages>
+        <Image Id="4518">res/OpenFileL.bmp</Image>
+      </Command.LargeImages>
+    </Command>
+    <Command Name="CmdPrintMore" Symbol="IDC_PRINTMORE" Id="20501"/>
+    <Command Name="CmdHeaderPrint" Id="20511">
+      <Command.LabelTitle>
+        <String Id="2537">Preview and print the document</String>
+      </Command.LabelTitle>
+    </Command>
+    <Command Name="CmdPrint" Symbol="IDC_PRINT" Id="27607">
+      <Command.LabelTitle>
+        <String Id="2533">Print</String>
+      </Command.LabelTitle>
+      <Command.LabelDescription>
+        <String Id="2528">Send the document to the currently selected default printer.</String>
+      </Command.LabelDescription>
+      <Command.LargeImages>
+        <Image Id="4521">res/PrintL.bmp</Image>
+      </Command.LargeImages>
+    </Command>
+    <Command Name="CmdPrintSetup" Symbol="IDC_PRINTSETUP" Id="17606">
+      <Command.LabelTitle>
+        <String Id="2529">Print Setup</String>
+      </Command.LabelTitle>
+      <Command.LabelDescription>
+        <String Id="2530">Change the page layout or other printer settings.</String>
+      </Command.LabelDescription>
+      <Command.LargeImages>
+        <Image Id="2531">res/PageSetup_L096.bmp</Image>
+      </Command.LargeImages>
+    </Command>
+    <Command Name="CmdQuickPrint" Symbol="IDC_QUICKPRINT" Id="2532">
+      <Command.LabelTitle>
+        <String Id="3133">&amp;Quick print</String>
+      </Command.LabelTitle>
+      <Command.LabelDescription>
+        <String Id="2534">Send the document directly to the default printer without making changes.</String>
+      </Command.LabelDescription>
+      <Command.LargeImages>
+        <Image Id="2535">Res/PrintQuick_L096.bmp</Image>
+      </Command.LargeImages>
+    </Command>
+    <Command Name="CmdPrintPreview" Symbol="IDC_PRINTPREVIEW" Id="2536">
+      <Command.LabelTitle>
+        <String Id="3137">Print pre&amp;view</String>
+      </Command.LabelTitle>
+      <Command.LabelDescription>
+        <String Id="2538">Preview and make changes to pages before printing.</String>
+      </Command.LabelDescription>
+      <Command.LargeImages>
+        <Image Id="2539">Res/PrintPreview_L096.bmp</Image>
+      </Command.LargeImages>
+    </Command>
+    <Command Name="cmdTab1" Comment="These comments are optional and are inserted into the header file.">
+      <Command.LabelTitle>
+        <String Id="7200">Tab 1</String>
+      </Command.LabelTitle>
+    </Command>
+    <Command Name="cmdGroup1" Comment="Group #1">
+      <Command.SmallImages>
+        <Image Id="7250">res/Button_Image.bmp</Image>
+      </Command.SmallImages>
+    </Command>
+    <Command Name="cmdContext1" Comment="Button that activates context 1" Symbol="IDC_CMD_CONTEXT1" Id="30071">
+      <Command.LabelTitle>
+        <String Id="7201">Activate&#x0A;Context 1&#x0A;</String>
+      </Command.LabelTitle>
+      <Command.LargeImages>
+        <Image Id="7251">res/AddTableL.bmp</Image>
+      </Command.LargeImages>
+    </Command>
+    <Command Name="cmdContext2" Comment="Button that activates context 2" Symbol="IDC_CMD_CONTEXT2" Id="30072">
+      <Command.LabelTitle>
+        <String Id="7202">Activate&#x0A;Context 2&#x0A;</String>
+      </Command.LabelTitle>
+      <Command.LargeImages>
+        <Image Id="7252">res/AddTableL.bmp</Image>
+      </Command.LargeImages>
+    </Command>
+    <Command Name="cmdContext3" Comment="Button that activates context 3" Symbol="IDC_CMD_CONTEXT3" Id="30073">
+      <Command.LabelTitle>
+        <String Id="7203">Activate&#x0A;Context 3&#x0A;</String>
+      </Command.LabelTitle>
+      <Command.LargeImages>
+        <Image Id="7253">res/AddTableL.bmp</Image>
+      </Command.LargeImages>
+    </Command>
+    <Command Name="cmdContext4" Comment="Button that activates context 4" Symbol="IDC_CMD_CONTEXT4" Id="30074">
+      <Command.LabelTitle>
+        <String Id="7204">Activate&#x0A;Context 4&#x0A;</String>
+      </Command.LabelTitle>
+      <Command.LargeImages>
+        <Image Id="7254">res/AddTableL.bmp</Image>
+      </Command.LargeImages>
+    </Command>
+    <Command Name="cmdCut" Comment="Cut button" Symbol="IDC_CUT" Id="64">
+      <Command.LabelTitle>
+        <String Id="7205">Cut</String>
+      </Command.LabelTitle>
+      <Command.TooltipTitle>
+        <String Id="23111">Cut</String>
+      </Command.TooltipTitle>
+      <Command.TooltipDescription>
+        <String Id="23112">Moves the selected contents to the clipbaord</String>
+      </Command.TooltipDescription>
+      <Command.SmallImages>
+        <Image Id="7255">res/Cut.bmp</Image>
+      </Command.SmallImages>
+    </Command>
+    <Command Name="cmdCopy" Comment="Copy button" Symbol="IDC_COPY" Id="23116">
+      <Command.LabelTitle>
+        <String Id="7206">Copy</String>
+      </Command.LabelTitle>
+      <Command.TooltipTitle>
+        <String Id="23114">Copy</String>
+      </Command.TooltipTitle>
+      <Command.TooltipDescription>
+        <String Id="23115">Copies the selected contents to the clipboards.</String>
+      </Command.TooltipDescription>
+      <Command.SmallImages>
+        <Image Id="7256">res/Copy.bmp</Image>
+      </Command.SmallImages>
+    </Command>
+    <Command Name="cmdPaste" Comment="Paste button" Symbol="IDC_PASTE" Id="23117">
+      <Command.LabelTitle>
+        <String Id="7207">Paste</String>
+      </Command.LabelTitle>
+      <Command.TooltipTitle>
+        <String Id="23118">Paste</String>
+      </Command.TooltipTitle>
+      <Command.TooltipDescription>
+        <String Id="23119">Pastes the contents of the clipboard at the currently selected position.</String>
+      </Command.TooltipDescription>
+      <Command.SmallImages>
+        <Image Id="23120">Res/Paste_S096.bmp</Image>
+      </Command.SmallImages>
+    </Command>
+    <Command Name="cmdToggleButton" Comment="Toggle Button" Symbol="IDC_CTXTOGGLE">
+      <Command.LabelTitle>
+        <String Id="7208">ToggleButton</String>
+      </Command.LabelTitle>
+      <Command.SmallImages>
+        <Image Id="7258">res/DeleteTableL.bmp</Image>
+      </Command.SmallImages>
+    </Command>
+    <Command Name="cmdButton1" Comment="Button #1" Symbol="IDC_BUTTON1" Id="24161">
+      <Command.LabelTitle>
+        <String Id="7209">Button 1</String>
+      </Command.LabelTitle>
+      <Command.LargeImages>
+        <Image Id="7259">res/OpenHH.bmp</Image>
+      </Command.LargeImages>
+    </Command>
+    <Command Name="cmdButton2" Comment="Button #2" Symbol="IDC_BUTTON2" Id="21161">
+      <Command.LabelTitle>
+        <String Id="7210">Button 2</String>
+      </Command.LabelTitle>
+      <Command.LargeImages>
+        <Image Id="7260">res/delete.bmp</Image>
+      </Command.LargeImages>
+    </Command>
+    <Command Name="cmdButton3" Comment="Button #3" Symbol="IDC_BUTTON3" Id="21163">
+      <Command.LabelTitle>
+        <String Id="7211">Button 3</String>
+      </Command.LabelTitle>
+      <Command.LargeImages>
+        <Image Id="7261">res/PrintRelationshipsL.bmp</Image>
+      </Command.LargeImages>
+    </Command>
+    <Command Name="cmdButtons" Comment="DropDownButton that contains the three buttons" Symbol="IDC_BUTTONS" Id="21165">
+      <Command.LabelTitle>
+        <String Id="7212">Buttons</String>
+      </Command.LabelTitle>
+      <Command.LargeImages>
+        <Image Id="7262">res/GraphHH.bmp</Image>
+      </Command.LargeImages>
+    </Command>
+    <Command Name="cmdContextMap1" Comment="the Context Map for Context 1" Symbol="IDC_CMD_CONTEXTMAP1"/>
+    <Command Name="cmdContextMap2" Comment="the Context Map for Context 2" Symbol="IDC_CMD_CONTEXTMAP2"/>
+    <Command Name="cmdContextMap3" Comment="the Context Map for Context 3" Symbol="IDC_CMD_CONTEXTMAP3"/>
+    <Command Name="cmdContextMap4" Comment="the Context Map for Context 4" Symbol="IDC_CMD_CONTEXTMAP4"/>
+    <Command Name="cmdCheck1" Symbol="IDC_CHECK1" Id="76">
+      <Command.LabelTitle>
+        <String Id="25">Some setting</String>
+      </Command.LabelTitle>
+      <Command.LabelDescription>
+        <String Id="26">Apply setting 1</String>
+      </Command.LabelDescription>
+      <Command.TooltipTitle>
+        <String Id="27">Setting 1</String>
+      </Command.TooltipTitle>
+      <Command.TooltipDescription>
+        <String Id="28">Applies setting 1</String>
+      </Command.TooltipDescription>
+    </Command>
+    <Command Name="cmdCheck2" Id="77">
+      <Command.LabelTitle>
+        <String Id="31">Another setting</String>
+      </Command.LabelTitle>
+      <Command.LabelDescription>
+        <String Id="32">A different setting</String>
+      </Command.LabelDescription>
+      <Command.TooltipTitle>
+        <String Id="33">Setting 2</String>
+      </Command.TooltipTitle>
+      <Command.TooltipDescription>
+        <String Id="34">Applies setting 3</String>
+      </Command.TooltipDescription>
+    </Command>
+    <Command Name="cmdCheckHdr" Id="78">
+      <Command.TooltipTitle>
+        <String Id="39">Misc settings</String>
+      </Command.TooltipTitle>
+      <Command.TooltipDescription>
+        <String Id="38">Applies misc settings</String>
+      </Command.TooltipDescription>
+    </Command>
+    <Command Name="cmdGroupParagraph" Symbol="IDC_PARAGRAPH" Id="79">
+      <Command.LabelTitle>
+        <String Id="41">Paragraph</String>
+      </Command.LabelTitle>
+      <Command.SmallImages>
+        <Image Id="40">Res/Paragraph_S096.bmp</Image>
+      </Command.SmallImages>
+    </Command>
+    <Command Name="cmdIndent" Symbol="IDC_INDENT" Id="80">
+      <Command.LabelTitle>
+        <String Id="42">Increase indent</String>
+      </Command.LabelTitle>
+      <Command.TooltipTitle>
+        <String Id="43">Increase indent</String>
+      </Command.TooltipTitle>
+      <Command.TooltipDescription>
+        <String Id="44">Increase the indent level of the paragraph</String>
+      </Command.TooltipDescription>
+      <Command.SmallImages>
+        <Image Id="45">Res/Indent_S096.bmp</Image>
+      </Command.SmallImages>
+    </Command>
+    <Command Name="cmdOutdent" Symbol="IDC_OUTDENT" Id="81">
+      <Command.LabelTitle>
+        <String Id="46">Descrease indent</String>
+      </Command.LabelTitle>
+      <Command.TooltipTitle>
+        <String Id="47">Decrease indent</String>
+      </Command.TooltipTitle>
+      <Command.TooltipDescription>
+        <String Id="48">Decrease the indent level of the paragraph.</String>
+      </Command.TooltipDescription>
+      <Command.SmallImages>
+        <Image Id="49">Res/Outdent_S096.bmp</Image>
+      </Command.SmallImages>
+    </Command>
+    <Command Name="cmdLineSpacing" Symbol="IDC_LINESPACING" Id="82">
+      <Command.LabelTitle>
+        <String Id="50">Line spacing</String>
+      </Command.LabelTitle>
+      <Command.TooltipTitle>
+        <String Id="51">Line spacing</String>
+      </Command.TooltipTitle>
+      <Command.TooltipDescription>
+        <String Id="52">Adjust the line spacing of sentences.</String>
+      </Command.TooltipDescription>
+      <Command.SmallImages>
+        <Image Id="4720">Res/LineSpacing_S096.bmp</Image>
+      </Command.SmallImages>
+    </Command>
+    <Command Name="cmdLineSpacing1" Symbol="IDC_LINESPACE1" Id="83">
+      <Command.LabelTitle>
+        <String Id="60">1.0</String>
+      </Command.LabelTitle>
+    </Command>
+    <Command Name="cmdLineSpacing115" Symbol="IDC_LINESPACE115" Id="84">
+      <Command.LabelTitle>
+        <String Id="61">1.15</String>
+      </Command.LabelTitle>
+    </Command>
+    <Command Name="cmdLineSpacing15" Symbol="IDC_LINESPACE15" Id="85">
+      <Command.LabelTitle>
+        <String Id="53">1.5</String>
+      </Command.LabelTitle>
+    </Command>
+    <Command Name="cmdLineSpacing2" Symbol="IDC_LINESPACE2" Id="86">
+      <Command.LabelTitle>
+        <String Id="54">2</String>
+      </Command.LabelTitle>
+    </Command>
+    <Command Name="cmdAlignLeft" Symbol="IDC_ALIGNLEFT" Id="87">
+      <Command.LabelTitle>
+        <String Id="56">Align Left</String>
+      </Command.LabelTitle>
+      <Command.TooltipTitle>
+        <String Id="57">Align text left</String>
+      </Command.TooltipTitle>
+      <Command.TooltipDescription>
+        <String Id="58">Aligns text to the left</String>
+      </Command.TooltipDescription>
+      <Command.SmallImages>
+        <Image Id="59">Res/AlignLeft_S096.bmp</Image>
+      </Command.SmallImages>
+    </Command>
+    <Command Name="cmdAlignRight" Symbol="IDC_ALIGNRIGHT" Id="88">
+      <Command.LabelTitle>
+        <String Id="89">Align Right</String>
+      </Command.LabelTitle>
+      <Command.TooltipTitle>
+        <String Id="90">Align right</String>
+      </Command.TooltipTitle>
+      <Command.TooltipDescription>
+        <String Id="91">Aligns text to the right</String>
+      </Command.TooltipDescription>
+      <Command.SmallImages>
+        <Image Id="92">Res/AlignRight_S096.bmp</Image>
+      </Command.SmallImages>
+    </Command>
+    <Command Name="cmdAlignCenter" Symbol="IDC_ALIGNCENTER" Id="4733">
+      <Command.LabelTitle>
+        <String Id="4730">Align center</String>
+      </Command.LabelTitle>
+      <Command.TooltipTitle>
+        <String Id="4731">Align center</String>
+      </Command.TooltipTitle>
+      <Command.TooltipDescription>
+        <String Id="4732">Aligns text towards the center</String>
+      </Command.TooltipDescription>
+      <Command.SmallImages>
+        <Image Id="4734">Res/AlignCenter_S096.bmp</Image>
+      </Command.SmallImages>
+    </Command>
+    <Command Name="cmdAlignJustify" Symbol="IDC_JUSTIFY" Id="4738">
+      <Command.LabelTitle>
+        <String Id="4735">Align Justify</String>
+      </Command.LabelTitle>
+      <Command.TooltipTitle>
+        <String Id="4736">Align justify</String>
+      </Command.TooltipTitle>
+      <Command.TooltipDescription>
+        <String Id="4737">Align text to both left and right margins, adding extra space between words as necessary. This creates a clean look along the left and right side of the page.</String>
+      </Command.TooltipDescription>
+      <Command.SmallImages>
+        <Image Id="4739">Res/AlignJustify_S096.bmp</Image>
+      </Command.SmallImages>
+    </Command>
+    <Command Name="cmdMore" Symbol="IDC_MORE" Id="21151">
+      <Command.LabelTitle>
+        <String Id="21149">More</String>
+      </Command.LabelTitle>
+    </Command>
+  </Application.Commands>
+  <Application.Views>
+    <Ribbon>
+      <Ribbon.SizeDefinitions>
+        <SizeDefinition Name="ParagraphLayout">
+          <ControlNameMap>
+            <ControlNameDefinition Name="ButtonOutdent"/>
+            <ControlNameDefinition Name="ButtonIndent"/>
+            <ControlNameDefinition Name="ButtonLineSpacing"/>
+            <ControlNameDefinition Name="ButtonAlignLeft"/>
+            <ControlNameDefinition Name="ButtonAlignCenter"/>
+            <ControlNameDefinition Name="ButtonAlignRight"/>
+            <ControlNameDefinition Name="ButtonAlignJustify"/>
+          </ControlNameMap>
+          <GroupSizeDefinition Size="Large">
+            <Row>
+              <ControlGroup>
+                <ControlSizeDefinition IsLabelVisible="false" ControlName="ButtonIndent"/>
+                <ControlSizeDefinition IsLabelVisible="false" ControlName="ButtonOutdent"/>
+              </ControlGroup>
+              <ControlGroup>
+                <ControlSizeDefinition IsLabelVisible="false" ControlName="ButtonLineSpacing"/>
+              </ControlGroup>
+            </Row>
+            <Row>
+              <ControlGroup>
+                <ControlSizeDefinition IsLabelVisible="false" ControlName="ButtonAlignLeft"/>
+                <ControlSizeDefinition IsLabelVisible="false" ControlName="ButtonAlignCenter"/>
+                <ControlSizeDefinition IsLabelVisible="false" ControlName="ButtonAlignRight"/>
+                <ControlSizeDefinition IsLabelVisible="false" ControlName="ButtonAlignJustify"/>
+              </ControlGroup>
+            </Row>
+          </GroupSizeDefinition>
+          <GroupSizeDefinition Size="Medium">
+            <Row>
+              <ControlGroup>
+                <ControlSizeDefinition IsLabelVisible="false" ControlName="ButtonIndent"/>
+                <ControlSizeDefinition IsLabelVisible="false" ControlName="ButtonOutdent"/>
+              </ControlGroup>
+              <ControlGroup>
+                <ControlSizeDefinition IsLabelVisible="false" ControlName="ButtonLineSpacing"/>
+              </ControlGroup>
+            </Row>
+            <Row>
+              <ControlGroup>
+                <ControlSizeDefinition IsLabelVisible="false" ControlName="ButtonAlignLeft"/>
+                <ControlSizeDefinition IsLabelVisible="false" ControlName="ButtonAlignCenter"/>
+                <ControlSizeDefinition IsLabelVisible="false" ControlName="ButtonAlignRight"/>
+                <ControlSizeDefinition IsLabelVisible="false" ControlName="ButtonAlignJustify"/>
+              </ControlGroup>
+            </Row>
+          </GroupSizeDefinition>
+          <GroupSizeDefinition Size="Small">
+            <Row>
+              <ControlGroup>
+                <ControlSizeDefinition IsLabelVisible="false" ControlName="ButtonIndent"/>
+                <ControlSizeDefinition IsLabelVisible="false" ControlName="ButtonOutdent"/>
+              </ControlGroup>
+              <ControlGroup>
+                <ControlSizeDefinition IsLabelVisible="false" ControlName="ButtonLineSpacing"/>
+              </ControlGroup>
+            </Row>
+            <Row>
+              <ControlGroup>
+                <ControlSizeDefinition IsLabelVisible="false" ControlName="ButtonAlignLeft"/>
+                <ControlSizeDefinition IsLabelVisible="false" ControlName="ButtonAlignCenter"/>
+                <ControlSizeDefinition IsLabelVisible="false" ControlName="ButtonAlignRight"/>
+                <ControlSizeDefinition IsLabelVisible="false" ControlName="ButtonAlignJustify"/>
+              </ControlGroup>
+            </Row>
+          </GroupSizeDefinition>
+        </SizeDefinition>
+      </Ribbon.SizeDefinitions>
+      <Ribbon.ApplicationMenu>
+        <ApplicationMenu CommandName="cmdApplicationMenu">
+          <ApplicationMenu.RecentItems>
+            <RecentItems CommandName="cmdRecentItems" MaxCount="7"/>
+          </ApplicationMenu.RecentItems>
+          <MenuGroup>
+            <Button CommandName="cmdButtonNew"/>
+            <SplitButton CommandName="OpenFileMore">
+              <SplitButton.ButtonItem>
+                <Button CommandName="OpenFile"/>
+              </SplitButton.ButtonItem>
+              <SplitButton.MenuGroups>
+                <MenuGroup Class="MajorItems">
+                  <Button CommandName="OpenFile"/>
+                  <Button CommandName="OpenURL"/>
+                </MenuGroup>
+              </SplitButton.MenuGroups>
+            </SplitButton>
+            <Button CommandName="CmdSaveButton"/>
+            <SplitButton CommandName="CmdSaveAsMore">
+              <SplitButton.ButtonItem>
+                <Button CommandName="CmdSaveAs"/>
+              </SplitButton.ButtonItem>
+              <SplitButton.MenuGroups>
+                <MenuGroup CommandName="CmdHeaderSave" Class="MajorItems">
+                  <Button CommandName="CmdRichTextDocument"/>
+                  <Button CommandName="CmdOfficeOpenXMLDocument"/>
+                  <Button CommandName="CmdOpenDocumentText"/>
+                  <Button CommandName="CmdPlainTextDocument"/>
+                  <Button CommandName="CmdOtherFormats"/>
+                </MenuGroup>
+              </SplitButton.MenuGroups>
+            </SplitButton>
+          </MenuGroup>
+          <MenuGroup>
+            <SplitButton CommandName="CmdPrintMore">
+              <SplitButton.ButtonItem>
+                <Button CommandName="CmdPrint"/>
+              </SplitButton.ButtonItem>
+              <SplitButton.MenuGroups>
+                <MenuGroup CommandName="CmdHeaderPrint" Class="MajorItems">
+                  <Button CommandName="CmdPrint"/>
+                  <Button CommandName="CmdPrintSetup"/>
+                  <Button CommandName="CmdQuickPrint"/>
+                  <Button CommandName="CmdPrintPreview"/>
+                </MenuGroup>
+              </SplitButton.MenuGroups>
+            </SplitButton>
+          </MenuGroup>
+          <MenuGroup>
+            <Button CommandName="cmdButtonExit"/>
+          </MenuGroup>
+        </ApplicationMenu>
+      </Ribbon.ApplicationMenu>
+      <Ribbon.HelpButton>
+        <HelpButton CommandName="Help"/>
+      </Ribbon.HelpButton>
+      <Ribbon.QuickAccessToolbar>
+        <QuickAccessToolbar CommandName="cmdQAT" CustomizeCommandName="cmdCustomizeQAT">
+          <QuickAccessToolbar.ApplicationDefaults>
+            <Button CommandName="cmdButtonNew" ApplicationDefaults.IsChecked="true"/>
+            <Button CommandName="cmdButtonOpen" ApplicationDefaults.IsChecked="true"/>
+            <Button CommandName="CmdSaveButton" ApplicationDefaults.IsChecked="true"/>
+          </QuickAccessToolbar.ApplicationDefaults>
+        </QuickAccessToolbar>
+      </Ribbon.QuickAccessToolbar>
+      <Ribbon.ContextualTabs>
+        <TabGroup CommandName="cmdTabGroupTableTools">
+          <Tab CommandName="cmdTabDesign">
+            <Group CommandName="cmdGroupDesign" SizeDefinition="ThreeButtons">
+              <Button CommandName="cmdButtonDesign1"/>
+              <Button CommandName="cmdButtonDesign2"/>
+              <Button CommandName="cmdButtonDesign3"/>
+            </Group>
+            <Group CommandName="cmdGroup6" SizeDefinition="OneButton">
+              <DropDownButton CommandName="cmdDropDownButton">
+                <MenuGroup>
+                  <Button CommandName="cmdCut"/>
+                  <Button CommandName="cmdCopy"/>
+                  <Button CommandName="cmdPaste"/>
+                </MenuGroup>
+              </DropDownButton>
+            </Group>
+          </Tab>
+          <Tab CommandName="cmdTabLayout">
+            <Group CommandName="cmdGroupLayout" SizeDefinition="TwoButtons">
+              <Button CommandName="cmdButtonLayout1"/>
+              <Button CommandName="cmdButtonLayout2"/>
+            </Group>
+          </Tab>
+        </TabGroup>
+      </Ribbon.ContextualTabs>
+      <Ribbon.Tabs>
+        <Tab CommandName="cmdTabMain">
+          <Group CommandName="cmdGroupMain" SizeDefinition="TwoButtons">
+            <Button CommandName="cmdButtonSelect"/>
+            <Button CommandName="cmdButtonUnselect"/>
+          </Group>
+          <Group CommandName="cmdGroup4" SizeDefinition="OneButton">
+            <ToggleButton CommandName="cmdToggleButton1"/>
+          </Group>
+          <Group CommandName="cmdGroupRichFont" SizeDefinition="OneFontControl">
+            <FontControl CommandName="cmdRichFont" FontType="RichFont"/>
+          </Group>
+          <Group CommandName="cmdCheckHdr">
+            <SizeDefinition>
+              <ControlNameMap>
+                <ControlNameDefinition Name="Check1"/>
+                <ControlNameDefinition Name="Check2"/>
+                <ControlNameDefinition Name="Cut"/>
+                <ControlNameDefinition Name="Copy"/>
+                <ControlNameDefinition Name="Paste"/>
+              </ControlNameMap>
+              <GroupSizeDefinition Size="Large">
+                <Row>
+                  <ControlSizeDefinition ControlName="Check1"/>
+                </Row>
+                <Row>
+                  <ControlSizeDefinition ControlName="Check2"/>
+                </Row>
+                <ColumnBreak/>
+                <Row>
+                  <ControlSizeDefinition ControlName="Cut"/>
+                </Row>
+                <Row>
+                  <ControlSizeDefinition ControlName="Copy"/>
+                </Row>
+                <Row>
+                  <ControlSizeDefinition ControlName="Paste"/>
+                </Row>
+              </GroupSizeDefinition>
+              <GroupSizeDefinition Size="Medium">
+                <Row>
+                  <ControlSizeDefinition ControlName="Check1"/>
+                </Row>
+                <Row>
+                  <ControlSizeDefinition ControlName="Check2"/>
+                </Row>
+                <ColumnBreak/>
+                <Row>
+                  <ControlSizeDefinition ControlName="Cut"/>
+                </Row>
+                <Row>
+                  <ControlSizeDefinition ControlName="Copy"/>
+                </Row>
+                <Row>
+                  <ControlSizeDefinition ControlName="Paste"/>
+                </Row>
+              </GroupSizeDefinition>
+              <GroupSizeDefinition Size="Small">
+                <Row>
+                  <ControlSizeDefinition ControlName="Check1"/>
+                </Row>
+                <Row>
+                  <ControlSizeDefinition ControlName="Check2"/>
+                </Row>
+                <ColumnBreak/>
+                <Row>
+                  <ControlSizeDefinition ControlName="Cut"/>
+                </Row>
+                <Row>
+                  <ControlSizeDefinition ControlName="Copy"/>
+                </Row>
+                <Row>
+                  <ControlSizeDefinition ControlName="Paste"/>
+                </Row>
+              </GroupSizeDefinition>
+            </SizeDefinition>
+            <CheckBox CommandName="cmdCheck1"/>
+            <CheckBox CommandName="cmdCheck2"/>
+            <Button CommandName="cmdCut"/>
+            <Button CommandName="cmdCopy"/>
+            <Button CommandName="cmdPaste"/>
+          </Group>
+          <Group CommandName="cmdGroupParagraph" SizeDefinition="ParagraphLayout">
+            <Button CommandName="cmdIndent"/>
+            <Button CommandName="cmdOutdent"/>
+            <DropDownButton CommandName="cmdLineSpacing">
+              <ToggleButton CommandName="cmdLineSpacing1"/>
+              <ToggleButton CommandName="cmdLineSpacing115"/>
+              <ToggleButton CommandName="cmdLineSpacing15"/>
+              <ToggleButton CommandName="cmdLineSpacing2"/>
+            </DropDownButton>
+            <ToggleButton CommandName="cmdAlignLeft"/>
+            <ToggleButton CommandName="cmdAlignCenter"/>
+            <ToggleButton CommandName="cmdAlignRight"/>
+            <ToggleButton CommandName="cmdAlignJustify"/>
+          </Group>
+        </Tab>
+        <Tab CommandName="cmdTab">
+          <Group CommandName="cmdButtonsGroup" SizeDefinition="OneButton">
+            <Button CommandName="cmdButtonListColors"/>
+          </Group>
+          <Group CommandName="cmdDropDownColorPickerGroup" SizeDefinition="ThreeButtons">
+            <DropDownColorPicker CommandName="cmdDropDownColorPickerThemeColors"/>
+            <DropDownColorPicker CommandName="cmdDropDownColorPickerStandardColors" ColorTemplate="StandardColors"/>
+            <DropDownColorPicker CommandName="cmdDropDownColorPickerHighlightColors" ColorTemplate="HighlightColors"/>
+          </Group>
+          <Group CommandName="cmdGroup1" SizeDefinition="FourButtons">
+            <ToggleButton CommandName="cmdContext1"/>
+            <ToggleButton CommandName="cmdContext2"/>
+            <ToggleButton CommandName="cmdContext3"/>
+            <ToggleButton CommandName="cmdContext4"/>
+          </Group>
+        </Tab>
+      </Ribbon.Tabs>
+    </Ribbon>
+    <ContextPopup>
+      <ContextPopup.MiniToolbars>
+        <MiniToolbar Name="MiniToolbar2">
+          <MenuGroup>
+            <Button CommandName="cmdCut"/>
+            <Button CommandName="cmdCopy"/>
+            <Button CommandName="cmdPaste"/>
+          </MenuGroup>
+          <MenuGroup>
+            <ToggleButton CommandName="cmdToggleButton"/>
+            <DropDownButton CommandName="cmdButtons">
+              <MenuGroup>
+                <Button CommandName="cmdButton1"/>
+                <Button CommandName="cmdButton2"/>
+                <Button CommandName="cmdButton3"/>
+              </MenuGroup>
+            </DropDownButton>
+          </MenuGroup>
+        </MiniToolbar>
+        <MiniToolbar Name="MiniToolbar3">
+          <MenuGroup>
+            <Button CommandName="cmdButton1"/>
+            <Button CommandName="cmdButton2"/>
+            <Button CommandName="cmdButton3"/>
+          </MenuGroup>
+        </MiniToolbar>
+      </ContextPopup.MiniToolbars>
+      <ContextPopup.ContextMenus>
+        <ContextMenu Name="ContextMenu1">
+          <MenuGroup>
+            <Button CommandName="cmdCut"/>
+            <Button CommandName="cmdCopy"/>
+            <Button CommandName="cmdPaste"/>
+          </MenuGroup>
+          <MenuGroup>
+            <DropDownButton CommandName="cmdMore">
+              <Button CommandName="cmdButton1"/>
+              <Button CommandName="cmdButton2"/>
+              <Button CommandName="cmdButton3"/>
+            </DropDownButton>
+          </MenuGroup>
+        </ContextMenu>
+        <ContextMenu Name="ContextMenu2">
+          <MenuGroup>
+            <ToggleButton CommandName="cmdToggleButton"/>
+          </MenuGroup>
+          <MenuGroup>
+            <Button CommandName="cmdButton1"/>
+            <Button CommandName="cmdButton2"/>
+            <Button CommandName="cmdButton3"/>
+          </MenuGroup>
+        </ContextMenu>
+        <ContextMenu Name="ContextMenu4">
+          <MenuGroup>
+            <Button CommandName="cmdCut"/>
+            <Button CommandName="cmdCopy"/>
+            <Button CommandName="cmdPaste"/>
+          </MenuGroup>
+          <MenuGroup>
+            <ToggleButton CommandName="cmdToggleButton"/>
+          </MenuGroup>
+          <MenuGroup>
+            <Button CommandName="cmdButton1"/>
+            <Button CommandName="cmdButton2"/>
+            <Button CommandName="cmdButton3"/>
+          </MenuGroup>
+        </ContextMenu>
+      </ContextPopup.ContextMenus>
+      <ContextPopup.ContextMaps>
+        <ContextMap CommandName="cmdContextMap1" ContextMenu="ContextMenu1"/>
+        <ContextMap CommandName="cmdContextMap2" ContextMenu="ContextMenu2" MiniToolbar="MiniToolbar2"/>
+        <ContextMap CommandName="cmdContextMap3" MiniToolbar="MiniToolbar3"/>
+        <ContextMap CommandName="cmdContextMap4" ContextMenu="ContextMenu4"/>
+      </ContextPopup.ContextMaps>
+    </ContextPopup>
+  </Application.Views>
+</Application>
+<!--ResourceName Value="APPLICATION"-->
