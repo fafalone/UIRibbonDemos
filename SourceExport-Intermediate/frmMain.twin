@@ -4,11 +4,12 @@
 Class frmMain
  
     #Const dbg_enablefont = 1 'Enable interaction with the font control
-   
+    #Const dbg_enablemru = 1 'Enable filling the MRU list. Reminder: Number of items is set in 
+                             'the ribbon xml file.
     
     #Region "ReadMe"
     /*
-        Windows Ribbon Framework UI Demo - Intermediate
+        Windows Ribbon Framework UI Demo - Intermediate, v2
         Main Form
         
         This intermediate demo gets into some of the more complex features beyond the basic proof 
@@ -20,61 +21,67 @@ Class frmMain
             object's GetUICommandProperty and SetUICommandProperty are used to read and set the
             status of these buttons, which are used to display more features below.
 
-    -Dropdown Buttons:
-        On the Design context tab, you'll find an Edit button with an arrow indicating a 
-        dropdown. This button displays a dropdown menu of basic edit commands (not yet tied
-        to the TextBox or any other function).
+        -Dropdown Buttons:
+            On the Design context tab, you'll find an Edit button with an arrow indicating a 
+            dropdown. This button displays a dropdown menu of basic edit commands (not yet tied
+            to the TextBox or any other function).
 
-    -SplitButtons:
-        In the File menu, the Open and Print buttons are now split buttons that show more
-        buttons on the side.
-        
-    -CheckBoxes and Column Breaks:
-        The main menu has a group of CheckBoxes that are simple boolean properties, with a
-        column break and then 3 small icon buttons, using the advanced SizeDefinition fields.
-        
-    -HelpButton:
-        The Help Button is now displayed by the minimize ribbon button.            
-        
-    -Context Tabs: 
-        From the Main tab, you can use Select to Show, Unselect to Hide, or Toggle to switch 
-        back and forth, two 'Context Tabs': Tabs that are only shown when you want to display
-        extra features for some part of your program. 
-                    
-    -Dropdown Color Pickers:
-        The Colors tab shows 3 different types of Color Pickers. They each have different
-        preset selections to choose from, and each have a further popup for a full color picker
-        dialog where you can select from the full spectrum.
-        
-    -Font Picker Control
-        This is by far the most complex control in the Ribbon. It displays a full set of font
-        font options like you see in Wordpad, including an automatically populated dropdown
-        showing each font rendered in it's own face. This is tied to a RichEdit control, and 
-        you can use it to set the font of the current selection. If you move the caret in the
-        RichEdit control, the font displayed in the Ribbon is updated to that of the current
-        selection.
-        You'll find a lot of useful code for this, including dealing with true NULL Variants
-        that crash VB when improperly handled, reading and setting values in an IPropertyStore,
-        and converting back and forth between two types normally unsupported in VB and which
-        cause errors when not specially handled: Variants of type VT_UI4 (unsigned long), and
-        VT_LPWSTR, a string type similar to but different in important ways from VB/tB native
-        strings (VT_BSTR). Finally, we get a chance to use tB's new Decimal type! VB6 allowed
-        some use of these in a Variant, but without the real native type, it would require 
-        difficult manual handling for our purposes.
-        
-    -Icon-only Button Group
-        Implemented as a Paragraph format set, this shows how to use the advanced SizeDefinition
-        options to make a set of icon-only buttons arranged in rows. One of these  is a dropdown.
-        These buttons are functional and are applied to the selection on the RichEdit control.
-        
-    -MiniToolbar and Context Popups
-        This feature allows for a popup anywhere on the form of one or both of a mini-toolbar
-        and popup menu. These can have controls like dropdown buttons, toggle buttons, and 
-        more. You can show different combinations of things based on the current view. This 
-        demo has 4 different options you can select from the Colors tab. Click one of the
-        'Activate Context' buttons, then the CommandButton to show it.
+        -SplitButtons:
+            In the File menu, the Open and Print buttons are now split buttons that show more
+            buttons on the side.
             
+        -CheckBoxes and Column Breaks:
+            The main menu has a group of CheckBoxes that are simple boolean properties, with a
+            column break and then 3 small icon buttons, using the advanced SizeDefinition fields.
+            
+        -HelpButton:
+            The Help Button is now displayed by the minimize ribbon button.            
+            
+        -Context Tabs: 
+            From the Main tab, you can use Select to Show, Unselect to Hide, or Toggle to switch 
+            back and forth, two 'Context Tabs': Tabs that are only shown when you want to display
+            extra features for some part of your program. 
+                        
+        -Dropdown Color Pickers:
+            The Colors tab shows 3 different types of Color Pickers. They each have different
+            preset selections to choose from, and each have a further popup for a full color picker
+            dialog where you can select from the full spectrum.
+            
+        -Font Picker Control
+            This is by far the most complex control in the Ribbon. It displays a full set of font
+            font options like you see in Wordpad, including an automatically populated dropdown
+            showing each font rendered in it's own face. This is tied to a RichEdit control, and 
+            you can use it to set the font of the current selection. If you move the caret in the
+            RichEdit control, the font displayed in the Ribbon is updated to that of the current
+            selection.
+            You'll find a lot of useful code for this, including dealing with true NULL Variants
+            that crash VB when improperly handled, reading and setting values in an IPropertyStore,
+            and converting back and forth between two types normally unsupported in VB and which
+            cause errors when not specially handled: Variants of type VT_UI4 (unsigned long), and
+            VT_LPWSTR, a string type similar to but different in important ways from VB/tB native
+            strings (VT_BSTR). Finally, we get a chance to use tB's new Decimal type! VB6 allowed
+            some use of these in a Variant, but without the real native type, it would require 
+            difficult manual handling for our purposes.
+            
+        -Icon-only Button Group
+            Implemented as a Paragraph format set, this shows how to use the advanced SizeDefinition
+            options to make a set of icon-only buttons arranged in rows. One of these  is a dropdown.
+            These buttons are functional and are applied to the selection on the RichEdit control.
+            
+        -MiniToolbar and Context Popups
+            This feature allows for a popup anywhere on the form of one or both of a mini-toolbar
+            and popup menu. These can have controls like dropdown buttons, toggle buttons, and 
+            more. You can show different combinations of things based on the current view. This 
+            demo has 4 different options you can select from the Colors tab. Click one of the
+            'Activate Context' buttons, then the CommandButton to show it.
+                
+        -Recent Items (MRU) List
+            While the category header was present in the first version of this demo, the items hadn't
+            been implemented. Since it was there, it didn't make sense to wait for the Advanced Demo
+            to show how to fill the list, and also because there's alread so much else to cover.
         
+        
+            
         Stay tuned for the Advanced Demo! There's a few more controls to show off-- the Gallery
         controls are especially fun (think the Shapes box and Brushes dropdown in Paint), as well
         as options for different views, scaling policies, high contrast and high dpi handling, and
@@ -119,8 +126,8 @@ Class frmMain
     [ Description ("Our class that handles events from the Ribbon and fowards them to us.") ]
     Private WithEvents pUIApp As clsRibbonEvents
    
-    [ Description ("Handle to the last exe build to enable running from the IDE.") ]
-    Private hLastExe As LongPtr
+    [ Description ("Handle to our exe, or if IDE the last exe build to enable running from the IDE.") ]
+    Private hMod As LongPtr
     
     [ Description ("Handle to the RichEdit DLL") ]
     Private hREDll As LongPtr
@@ -139,6 +146,12 @@ Class frmMain
 
     [ Description ("The context id for which Context Popup will be displayed.") ]
     Private mCtx As Long
+    
+    Private nMRUItems As Long = 7 'NOTE: THIS MUST NOT EXCEED THE MAX COUNT DEFINED IN THE XML.
+                                  'This demo used:
+                                  ' <ApplicationMenu.RecentItems>
+                                  '   <RecentItems CommandName="cmdRecentItems" MaxCount="7"/>
+                                  ' </ApplicationMenu.RecentItems>
     
     Private Const TWIPS_PER_POINT = 20
     Private TWIPS_PER_INDENT As Long
@@ -213,7 +226,7 @@ Class frmMain
     Public Const cmdGroupFileActions  = 355
     Public Const cmdQAT  = 306
     Public Const cmdCustomizeQAT  = 307
-    Public Const cmdRecentItems  = 1775
+    Public Const IDC_RECENTITEMS  = 1775
     Public Const cmdGroupRichFont  = 1777
     Public Const IDC_RICHFONT  = 1779
     Public Const IDC_TOGGLE1  = 1778
@@ -275,30 +288,30 @@ Class frmMain
         List1.TopIndex = List1.ListCount
     End Sub
     
+    Private Sub OnInitialize() Handles Form.Initialize
+             'Attempt to load resources from last .exe
+            hMod = GetModuleHandleW()
+            Dim InIde As Boolean: Debug.Assert MakeTrue(InIde)
+            If InIde Then
+                If (App.LastBuildPath = "") Or (PathFileExists(App.LastBuildPath) = 0) Then
+                    MsgBox("To run from the IDE you must build first, or replace this routine with one loading a DLL containing your resources.", vbCritical + vbOKOnly, App.Title)
+                    End
+                Else
+                    hMod = LoadLibraryEx(App.LastBuildPath, 0, LOAD_LIBRARY_AS_DATAFILE Or LOAD_LIBRARY_AS_IMAGE_RESOURCE)
+                End If
+            End If
+    End Sub
+
     Private Sub OnLoad() Handles Form.Load
+    Debug.Print "NO"
         CreateRichEdit
         Set pFramework = New UIRibbonFramework
         Set pUIApp = New clsRibbonEvents
         pFramework.Initialize Me.hWnd, pUIApp
         LogMsg "Successfully initialized Ribbon Framework"
-        Dim InIde As Boolean: Debug.Assert MakeTrue(InIde)
-        If InIde Then
-            'Attempt to load resources from last .exe
-            If (App.LastBuildPath = "") Or (PathFileExists(App.LastBuildPath) = 0) Then
-                MsgBox("To run from the IDE you must build first, or replace this routine with one loading a DLL containing your resources.", vbCritical + vbOKOnly, App.Title)
-                GoTo out
-            End If
-            hLastExe = LoadLibraryEx(App.LastBuildPath, 0, LOAD_LIBRARY_AS_DATAFILE Or LOAD_LIBRARY_AS_IMAGE_RESOURCE)
-            pFramework.LoadUI hLastExe, StrPtr("APPLICATION_RIBBON")
-        Else
-            pFramework.LoadUI GetModuleHandleW(), StrPtr("APPLICATION_RIBBON")
-        End If
+        pFramework.LoadUI hMod, StrPtr("APPLICATION_RIBBON")
         LogMsg "Successfully loaded UI"
         pFramework.SetUICommandProperty(IDC_ALIGNLEFT, UI_PKEY_BooleanValue, CVar(True)) 'Set initial alignment = left
-        Exit Sub
-    out: 
-        Set pFramework = Nothing
-        Unload Me
     End Sub
     Private Function MakeTrue(ByRef x As Boolean) As Boolean
         x = True: MakeTrue = True
@@ -309,7 +322,7 @@ Class frmMain
         Set pUIApp = Nothing
         If hRE Then DestroyWindow hRE
         If hREDll Then FreeLibrary hREDll
-        If hLastExe Then FreeLibrary hLastExe
+        If hMod <> GetModuleHandleW() Then FreeLibrary hMod
     End Sub
 
     Private Sub OnContextPopup() Handles Command1.Click
@@ -1056,6 +1069,15 @@ Class frmMain
                 
             Case IDC_PASTE
                 If verb = UI_EXECUTIONVERB_EXECUTE Then SendMessage hRE, WM_PASTE, 0, ByVal 0
+            
+            Case IDC_RECENTITEMS
+                If bCurValWasNull = False Then
+                	Dim nItem As Long
+                    If VariantUI4ToI4(currentValue, nItem) Then
+                    	LogMsg "Clicked Recent Items (MRU) List item " & nItem
+                    End If
+                End If
+            
                 
             Case IDC_RIBBONHELP
                 ShowHelp
@@ -1124,10 +1146,11 @@ Class frmMain
             Exit Sub
         End If
     End If
-#If dbg_enablefont Then
+    
     If key Then
         CopyMemory pk, ByVal key, LenB(Of PROPERTYKEY)
         pos += 1
+        #If dbg_enablefont Then
         If IsEqualPKEY(pk, UI_PKEY_FontProperties) Then
             pos += 1
             If bCurValWasNull = False Then
@@ -1144,8 +1167,33 @@ Class frmMain
                 returnValue = E_POINTER
             End If
         End If
+        #End If
+        #If dbg_enablemru Then
+        If IsEqualPKEY(pk, UI_PKEY_RecentItems) Then
+            Debug.Print "Got recent items request"
+        	pos = 50
+            Dim pItems() As clsRibbonMRUFile
+            pos += 1
+            ReDim pItems(nMRUItems - 1)
+            pos += 1
+            Dim i As Long
+            Dim psa As LongPtr = SafeArrayCreateVector(VT_UNKNOWN, 0, nMRUItems)
+            For i = 0 To UBound(pItems)
+            	Set pItems(i) = New clsRibbonMRUFile("", "Recent file #" & i, , "Description of file " & i, IIf(i = 0, True, False))
+                SafeArrayPutElement psa, i, ByVal ObjPtr(pItems(i))
+            Next
+            pos += 1
+            
+            Dim ppsa As LongPtr
+            VariantSetType newValue, VT_ARRAY Or VT_UNKNOWN
+            SafeArrayCopy psa, ppsa
+            CopyMemory ByVal PointerAdd(VarPtr(newValue), 8), ppsa, LenB(Of LongPtr)
+            SafeArrayDestroy psa
+            bSetNewValue = True
+            Debug.Print "newValue = pItems; vt=" & VTtoStr(VarType(newValue))
+        End If
+        #End If
     End If
-#End If
     Exit Sub
     e0:
         LogMsg "Error in OnRibbonUpdateProperty (pos=" & pos & "): " & Err.Number & ", " & Err.Description
@@ -1173,7 +1221,7 @@ Class frmMain
             End If
         End If
     End Function
-    
+        
     [ Description ("Sets a Variant to the specified type without any alteration to the data. WARNING: Many data formats are incompatible, use VariantChangeType unless you have a specific need for this.") ]
     Private Sub VariantSetType(pvar As Variant, [ TypeHint (VARENUM) ] ByVal vt As Integer, [ TypeHint (VARENUM) ] Optional ByVal vtOnlyIf As Integer = -1)
         If VarPtr(pvar) = 0 Then Exit Sub
@@ -1185,8 +1233,8 @@ Class frmMain
         End If
         CopyMemory pvar, vt, 2
     End Sub
-    
-    
+        
+        
     [ Description ("Retrieves a tB-style String from an VT_LPWSTR Variant. Returns False if not VT_LPWSTR or PropVariantToStringAlloc returns a nullptr.") ]
     Private Function VariantLPWSTRtoSTR(pVar As Variant, pOut As String) As Boolean
         Dim vt As Integer
@@ -1202,7 +1250,7 @@ Class frmMain
             End If
         End If
     End Function
-    
+        
     [ Description ("Performs an unsigned add on a LongPtr (Long or LongLong)") ]
     Private Function PointerAdd(ByVal Start As LongPtr, ByVal Incr As LongPtr) As LongPtr
         #If Win64 Then
@@ -1211,7 +1259,7 @@ Class frmMain
         Return ((Start Xor &H80000000) + Incr) Xor &H80000000
         #End If
     End Function
-    
+        
     Public Function GET_X_LPARAM(ByVal lParam As LongPtr) As Long
     GET_X_LPARAM = CLng(lParam) And &H7FFF&
     If CLng(lParam) And &H8000& Then GET_X_LPARAM = GET_X_LPARAM Or &HFFFF8000
@@ -1220,7 +1268,8 @@ Class frmMain
     GET_Y_LPARAM = (CLng(lParam) And &H7FFF0000) \ &H10000
     If CLng(lParam) And &H80000000 Then GET_Y_LPARAM = GET_Y_LPARAM Or &HFFFF8000
     End Function
-             
+
+    [ Description ("Converts a VARENUM value from VarType() to it's string form.") ]
     Private Function VTtoStr([ TypeHint (VARENUM) ] ByVal lVal As Integer) As String
     Dim sRet As String
     If (lVal And VT_VECTOR) = VT_VECTOR Then
@@ -1291,6 +1340,7 @@ Class frmMain
     VTtoStr = sRet
     End Function
 
+
     Private Function GetCommandIdStr(lVal As Long) As String
     Dim sRet As String
      If lVal = cmdApplicationMenu Then sRet = "cmdApplicationMenu"
@@ -1330,7 +1380,7 @@ Class frmMain
      If lVal = cmdGroupFileActions Then sRet = "cmdGroupFileActions"
      If lVal = cmdQAT Then sRet = "cmdQAT"
      If lVal = cmdCustomizeQAT Then sRet = "cmdCustomizeQAT"
-     If lVal = cmdRecentItems Then sRet = "cmdRecentItems"
+     If lVal = IDC_RECENTITEMS Then sRet = "cmdRecentItems"
      If lVal = cmdGroupRichFont Then sRet = "cmdGroupRichFont"
      If lVal = IDC_RICHFONT Then sRet = "IDC_RICHFONT"
      If lVal = IDC_TOGGLE1 Then sRet = "IDC_TOGGLE1"
@@ -1387,10 +1437,6 @@ Class frmMain
     GetCommandIdStr = sRet
     End Function
 
-
-    Private Function MAKEINTRESOURCE(ByVal dwVal As Long) As Long
-       MAKEINTRESOURCE = &HFFFF& And dwVal
-    End Function
     
     Private Function ChrW2(ByVal AscW2 As Long) As String
         Dim s As String
@@ -1496,5 +1542,6 @@ Class frmMain
                 Call ShellExecuteW(0, 0, lParam, 0, 0, SW_SHOWNORMAL)
         End Select
     End Function
+    
 #End Region
 End Class

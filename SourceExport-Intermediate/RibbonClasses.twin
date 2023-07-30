@@ -1,0 +1,184 @@
+Class clsRibbonEvents
+
+    /*
+        clsRibbonEvents.twin
+        A generic Windows Ribbon Framework UI event host that relays events to the hosting window.
+        
+        Author: Jon Johnson (fafalone)
+        Project repository: https://github.com/fafalone/UIRibbonDemos
+        Last updated: 24 July 2023 :: First major release.
+    */
+
+    Implements IUIApplication
+    Implements IUICommandHandler
+    'Implements IUIEventLogger
+    
+    [ Description ("Raised when the Application.Views set changes. If you handle this event, you must set bHandled to True and hr to the HRESULT.") ]
+    Public Event OnRibbonViewChange(ByVal viewId As Long, ByVal typeID As UI_VIEWTYPE, ByVal view As IUnknown, ByVal verb As UI_VIEWVERB, ByVal uReasonCode As Long, pbHandled As Boolean, phr As Long)
+    [ Description ("Raised when a command is executed. key is a pointer to a PROPERTYKEY you can copy if needed.") ]
+    Public Event OnRibbonCmdExecute(ByVal commandId As Long, ByVal verb As UI_EXECUTIONVERB, ByVal key As LongPtr, currentValue As Variant, ByVal bCurValWasNull As Boolean, ByVal commandExecutionProperties As IUISimplePropertySet, returnValue As Long)
+    [ Description ("Raised when a property is updated. key is a pointer to a PROPERTYKEY. If you set newValue, set bValid to True. bCurValWasNull indicates if currentValue was NULL, since it can't be passed in that case.") ]
+    Public Event OnRibbonUpdateProperty(ByVal commandId As Long, ByVal key As LongPtr, currentValue As Variant, ByVal bCurValWasNull As Boolean, newValue As Variant, bSetNewValue As Boolean, returnValue As Long)
+    ' [ Description ("Relays messages from the Eventing Manager. Modes is only set if the EventType is a mode change; in this case, all other values will be 0.") ]
+    ' Public Event OnRibbonUIEventMessage(ByVal EventType As UI_EVENTTYPE, ByVal commandId As Long, ByVal modes As Long, ByVal commandName As String, ByVal parentCommandId As Long, ByVal parentCommandName As String, ByVal selectionIndex As Long, ByVal Location As UI_EVENTLOCATION, ByRef returnValue As Long)
+
+    Private Sub IUIApplication_OnViewChanged(ByVal viewId As Long, ByVal typeID As UI_VIEWTYPE, ByVal view As IUnknown, ByVal verb As UI_VIEWVERB, ByVal uReasonCode As Long) Implements IUIApplication.OnViewChanged
+        Dim bHandled As Boolean
+        Dim hr As Long
+        RaiseEvent OnRibbonViewChange(viewId, typeID, view, verb, uReasonCode, bHandled, hr)
+        If bHandled Then
+            Err.ReturnHResult = hr
+        Else
+            Err.ReturnHResult = E_NOTIMPL
+        End If
+    End Sub
+
+    Private Sub IUIApplication_OnDestroyUICommand(ByVal commandId As Long, ByVal typeID As UI_COMMANDTYPE, ByVal commandHandler As IUICommandHandler) Implements IUIApplication.OnDestroyUICommand
+    End Sub
+
+    Private Sub IUIApplication_OnCreateUICommand(ByVal commandId As Long, ByVal typeID As UI_COMMANDTYPE, commandHandler As IUICommandHandler) Implements IUIApplication.OnCreateUICommand
+        Set commandHandler = Me
+    End Sub
+
+
+    Private Sub IUICommandHandler_Execute(ByVal commandId As Long, ByVal verb As UI_EXECUTIONVERB, key As PROPERTYKEY, currentValue As Variant, ByVal commandExecutionProperties As IUISimplePropertySet) Implements IUICommandHandler.Execute
+        Dim hr As Long
+        Dim pv As Variant /* A true NULL Variant has VarPtr to it == 0 */
+        Dim bNull As Boolean
+        If VarPtr(currentValue) <> 0 Then /* It's not the same as a declared but unused Variant, which has a valid pointer and type VT_EMPTY. */
+            VariantCopy pv, currentValue
+        Else
+            bNull = True
+        End If
+        RaiseEvent OnRibbonCmdExecute(commandId, verb, VarPtr(key), pv, bNull, commandExecutionProperties, hr)
+        Err.ReturnHResult = hr
+    End Sub
+
+    Private Sub IUICommandHandler_UpdateProperty(ByVal commandId As Long, key As PROPERTYKEY, currentValue As Variant, newValue As Variant) Implements IUICommandHandler.UpdateProperty
+        Dim hr As Long
+        Dim pv As Variant
+        Dim pnv As Variant
+        Dim bNull As Boolean
+        Dim bValid As Boolean
+        If VarPtr(currentValue) <> 0 Then
+            VariantCopy pv, currentValue
+        Else
+            bNull = True
+        End If
+        RaiseEvent OnRibbonUpdateProperty(commandId, VarPtr(key), pv, bNull, pnv, bValid, hr)
+        If bValid Then
+            VariantCopy newValue, pnv
+        End If
+        Err.ReturnHResult = hr
+    End Sub
+
+    'TODO: Enable after initial test
+    'Private Sub IUIEventLogger_OnUIEvent(pEventParams As UI_EVENTPARAMS) Implements IUIEventLogger.OnUIEvent
+        ' If VarPtr(pEventParams) = 0 Then Exit Sub
+        
+        ' Dim hr As Long
+        ' If pEventParams.EventType = UI_EVENTTYPE_ApplicationModeSwitched Then
+        '     RaiseEvent OnRibbonUIEventMessage(pEventParams.EventType, 0, pEventParams.Params.CommandID, "", 0, "", 0, 0, hr)
+        ' Else
+        '     Dim sName As String, sParName As String
+        '     If pEventParams.Params.CommandName Then sName = LPWSTRtoStr(pEventParams.Params.CommandName, False)
+        '     If pEventParams.Params.ParentCommandName Then sParName = LPWSTRtoStr(pEventParams.Params.ParentCommandName, False)
+        '     RaiseEvent OnRibbonUIEventMessage(pEventParams.EventType, pEventParams.Params.CommandID, 0, sName, 0, "", pEventParams.Params.ParentCommandID, sParName, hr)
+        ' End If
+
+        ' Err.ReturnHResult = hr
+    
+    'End Sub
+
+End Class
+
+
+
+[ COMCreatable (False) ]
+[ Description ("A generic class to represent files in Ribbon Recent Items. If you specify a label override, automatic description will be ignored, you need not specify a file path, and you must manually specify a label description if you want one.") ]
+Class clsRibbonMRUFile
+	'Populates the MRU list
+    
+    Implements IUISimplePropertySet
+    
+    Private mFullPath As String
+    Private mDisplayName As String
+    Private mLabelOvr As String, mDesc As String
+    Private bAutoDesc As Boolean
+    Private mPinned As Boolean
+    
+    [ Description ("A generic class to represent files in Ribbon Recent Items. If you specify a label override, automatic description will be ignored, you need not specify a file path, and you must manually specify a label description if you want one.") ]
+    Sub New(sFileFullPath As String, Optional sLabelOverride As String = "", Optional bAutomaticDescriptionOfType As Boolean = True, Optional sLabelDescription As String = "", Optional bPinned As Boolean = False)
+    	mFullPath = sFileFullPath
+        mPinned = bPinned
+        If sLabelOverride <> "" Then
+        	mDisplayName = sLabelOverride
+            mDesc = sLabelDescription
+            Debug.Print "Class constructor set manual disp=" & mDisplayName ",desc=" & mDesc
+            Exit Sub
+        End If
+        Dim psi As IShellItem, psi2 As IShellItem2
+        SHCreateItemFromParsingName StrPtr(mFullPath), Nothing, IID_IShellItem, psi
+        If psi IsNot Nothing Then
+        	Set psi2 = psi
+            Dim propvar As Variant, pv As Variant
+            psi2.GetProperty PKEY_ItemNameDisplay, propvar
+            PropVariantChangeType pv, propvar, PVCHF_DEFAULT, VT_BSTR
+            mDisplayName = pv
+            VariantClear pv
+            PropVariantClear propvar
+            
+            If bAutomaticDescriptionOfType Then
+                psi2.GetProperty PKEY_ItemTypeText, propvar
+                PropVariantChangeType pv, propvar, PVCHF_DEFAULT, VT_BSTR
+                mDesc = pv
+                VariantClear pv
+                PropVariantClear propvar
+            Else
+                mDesc = sLabelDescription
+            End If
+            Set psi2 = Nothing
+            Set psi = Nothing
+        End If
+        Debug.Print "Class constructor set auto disp=" & mDisplayName ",desc=" & mDesc
+    End Sub
+        
+    Private Sub IUISimplePropertySet_GetValue(key As PROPERTYKEY, value As Variant) Implements IUISimplePropertySet.GetValue
+        Debug.Print "MRUInstance received GetValue, keyptr=" & VarPtr(key)
+        If (VarPtr(key) = 0) Then
+            Err.ReturnHResult = E_POINTER
+            Exit Sub
+        End If
+        
+        Dim hr As Long = HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED)
+        
+        If IsEqualPKEY(key, UI_PKEY_Label) Then
+        	InitPropVariantFromString mDisplayName, value
+            hr = S_OK
+        End If
+        
+        If IsEqualPKEY(key, UI_PKEY_LabelDescription) Then
+        	If bAutoDesc OrElse (mDesc <> "") Then
+                InitPropVariantFromString mDesc, value
+                hr = S_OK
+        	End If
+        End If
+        
+        If IsEqualPKEY(key, UI_PKEY_Pinned) Then
+        	value = CVar(mPinned)
+            hr = S_OK
+        End If
+        
+        Err.ReturnHResult = hr
+    End Sub
+    
+    Public Property Get File() As String
+    	Return mFullPath
+    End Property
+    
+    [ Description ("Whether the item is pinned to the MRU list.") ]
+    Public Property Get Pinned() As Boolean: Pinned = mPinned: End Property
+    Public Property Let Pinned(fPinned As Boolean): mPinned = fPinned: End Property
+  	
+    
+End Class
