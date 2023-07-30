@@ -1,6 +1,8 @@
 # UIRibbonDemos
 ## Windows UI Ribbon Framework Demos
 
+**Update (July 30th): Intermediate Demo updated!** Since the Recent Items category was there, I thought filling it shouldn't wait for the advanced demo. Details at end of readme.
+
 **Update (July 28th): The Intermediate Demo is now available! Scroll down to check it out!** The finished project is UIRibbonDemoIntermediateA.twinproj, and the intermediates are the ones with an I suffix.
 
 **Update: Crashing has been fixed.**
@@ -325,6 +327,38 @@ The id of those commands is what we pass in mCtx to display the popup:
             End If
         End If
 ```
+### Recent Items (MRU) List
+![image](https://github.com/fafalone/UIRibbonDemos/assets/7834493/e7385015-f8c0-4db3-a2eb-dc5033abd64a)
+
+**NEW** Wanted to add this before the Advanced Demo since the categor header was there. In order to supply the list of items for the Recent Items menu, your UpdateProperties handler gets a request for `UI_PKEY_RelatedItems`. Unfortunately it immediately gets complicated from there. Each item is represented by a class that implements `IUISimplePropertySet`. The old `clsRibbonEvents.twin` has been renamed 'RibbonClasses.twin' and contains `clsRibbonEvents` and a new class: `clsRibbonMRUFile`. This is a generic handler for either files or custom labels. You can specify a file path, and the display name will automatically be looked up for the label, and the type for the label description. Or, you can specify one or both manually. This is all set by taking advantage of twinBASIC's new parameterized constructors:\
+`Sub New(sFileFullPath As String, Optional sLabelOverride As String = "", Optional bAutomaticDescriptionOfType As Boolean = True, Optional sLabelDescription As String = "", Optional bPinned As Boolean = False)`\
+The way this works is when you use the `New` keyword, you can specify arguments: `Dim pItem As New clsRibbonMRUFile(path, "override", False, "description", False)` rather than have to enter each as a separate property. `IUISimplePropertySet` has only one member: `GetValue`. This part is simple, we just check the PROPERTYKEY it's asking for, and give it the value from the constructor. Only the 3 present are supported; unfortunately you can't provide an icon.
+
+Now that the class is set up, lets look at how to create them in response to the UpdateProperty request and supply them to the Ribbon. The key is looking for a SAFEARRAY of IUnknown, an array of our classes. Since this is a little above tB's native array handling, we'll use the low level `SAFEARRAY` APIs:
+
+```
+    Dim pItems() As clsRibbonMRUFile
+    ReDim pItems(nMRUItems - 1)
+    Dim i As Long
+    Dim psa As LongPtr = SafeArrayCreateVector(VT_UNKNOWN, 0, nMRUItems)
+    For i = 0 To UBound(pItems)
+        Set pItems(i) = New clsRibbonMRUFile("", "Recent file #" & i, , "Description of file " & i, IIf(i = 0, True, False))
+        SafeArrayPutElement psa, i, ByVal ObjPtr(pItems(i))
+    Next
+```
+We're not supplying real files for the demo, because I don't know what's where your computer. The first item is pinned just to show that functionality. Now that has to be put into the `PROPVARIANT` that's returned:
+
+```
+    Dim ppsa As LongPtr
+    VariantSetType newValue, VT_ARRAY Or VT_UNKNOWN
+    SafeArrayCopy psa, ppsa
+    CopyMemory ByVal PointerAdd(VarPtr(newValue), 8), ppsa, LenB(Of LongPtr)
+    SafeArrayDestroy psa
+    bSetNewValue = True
+```
+We manually set it's type, copy the array, and then copy the pointer to the data part of the `PROPVARIANT` before destroying the original.
+
+And that's it... once that's done, we just listen for clicks on `IDC_RECENTITEMS`, our XML command for the list. The item number is given by `VariantUI4ToI4(currentValue, nItem)`. 
 
 ---
 
