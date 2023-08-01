@@ -1,6 +1,11 @@
 # UIRibbonDemos
 ## Windows UI Ribbon Framework Demos
 
+**Update (August 1st): Intermediate Demo updated.**\
+Bug fix: Toggle button for context tabs wasn't working. \
+Bug fix: Shield icon wasn't replaced with app icon when running from IDE.\
+I have not been able to get Recent Items pinning working correctly... this version implements a method I found that should supposedly read the changes to pinned status, but it's returning false always for every item. There is code that gets an updated pin status if you click the item. I've left all my debug code for this in, and activated the IUIEventLogger, if anyone wantsto play around with this. Will keep working on it but didn't want to delay the other fixes.
+
 **Update (July 30th): Intermediate Demo updated!** Since the Recent Items category was there, I thought filling it shouldn't wait for the advanced demo. Details at end of readme.
 
 **Update (July 28th): The Intermediate Demo is now available! Scroll down to check it out!** The finished project is UIRibbonDemoIntermediateA.twinproj, and the intermediates are the ones with an I suffix.
