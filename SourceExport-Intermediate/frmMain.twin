@@ -6,10 +6,11 @@ Class frmMain
     #Const dbg_enablefont = 1 'Enable interaction with the font control
     #Const dbg_enablemru = 1 'Enable filling the MRU list. Reminder: Number of items is set in 
                              'the ribbon xml file.
+    #Const dbg_enableeventing = 1 'IUIEventLogger
     
     #Region "ReadMe"
     /*
-        Windows Ribbon Framework UI Demo - Intermediate, v2
+        Windows Ribbon Framework UI Demo - Intermediate, v3
         Main Form
         
         This intermediate demo gets into some of the more complex features beyond the basic proof 
@@ -92,11 +93,26 @@ Class frmMain
         Author: Jon Johnson (fafalone)
         Project repository: https://github.com/fafalone/UIRibbonDemos
         License: CC0 1.0 Universal, see LICENCE.md for more info.
-        Last updated: 24 July 2023 :: First major release.
+        Last updated: 01 August 2023 :: Revision 3
         
         This project was developed exclusively in twinBASIC; there's no VB6 version, and the code
         takes advantage of new language features wheverever beneficial, so it's possible to back
         port but would require some changes.
+        
+        
+        Updates:
+          Revision 3 - Bug fix: Toggle button for context tabs wasn't working. 
+                       Bug fix: Shield icon wasn't replaced with app icon when running from IDE.
+                       I have not been able to get Recent Items pinning working correctly... this
+                       version implements a method I found that should supposedly read the changes
+                       to pinned status, but it's returning false always for every item. There is
+                       code that gets an updated pin status if you click the item. I've left all
+                       my debug code for this in, and activated the IUIEventLogger, if anyone wants
+                       to play around with this. Will keep working on it but didn't want to delay
+                       the other fixes.
+                       
+          Revision 2 - Added RecentItems list.
+        
         
         Requirements: 
         -The UI Ribbon is a Windows 7 and newer feature.
@@ -152,6 +168,8 @@ Class frmMain
                                   ' <ApplicationMenu.RecentItems>
                                   '   <RecentItems CommandName="cmdRecentItems" MaxCount="7"/>
                                   ' </ApplicationMenu.RecentItems>
+    Private bMRUPinned(6) As Boolean 'Must match the count of nMRUItems. Receives the new states as they change.
+    
     
     Private Const TWIPS_PER_POINT = 20
     Private TWIPS_PER_INDENT As Long
@@ -312,6 +330,13 @@ Class frmMain
         pFramework.LoadUI hMod, StrPtr("APPLICATION_RIBBON")
         LogMsg "Successfully loaded UI"
         pFramework.SetUICommandProperty(IDC_ALIGNLEFT, UI_PKEY_BooleanValue, CVar(True)) 'Set initial alignment = left
+        #If dbg_enableeventing Then
+        Dim pEvtMgr As IUIEventingManager
+        Set pEvtMgr = pFramework
+        If pEvtMgr IsNot Nothing Then
+            pEvtMgr.SetEventLogger pUIApp
+        End If
+        #End If
     End Sub
     Private Function MakeTrue(ByRef x As Boolean) As Boolean
         x = True: MakeTrue = True
@@ -343,7 +368,7 @@ Class frmMain
     Private Sub ShowHelp()
         Dim tdc As TASKDIALOGCONFIG
         tdc.cbSize = LenB(Of TASKDIALOGCONFIG)
-        tdc.hInstance = App.hInstance
+        tdc.hInstance = hMod
         tdc.hWndParent = Me.hWnd
         tdc.dwCommonButtons = TDCBF_CLOSE_BUTTON
         tdc.dwFlags = TDF_ENABLE_HYPERLINKS
@@ -841,18 +866,19 @@ Class frmMain
     Private Sub OnRibbonCmdExecute(ByVal commandId As Long, ByVal verb As UI_EXECUTIONVERB, ByVal key As LongPtr, currentValue As Variant, ByVal bCurValWasNull As Boolean, ByVal commandExecutionProperties As IUISimplePropertySet, returnValue As Long) Handles pUIApp.OnRibbonCmdExecute
         'On Error GoTo e0
         Dim pos As Long
+        Dim pk As PROPERTYKEY
         
         If verb = UI_EXECUTIONVERB_EXECUTE Then
             LogMsg "You clicked: CommandId=" & commandId & " (" & GetCommandIdStr(commandId) & "), Verb=" & verb & ", ValueType=" & VTtoStr(CInt(VarType(currentValue)))
         End If
         
-        #If dbg_enablefont Then
-        On Error GoTo e1
-        Dim pk As PROPERTYKEY
-        
         If key Then
             CopyMemory pk, ByVal key, LenB(Of PROPERTYKEY)
         End If
+        
+        #If dbg_enablefont Then
+        On Error GoTo e1
+
         pos += 1
         If IsEqualPKEY(pk, UI_PKEY_FontProperties) Then
             'Handle clicks from the Font control
@@ -895,9 +921,7 @@ Class frmMain
                 If bCurValWasNull = False Then
                     hr = S_OK
                     Set pChanges = currentValue
-                    pos += 1
                     SetFontValues pChanges
-                    pos += 1
                 End If
             End If
             returnValue = hr
@@ -905,7 +929,7 @@ Class frmMain
         End If
         #End If
         
-       'On Error GoTo e0
+       On Error GoTo e0
         Dim vNew As Variant
         Dim vbEnabled As Variant
 
@@ -914,19 +938,21 @@ Class frmMain
                 Dim lActive As Long = UI_CONTEXTAVAILABILITY_ACTIVE
                 InitPropVariantFromUInt32 lActive, vNew 'We need a VT_UI4; plain long is VT_I4
                 pFramework.SetUICommandProperty(IDC_TABTABLE, UI_PKEY_ContextAvailable, vNew)
+                pFramework.SetUICommandProperty(IDC_TOGGLE1, UI_PKEY_BooleanValue, CVar(True))
             Case IDC_UNSELECT
                 Dim lInactive As Long = UI_CONTEXTAVAILABILITY_NOTAVAILABLE
-                InitPropVariantFromUInt32 lActive, vNew 'We need a VT_UI4; plain long is VT_I4
+                InitPropVariantFromUInt32 lInactive, vNew 'We need a VT_UI4; plain long is VT_I4
                 pFramework.SetUICommandProperty(IDC_TABTABLE, UI_PKEY_ContextAvailable, vNew)
+                pFramework.SetUICommandProperty(IDC_TOGGLE1, UI_PKEY_BooleanValue, CVar(False))
             Case IDC_TOGGLE1
                 Dim lToggle As Long
                 pFramework.GetUICommandProperty(IDC_TOGGLE1, UI_PKEY_BooleanValue, vbEnabled)
                 If CBool(vbEnabled) = True Then 'It's a VT_BOOL: VARIANT_BOOL, the same type VB uses. Convenient!
-                lToggle = UI_CONTEXTAVAILABILITY_NOTAVAILABLE
+                    lToggle = UI_CONTEXTAVAILABILITY_ACTIVE
                 Else
-                lToggle = UI_CONTEXTAVAILABILITY_ACTIVE
+                    lToggle = UI_CONTEXTAVAILABILITY_NOTAVAILABLE
                 End If
-                InitPropVariantFromUInt32 lActive, vNew 'We need a VT_UI4; plain long is VT_I4
+                InitPropVariantFromUInt32 lToggle, vNew 'We need a VT_UI4; plain long is VT_I4
                 pFramework.SetUICommandProperty(IDC_TABTABLE, UI_PKEY_ContextAvailable, vNew)
             
             
@@ -1073,8 +1099,61 @@ Class frmMain
             Case IDC_RECENTITEMS
                 If bCurValWasNull = False Then
                 	Dim nItem As Long
+                    Dim pset As IUISimplePropertySet
+                    Dim psa As LongPtr
+                    Dim parray As LongPtr
+                    Dim ct As Long
+                    Dim pv As Variant
+                    Dim blnRaw As Integer
                     If VariantUI4ToI4(currentValue, nItem) Then
                     	LogMsg "Clicked Recent Items (MRU) List item " & nItem
+                    End If
+                    If IsEqualPKEY(pk, UI_PKEY_RecentItems) Then
+                        pos = 70
+                        Debug.Print "Got RecentItems pkey in cmdExec, valuetype=" & VTtoStr(VarType(currentValue))
+                    	If VarType(currentValue) = (VT_ARRAY Or VT_UNKNOWN) Then
+                            pos += 1
+
+                            
+                            CopyMemory parray, ByVal PointerAdd(VarPtr(currentValue), 8), LenB(Of LongPtr)
+                            pos += 1
+                            SafeArrayCopy ByVal parray, psa
+                            pos += 1
+                            Dim res As Long = SafeArrayGetUBound(psa, 1, ct)
+                            If res = S_OK Then
+                                pos += 1
+                            	Dim i As Long
+                                For i = 0 To ct
+                                    If SafeArrayGetElement(psa, 1, pset) = S_OK Then
+                                        pos += 1
+                                        pset.GetValue UI_PKEY_Pinned, pv
+                                        pos += 1
+                                        Debug.Print "VarType(pv)=" & VTtoStr(VarType(pv))
+                                        If VarType(pv) = VT_BOOL Then
+                                            
+                                            CopyMemory blnRaw, ByVal PointerAdd(VarPtr(pv), 8), 2
+                                            Debug.Print "RawVal=0x" & Hex$(blnRaw)
+                                        End If
+                                        bMRUPinned(i) = CBool(pv)
+                                        pos += 1
+                                        Debug.Print "Pinned(" & i & ")=" & bMRUPinned(i)
+                                    End If
+                                Next
+                            End If
+                            SafeArrayDestroy psa
+                        End If
+                    End If
+                    If IsEqualPKEY(pk, UI_PKEY_SelectedItem) Then
+                    	Debug.Print "Got RecentItems.SelectedItem"
+                        commandExecutionProperties.GetValue UI_PKEY_Pinned, pv
+                        Debug.Print "VarType(pv)=" & VTtoStr(VarType(pv))
+                        If VarType(pv) = VT_BOOL Then
+                            CopyMemory blnRaw, ByVal PointerAdd(VarPtr(pv), 8), 2
+                            Debug.Print "RawVal=0x" & Hex$(blnRaw)
+                        End If
+                        bMRUPinned(i) = CBool(pv)
+                        pos += 1
+                        Debug.Print "Pinned(" & i & ")=" & bMRUPinned(i)
                     End If
                 End If
             
@@ -1092,7 +1171,7 @@ Class frmMain
         
     Exit Sub
     e0:
-        LogMsg "Error in OnRibbonCmdExecute: " & Err.Number & ", " & Err.Description
+        LogMsg "Error in OnRibbonCmdExecute (pos=" & pos & "): " & Err.Number & ", " & Err.Description
         Exit Sub
     e1:
     LogMsg "Error in OnRibbonCmdExecute font block (pos=" & pos & "): " & Err.Number & ", " & Err.Description
@@ -1156,16 +1235,15 @@ Class frmMain
             If bCurValWasNull = False Then
                 Dim pValues As IPropertyStore
                 Set pValues = currentValue
-                pos += 1
                 GetFontValues pValues
                 pos += 1
                 newValue = pValues
-                pos += 1
                 bSetNewValue = True
             Else
                 pos += 10
                 returnValue = E_POINTER
             End If
+            Exit Sub
         End If
         #End If
         #If dbg_enablemru Then
@@ -1183,16 +1261,17 @@ Class frmMain
                 SafeArrayPutElement psa, i, ByVal ObjPtr(pItems(i))
             Next
             pos += 1
-            
-            Dim ppsa As LongPtr
+
             VariantSetType newValue, VT_ARRAY Or VT_UNKNOWN
-            SafeArrayCopy psa, ppsa
-            CopyMemory ByVal PointerAdd(VarPtr(newValue), 8), ppsa, LenB(Of LongPtr)
+            'The SafeArrayCopy functions fills a pointer variable with the address of the new SAFEARRAY.
+            SafeArrayCopy psa, ByVal PointerAdd(VarPtr(newValue), 8)
             SafeArrayDestroy psa
             bSetNewValue = True
             Debug.Print "newValue = pItems; vt=" & VTtoStr(VarType(newValue))
+            Exit Sub
         End If
         #End If
+        'Debug.Print "Unhandled PKEY: " & dbg_PKEYToString(pk)
     End If
     Exit Sub
     e0:
@@ -1436,7 +1515,21 @@ Class frmMain
     If sRet = "" Then sRet = "(unknown)"
     GetCommandIdStr = sRet
     End Function
+    Private Function dbg_PKEYToString(tpk As PROPERTYKEY) As String
+    Dim sGID As String
+    
+    sGID = dbg_GUIDToString(tpk.fmtid, False)
+    dbg_PKEYToString = "{" & sGID & ", " & tpk.pid & "}"
+    End Function
 
+    Private Function dbg_GUIDToString(tg As UUID, Optional bBrack As Boolean = True) As String
+    'StringFromGUID2 never works, even "working" code from vbaccelerator AND MSDN
+    dbg_GUIDToString = Right$("00000000" & Hex$(tg.Data1), 8) & "-" & Right$("0000" & Hex$(tg.Data2), 4) & "-" & Right$("0000" & Hex$(tg.Data3), 4) & _
+    "-" & Right$("00" & Hex$(CLng(tg.Data4(0))), 2) & Right$("00" & Hex$(CLng(tg.Data4(1))), 2) & "-" & Right$("00" & Hex$(CLng(tg.Data4(2))), 2) & _
+    Right$("00" & Hex$(CLng(tg.Data4(3))), 2) & Right$("00" & Hex$(CLng(tg.Data4(4))), 2) & Right$("00" & Hex$(CLng(tg.Data4(5))), 2) & _
+    Right$("00" & Hex$(CLng(tg.Data4(6))), 2) & Right$("00" & Hex$(CLng(tg.Data4(7))), 2)
+    If bBrack Then dbg_GUIDToString = "{" & dbg_GUIDToString & "}"
+    End Function
     
     Private Function ChrW2(ByVal AscW2 As Long) As String
         Dim s As String
@@ -1542,6 +1635,10 @@ Class frmMain
                 Call ShellExecuteW(0, 0, lParam, 0, 0, SW_SHOWNORMAL)
         End Select
     End Function
+    
+    Private Sub OnRibbonUIEventMessage(ByVal EventType As UI_EVENTTYPE, ByVal commandId As Long, ByVal modes As Long, ByVal commandName As String, ByVal parentCommandId As Long, ByVal parentCommandName As String, ByVal selectionIndex As Long, ByVal Location As UI_EVENTLOCATION, returnValue As Long) Handles pUIApp.OnRibbonUIEventMessage
+        Debug.Print "OnRibbonUIEventMessage type=" & EventType & ", id=" & commandId & " (" & GetCommandIdStr(commandId) & "), modes=" & modes & ", parentCommandId=" & parentCommandId & " (" & GetCommandIdStr(parentCommandId) & "), selIdx=" & selectionIndex & ", loc=" & Location
+    End Sub
     
 #End Region
 End Class

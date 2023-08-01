@@ -11,7 +11,7 @@ Class clsRibbonEvents
 
     Implements IUIApplication
     Implements IUICommandHandler
-    'Implements IUIEventLogger
+    Implements IUIEventLogger
     
     [ Description ("Raised when the Application.Views set changes. If you handle this event, you must set bHandled to True and hr to the HRESULT.") ]
     Public Event OnRibbonViewChange(ByVal viewId As Long, ByVal typeID As UI_VIEWTYPE, ByVal view As IUnknown, ByVal verb As UI_VIEWVERB, ByVal uReasonCode As Long, pbHandled As Boolean, phr As Long)
@@ -19,8 +19,8 @@ Class clsRibbonEvents
     Public Event OnRibbonCmdExecute(ByVal commandId As Long, ByVal verb As UI_EXECUTIONVERB, ByVal key As LongPtr, currentValue As Variant, ByVal bCurValWasNull As Boolean, ByVal commandExecutionProperties As IUISimplePropertySet, returnValue As Long)
     [ Description ("Raised when a property is updated. key is a pointer to a PROPERTYKEY. If you set newValue, set bValid to True. bCurValWasNull indicates if currentValue was NULL, since it can't be passed in that case.") ]
     Public Event OnRibbonUpdateProperty(ByVal commandId As Long, ByVal key As LongPtr, currentValue As Variant, ByVal bCurValWasNull As Boolean, newValue As Variant, bSetNewValue As Boolean, returnValue As Long)
-    ' [ Description ("Relays messages from the Eventing Manager. Modes is only set if the EventType is a mode change; in this case, all other values will be 0.") ]
-    ' Public Event OnRibbonUIEventMessage(ByVal EventType As UI_EVENTTYPE, ByVal commandId As Long, ByVal modes As Long, ByVal commandName As String, ByVal parentCommandId As Long, ByVal parentCommandName As String, ByVal selectionIndex As Long, ByVal Location As UI_EVENTLOCATION, ByRef returnValue As Long)
+    [ Description ("Relays messages from the Eventing Manager. Modes is only set if the EventType is a mode change; in this case, all other values will be 0.") ]
+    Public Event OnRibbonUIEventMessage(ByVal EventType As UI_EVENTTYPE, ByVal commandId As Long, ByVal modes As Long, ByVal commandName As String, ByVal parentCommandId As Long, ByVal parentCommandName As String, ByVal selectionIndex As Long, ByVal Location As UI_EVENTLOCATION, ByRef returnValue As Long)
 
     Private Sub IUIApplication_OnViewChanged(ByVal viewId As Long, ByVal typeID As UI_VIEWTYPE, ByVal view As IUnknown, ByVal verb As UI_VIEWVERB, ByVal uReasonCode As Long) Implements IUIApplication.OnViewChanged
         Dim bHandled As Boolean
@@ -43,14 +43,16 @@ Class clsRibbonEvents
 
     Private Sub IUICommandHandler_Execute(ByVal commandId As Long, ByVal verb As UI_EXECUTIONVERB, key As PROPERTYKEY, currentValue As Variant, ByVal commandExecutionProperties As IUISimplePropertySet) Implements IUICommandHandler.Execute
         Dim hr As Long
-        Dim pv As Variant /* A true NULL Variant has VarPtr to it == 0 */
+        Dim pv As Variant 'A true NULL Variant has VarPtr to it == 0 
         Dim bNull As Boolean
         If VarPtr(currentValue) <> 0 Then /* It's not the same as a declared but unused Variant, which has a valid pointer and type VT_EMPTY. */
-            VariantCopy pv, currentValue
+            RaiseEvent OnRibbonCmdExecute(commandId, verb, VarPtr(key), currentValue, bNull, commandExecutionProperties, hr)
+            'VariantCopy pv, currentValue
         Else
+            'Can't pass a true NULL; crashes
             bNull = True
+            RaiseEvent OnRibbonCmdExecute(commandId, verb, VarPtr(key), pv, bNull, commandExecutionProperties, hr)
         End If
-        RaiseEvent OnRibbonCmdExecute(commandId, verb, VarPtr(key), pv, bNull, commandExecutionProperties, hr)
         Err.ReturnHResult = hr
     End Sub
 
@@ -61,34 +63,48 @@ Class clsRibbonEvents
         Dim bNull As Boolean
         Dim bValid As Boolean
         If VarPtr(currentValue) <> 0 Then
-            VariantCopy pv, currentValue
+            'VariantCopy pv, currentValue
+            If VarPtr(newValue <> 0) Then
+                RaiseEvent OnRibbonUpdateProperty(commandId, VarPtr(key), currentValue, bNull, newValue, bValid, hr)
+            Else
+                RaiseEvent OnRibbonUpdateProperty(commandId, VarPtr(key), currentValue, bNull, pnv, bValid, hr)
+                If bValid Then
+                    VariantCopy newValue, pnv
+                End If
+            End If
+                
         Else
             bNull = True
+            If VarPtr(newValue <> 0) Then
+                RaiseEvent OnRibbonUpdateProperty(commandId, VarPtr(key), pv, bNull, newValue, bValid, hr)
+            Else
+                RaiseEvent OnRibbonUpdateProperty(commandId, VarPtr(key), pv, bNull, pnv, bValid, hr)
+                If bValid Then
+                    VariantCopy newValue, pnv
+                End If
+            End If
         End If
-        RaiseEvent OnRibbonUpdateProperty(commandId, VarPtr(key), pv, bNull, pnv, bValid, hr)
-        If bValid Then
-            VariantCopy newValue, pnv
-        End If
+        
         Err.ReturnHResult = hr
     End Sub
 
     'TODO: Enable after initial test
-    'Private Sub IUIEventLogger_OnUIEvent(pEventParams As UI_EVENTPARAMS) Implements IUIEventLogger.OnUIEvent
-        ' If VarPtr(pEventParams) = 0 Then Exit Sub
+    Private Sub IUIEventLogger_OnUIEvent(pEventParams As UI_EVENTPARAMS) Implements IUIEventLogger.OnUIEvent
+        If VarPtr(pEventParams) = 0 Then Exit Sub
         
-        ' Dim hr As Long
-        ' If pEventParams.EventType = UI_EVENTTYPE_ApplicationModeSwitched Then
-        '     RaiseEvent OnRibbonUIEventMessage(pEventParams.EventType, 0, pEventParams.Params.CommandID, "", 0, "", 0, 0, hr)
-        ' Else
-        '     Dim sName As String, sParName As String
-        '     If pEventParams.Params.CommandName Then sName = LPWSTRtoStr(pEventParams.Params.CommandName, False)
-        '     If pEventParams.Params.ParentCommandName Then sParName = LPWSTRtoStr(pEventParams.Params.ParentCommandName, False)
-        '     RaiseEvent OnRibbonUIEventMessage(pEventParams.EventType, pEventParams.Params.CommandID, 0, sName, 0, "", pEventParams.Params.ParentCommandID, sParName, hr)
-        ' End If
+        Dim hr As Long
+        If pEventParams.EventType = UI_EVENTTYPE_ApplicationModeSwitched Then
+            RaiseEvent OnRibbonUIEventMessage(pEventParams.EventType, 0, pEventParams.Params.CommandID, "", 0, "", 0, 0, hr)
+        Else
+            Dim sName As String, sParName As String
+            ' If pEventParams.Params.CommandName Then sName = LPWSTRtoStr(pEventParams.Params.CommandName, False)
+            ' If pEventParams.Params.ParentCommandName Then sParName = LPWSTRtoStr(pEventParams.Params.ParentCommandName, False)
+            RaiseEvent OnRibbonUIEventMessage(pEventParams.EventType, pEventParams.Params.CommandID, 0, sName, pEventParams.Params.ParentCommandID, sParName, pEventParams.Params.SelectionIndex, pEventParams.Params.Location, hr)
+        End If
 
-        ' Err.ReturnHResult = hr
+        Err.ReturnHResult = hr
     
-    'End Sub
+    End Sub
 
 End Class
 
@@ -144,7 +160,7 @@ Class clsRibbonMRUFile
     End Sub
         
     Private Sub IUISimplePropertySet_GetValue(key As PROPERTYKEY, value As Variant) Implements IUISimplePropertySet.GetValue
-        Debug.Print "MRUInstance received GetValue, keyptr=" & VarPtr(key)
+        'Debug.Print "MRUInstance received GetValue, keyptr=" & VarPtr(key)
         If (VarPtr(key) = 0) Then
             Err.ReturnHResult = E_POINTER
             Exit Sub
