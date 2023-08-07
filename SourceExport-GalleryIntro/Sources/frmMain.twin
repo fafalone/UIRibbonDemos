@@ -1,0 +1,1040 @@
+[ Description ("Windows UI Ribbon Framework Demo - Intermediate") ]
+[ FormDesignerId ("E49F24B9-B08B-4999-B944-F6F945E18407") ]
+[ PredeclaredId ]
+Class frmMain
+ 
+
+    #Const dbg_enableeventing = 0 'IUIEventLogger
+    
+    Private Const UI_ALL_COMMANDS  = (0) 'TEMP:: Will be in next tbShellLib version
+    
+    
+    #Region "ReadMe"
+    /*
+        Windows Ribbon Framework UI Demo - Gallery Intro
+        Main Form
+        
+        Galleries are one of the nicest features of the Ribbon, but also the most complicated to
+        implement after the Font Control. So before jumping right into the planned Advanced Demo, 
+        which will tread new ground rather than be a simple port of an existing sample, I wanted 
+        to get a handle on basic Gallery use by following the SDK example for them. 
+        
+        This demo covers 3 types of galleries: In-ribbon, drop down command gallery, and dropdown
+        item gallery. In addition it covers editable and non-editable comboboxes, which are handled
+        the same way as galleries.
+        
+        These are all a bit of a pain to use as they're mostly populated during runtime, so you need
+        to insert the resources yourself or load them from elsewhere. This can be slow and tedious 
+        so for simplicity I just used the existing resource file from the SDK example since this is
+        about how to write the code.
+        
+        These all work the same basic way: When created, they raise an Update Property request where
+        you're passed an item collect object, then fill it with instances of a class implementing
+        IUISimplePropertySet, which respond to PROPERTYKEYs for images, labels, command ids, command
+        types, and/or category IDs, depending on the specific gallery type. To help with this, a new
+        generic class has been added: clsRibbonGalleryItem. You need only create one of these for 
+        each item and use the property lets. For the image, it has helpers to set by either resource
+        id, by HBITMAP, or directly by IUIImage. If you do specify an HBITMAP yourself, note that 
+        the Ribbon will take ownership of it; do not free it yourself.
+ 
+ 
+ 
+        Author: Jon Johnson (fafalone)
+        Project repository: https://github.com/fafalone/UIRibbonDemos
+        License: CC0 1.0 Universal, see LICENCE.md for more info.
+        Last updated: 07 August 2023 :: Initial release, v1.3.5
+        
+        This project was developed exclusively in twinBASIC; there's no VB6 version, and the code
+        takes advantage of new language features wheverever beneficial, so it's possible to back
+        port but would require some changes.
+        
+        
+
+        Requirements: 
+        -The UI Ribbon is a Windows 7 and newer feature.
+        -The code in this app depends on tbShellLib, my expansive library for Windows programming
+         which covers large swathes of built in COM interfaces and APIs from major system DLLs,
+         they for instance cover everything used in this project, which is why you see no Declares
+         or UDTs here. It's included as a twinBASIC Package, which you can add to our own projects
+         from the twinSERV package server; more info at https://github.com/fafalone/tbShellLib
+         
+        Thanks:
+        -This project is based on just about every C/C++ Ribbon project I could find, including:
+        --Windows 7 SDK Samples
+        --Arik Poznanski's Ribbon with C++ Series: 
+          http://blogs.microsoft.co.il/arik/2011/06/03/ribbon-with-c-part-1-introduction-to-the-windows-ribbon-framework/
+        --Stephen Wiria's Windows Ribbon Framework in Win32 C Application:
+          https://www.codeproject.com/Articles/119319/Windows-Ribbon-Framework-in-Win32-C-Application
+        --Michael Dunn's Windows 7 Goodies in C++: Introduction to the Ribbon:
+          https://www.codeproject.com/Articles/160542/Windows-7-Goodies-in-C-Introduction-to-the-Ribbon
+        --firehacker for clever new InIDE method  
+        -And of course, thanks to Wayne Phillips for his incredible work in creating twinBASIC!
+    */
+    #End Region
+    
+    Private Const MAX_RESOURCE_LENGTH = 256
+    
+    [ Description ("Main object for the UI Ribbon Framework") ]
+    Private pFramework As UIRibbonFramework
+    
+    [ Description ("Our class that handles events from the Ribbon and fowards them to us.") ]
+    Private WithEvents pUIApp As clsRibbonEvents
+   
+    [ Description ("Handle to our exe, or if IDE the last exe build to enable running from the IDE.") ]
+    Private hMod As LongPtr
+    
+    [ Description ("The context id for which Context Popup will be displayed.") ]
+    Private mCtx As Long
+    
+    [ Description ("Draws the shapes according to settings on the ribbon.") ]
+    Private mRender As CRenderer
+
+    Private Const szHelpTitle = "twinBASIC UI Ribbon Demo - Gallery Intro"
+    Private Const szHelpHeader = "twinBASIC Windows UI Ribbon Demo"
+    Private Const szHelpMessage = "This is the Gallery Intro Windows UI Ribbon Framework Demo, created " & _
+                                  "by Jon Johnson based on the C/C++ Ribbon projects from the Windows 7 SDK, " & _
+                                  "<a href=""http://blogs.microsoft.co.il/arik/2011/06/03/ribbon-with-c-part-1-introduction-to-the-windows-ribbon-framework/"">Arik Poznanski</a> on blogs.microsoft.co.il, " & _
+                                  "<a href=""https://www.codeproject.com/Articles/119319/Windows-Ribbon-Framework-in-Win32-C-Application"">Stephen Wiria</a> on CodeProject, and " & _
+                                  "<a href=""https://www.codeproject.com/Articles/160542/Windows-7-Goodies-in-C-Introduction-to-the-Ribbon"">Michael Dunn</a> on CodeProject." & vbcrlf & vbcrlf & _
+                                  "For the readme, filing bug reports, original source, and more Ribbon demos for twinBASIC, visit the project's GitHub repository:" & vbcrlf & _
+                                  "<a href=""https://github.com/fafalone/UIRibbonDemos"">https://github.com/fafalone/UIRibbonDemos</a>"
+    Private Const szHelpFooter = "Copyright ©2023 Jon Johnson. Licensed under the Creative Commons Zero v1.0 Universal license. See code or repository for more  information."
+    Private Const szHelpIconRes = "101"
+    
+
+    #Region "CmdIDs"
+    'Taken from ribbon.h where they're autogenerated
+    Private Const cmdTabHome  = 2
+    Private Const cmdShapesGroup  = 3
+    Private Const cmdBorderGroup  = 4
+    Private Const cmdLayoutGroup  = 5
+    Private Const IDR_CMD_SHAPES  = 6
+    Private Const IDR_CMD_SIZEANDCOLOR  = 7
+    Private Const IDR_CMD_BORDERSTYLES  = 8
+    Private Const IDR_CMD_BORDERSIZES  = 9
+    Private Const IDR_CMD_LAYOUTS  = 10
+    Private Const IDR_CMD_SMALL  = 100
+    Private Const IDR_CMD_MEDIUM  = 101
+    Private Const IDR_CMD_LARGE  = 102
+    Private Const IDR_CMD_RED  = 103
+    Private Const IDR_CMD_GREEN  = 104
+    Private Const IDR_CMD_BLUE  = 105
+    
+    'These are manual entries for galleries. The resources
+    'they refer to also have to be placed in the resources
+    'manually, either into the .rc before compiling, into the
+    '.res, or added into tB.
+    Private Const IDS_APP_TITLE  = 103
+    Private Const IDI_GALLERY  = 107
+    Private Const IDI_SMALL  = 108
+    Private Const IDC_GALLERY  = 109
+    Private Const IDB_RECTANGLE_96  = 500
+    Private Const IDB_RECTANGLE_120  = 501
+    Private Const IDB_RECTANGLE_144  = 502
+    Private Const IDB_RECTANGLE_192  = 503
+    Private Const IDB_ROUNDED_RECTANGLE_96  = 504
+    Private Const IDB_ROUNDED_RECTANGLE_120  = 505
+    Private Const IDB_ROUNDED_RECTANGLE_144  = 506
+    Private Const IDB_ROUNDED_RECTANGLE_192  = 507
+    Private Const IDB_ELLIPSE_96  = 508
+    Private Const IDB_ELLIPSE_120  = 509
+    Private Const IDB_ELLIPSE_144  = 510
+    Private Const IDB_ELLIPSE_192  = 511
+    Private Const IDB_DIAMOND_96  = 512
+    Private Const IDB_DIAMOND_120  = 513
+    Private Const IDB_DIAMOND_144  = 514
+    Private Const IDB_DIAMOND_192  = 515
+    Private Const IDB_NONE_96  = 516
+    Private Const IDB_NONE_120  = 517
+    Private Const IDB_NONE_144  = 518
+    Private Const IDB_NONE_192  = 519
+    Private Const IDB_SOLID_96  = 520
+    Private Const IDB_SOLID_120  = 521
+    Private Const IDB_SOLID_144  = 522
+    Private Const IDB_SOLID_192  = 523
+    Private Const IDB_DASH_96  = 524
+    Private Const IDB_DASH_120  = 525
+    Private Const IDB_DASH_144  = 526
+    Private Const IDB_DASH_192  = 527
+    Private Const IDS_RECTANGLE  = 528
+    Private Const IDS_ELLIPSE  = 529
+    Private Const IDS_ROUNDED_RECTANGLE  = 530
+    Private Const IDS_DIAMOND  = 531
+    Private Const IDS_BORDER_NONE  = 532
+    Private Const IDS_BORDER_SOLID  = 533
+    Private Const IDS_BORDER_DASH  = 534
+    Private Const IDS_BORDERSIZE_1  = 535
+    Private Const IDS_BORDERSIZE_3  = 536
+    Private Const IDS_BORDERSIZE_5  = 537
+    Private Const IDS_LAYOUT_1  = 538
+    Private Const IDS_LAYOUT_2  = 539
+    Private Const IDS_LAYOUT_3  = 540
+    Private Const IDS_SIZE_CATEGORY  = 541
+    Private Const IDS_COLOR_CATEGORY  = 542
+    Private Const IDS_INVALID_SIZE_MESSAGE  = 543
+    Private Const IDS_INVALID_SIZE_TITLE  = 544
+    Private Const IDC_RIBBONHELP = 57664
+    #End Region
+
+    Private Sub LogMsg(sMsg As String)
+        Debug.Print sMsg
+        
+    End Sub
+    
+    Private Sub OnInitialize() Handles Form.Initialize
+             'Attempt to load resources from last .exe
+            hMod = GetModuleHandleW()
+            Dim InIde As Boolean: Debug.Assert MakeTrue(InIde)
+            If InIde Then
+                If (App.LastBuildPath = "") Or (PathFileExists(App.LastBuildPath) = 0) Then
+                    MsgBox("To run from the IDE you must build first, or replace this routine with one loading a DLL containing your resources.", vbCritical + vbOKOnly, App.Title)
+                    End
+                Else
+                    hMod = LoadLibraryEx(App.LastBuildPath, 0, LOAD_LIBRARY_AS_DATAFILE Or LOAD_LIBRARY_AS_IMAGE_RESOURCE)
+                End If
+            End If
+    End Sub
+
+    Private Sub OnLoad() Handles Form.Load
+        Set mRender = New CRenderer(Me.hWnd)
+        Set pFramework = New UIRibbonFramework
+        Set pUIApp = New clsRibbonEvents
+        pFramework.Initialize Me.hWnd, pUIApp
+        LogMsg "Successfully initialized Ribbon Framework"
+        pFramework.LoadUI hMod, StrPtr("APPLICATION_RIBBON")
+        LogMsg "Successfully loaded UI"
+        #If dbg_enableeventing Then
+        Dim pEvtMgr As IUIEventingManager
+        Set pEvtMgr = pFramework
+        If pEvtMgr IsNot Nothing Then
+            pEvtMgr.SetEventLogger pUIApp
+        End If
+        #End If
+        Subclass2 Me.hWnd, AddressOf FrmWndProc, Me.hWnd
+    End Sub
+    
+    Private Sub OnGotFocus() Handles Form.GotFocus
+        Dim pm As RenderParam
+        mRender.GetRenderParam pm
+        mRender.UpdateRenderParam pm
+    End Sub
+
+    Private Sub OnTerminate() Handles Form.Terminate
+        If pFramework IsNot Nothing Then pFramework.Destroy()
+        Set pFramework = Nothing
+        Set pUIApp = Nothing
+        If hMod <> GetModuleHandleW() Then FreeLibrary hMod
+    End Sub
+
+    
+    Private Sub ShowHelp()
+        Dim tdc As TASKDIALOGCONFIG
+        tdc.cbSize = LenB(Of TASKDIALOGCONFIG)
+        tdc.hInstance = hMod
+        tdc.hWndParent = Me.hWnd
+        tdc.dwCommonButtons = TDCBF_CLOSE_BUTTON
+        tdc.dwFlags = TDF_ENABLE_HYPERLINKS
+        tdc.pfCallback = AddressOf TaskDialogCallbackProc
+        tdc.pszMainIcon = MAKEINTRESOURCE(CLng(TD_SHIELD_GRAY_ICON))
+        tdc.pszFooterIcon = MAKEINTRESOURCE(CLng(TD_INFORMATION_ICON))
+        tdc.pszWindowTitle = StrPtr(szHelpTitle)
+        tdc.pszMainInstruction = StrPtr(szHelpHeader)
+        tdc.pszContent = StrPtr(szHelpMessage)
+        tdc.pszFooter = StrPtr(szHelpFooter)
+        
+        Dim lRes As Long = TaskDialogIndirect(tdc)
+        
+    End Sub
+  
+    Private Sub OnRibbonCmdExecute(ByVal commandId As Long, ByVal verb As UI_EXECUTIONVERB, ByVal key As LongPtr, currentValue As Variant, ByVal bCurValWasNull As Boolean, ByVal commandExecutionProperties As IUISimplePropertySet, returnValue As Long) Handles pUIApp.OnRibbonCmdExecute
+        'On Error GoTo e0
+        Dim pos As Long
+        Dim pk As PROPERTYKEY
+        Dim pm As RenderParam
+        mRender.GetRenderParam pm
+        
+        If verb = UI_EXECUTIONVERB_EXECUTE Then
+            LogMsg "You clicked: CommandId=" & commandId & " (" & GetCommandIdStr(commandId) & "), Verb=" & verb & ", ValueType=" & VTtoStr(CInt(VarType(currentValue)))
+        End If
+        
+        If key Then
+            CopyMemory pk, ByVal key, LenB(Of PROPERTYKEY)
+        End If
+        
+        
+        Select Case commandId
+            Case IDR_CMD_SHAPES
+                Dim nSel As Long
+                VariantUI4ToI4 currentValue, nSel
+                LogMsg "IDR_CMD_SHAPES set shape=" & nSel
+                Select Case verb
+                	' Case UI_EXECUTIONVERB_PREVIEW
+                    '     pm.eShapeType = nSel
+                    '     mRender.UpdateRenderParam pm
+                    ' Case UI_EXECUTIONVERB_CANCELPREVIEW
+                    '     pm.eShapeType = nSel
+                    '     mRender.UpdateRenderParam pm
+                    Case UI_EXECUTIONVERB_EXECUTE
+                        If IsEqualPKEY(pk, UI_PKEY_SelectedItem) Then
+                            pm.eShapeType = nSel
+                            mRender.UpdateRenderParam pm
+                        End If
+                End Select
+                         
+            Case IDR_CMD_RED, IDR_CMD_GREEN, IDR_CMD_BLUE
+                If verb = UI_EXECUTIONVERB_EXECUTE Then
+                	If IsEqualPKEY(pk, UI_PKEY_BooleanValue) Then
+                    	pm.eShapeColor = (commandId - IDR_CMD_RED)
+                        mRender.UpdateRenderParam pm
+                        'pFramework.InvalidateUICommand UI_ALL_COMMANDS, UI_INVALIDATIONS_PROPERTY, UI_PKEY_BooleanValue
+                        pFramework.SetUICommandProperty IDR_CMD_RED, UI_PKEY_BooleanValue, IIf(commandId = IDR_CMD_RED, CVar(True), CVar(False))
+                        pFramework.SetUICommandProperty IDR_CMD_GREEN, UI_PKEY_BooleanValue, IIf(commandId = IDR_CMD_GREEN, CVar(True), CVar(False))
+                        pFramework.SetUICommandProperty IDR_CMD_BLUE, UI_PKEY_BooleanValue, IIf(commandId = IDR_CMD_BLUE, CVar(True), CVar(False))
+                	End If
+                End If
+                        
+            Case IDR_CMD_SMALL, IDR_CMD_MEDIUM, IDR_CMD_LARGE
+                If verb = UI_EXECUTIONVERB_EXECUTE Then
+                    If IsEqualPKEY(pk, UI_PKEY_BooleanValue) Then
+                        pm.eShapeSize = (commandId - IDR_CMD_SMALL)
+                        mRender.UpdateRenderParam pm
+                        'pFramework.InvalidateUICommand UI_ALL_COMMANDS, UI_INVALIDATIONS_PROPERTY, UI_PKEY_BooleanValue
+                        pFramework.SetUICommandProperty IDR_CMD_SMALL, UI_PKEY_BooleanValue, IIf(commandId = IDR_CMD_SMALL, CVar(True), CVar(False))
+                        pFramework.SetUICommandProperty IDR_CMD_MEDIUM, UI_PKEY_BooleanValue, IIf(commandId = IDR_CMD_MEDIUM, CVar(True), CVar(False))
+                        pFramework.SetUICommandProperty IDR_CMD_LARGE, UI_PKEY_BooleanValue, IIf(commandId = IDR_CMD_LARGE, CVar(True), CVar(False))
+                     End If
+                End If
+           
+            Case IDR_CMD_BORDERSTYLES
+                If verb = UI_EXECUTIONVERB_EXECUTE Then
+                	If bCurValWasNull Then 'The button part rather then the dropdown items was clicked
+                    	If pm.eBorderStyle = bsNONE Then
+                            pm.eBorderStyle = bsSOLID
+                        Else
+                        	pm.eBorderStyle = bsNONE
+                        End If
+                        mRender.UpdateRenderParam pm
+                        'Update visual state of button
+                        pFramework.InvalidateUICommand IDR_CMD_BORDERSTYLES, UI_INVALIDATIONS_PROPERTY, UI_PKEY_BooleanValue
+                        're-enable combo if dash was deselected
+                        'pFramework.InvalidateUICommand IDR_CMD_BORDERSIZES, UI_INVALIDATIONS_PROPERTY, UI_PKEY_Enabled
+                        pFramework.SetUICommandProperty IDR_CMD_BORDERSIZES, UI_PKEY_Enabled, IIf(pm.eBorderStyle = bsDASH, CVar(False), CVar(True))
+                        
+                    ElseIf IsEqualPKEY(pk, UI_PKEY_SelectedItem) Then
+                        Dim iSel As Long
+                        VariantUI4ToI4 currentValue, iSel
+                        pm.eBorderStyle = iSel
+                        mRender.UpdateRenderParam pm
+                        'pFramework.InvalidateUICommand IDR_CMD_BORDERSIZES, UI_INVALIDATIONS_PROPERTY, UI_PKEY_Enabled
+                        pFramework.SetUICommandProperty IDR_CMD_BORDERSIZES, UI_PKEY_Enabled, IIf(pm.eBorderStyle = bsDASH, CVar(False), CVar(True))
+                        pFramework.InvalidateUICommand IDR_CMD_BORDERSTYLES, UI_INVALIDATIONS_PROPERTY, UI_PKEY_BooleanValue
+                	End If
+                End If
+            
+            Case IDR_CMD_BORDERSIZES
+                If verb = UI_EXECUTIONVERB_EXECUTE Then
+                    If IsEqualPKEY(pk, UI_PKEY_SelectedItem) Then
+                        Dim bsSel As Long
+                        VariantUI4ToI4 currentValue, bsSel
+                        Select Case bsSel
+                        	Case 0: pm.uBorderSize = 1
+                            Case 1: pm.uBorderSize = 3
+                            Case 2: pm.uBorderSize = 5
+                            Case UI_COLLECTION_INVALIDINDEX
+                                Dim vr As Variant
+                                commandExecutionProperties.GetValue UI_PKEY_Label, vr
+                                Dim psz As String
+                                If VariantLPWSTRtoSTR(vr, psz) Then
+                                	If IsNumeric(psz) Then
+                                    	Dim newSize As Long = CLng(psz)
+                                        If (newSize > 0) AndAlso (newSize < 16) Then
+                                        	pm.uBorderSize = newSize
+                                            mRender.UpdateRenderParam pm
+                                            pFramework.InvalidateUICommand(IDR_CMD_BORDERSIZES, UI_INVALIDATIONS_PROPERTY, UI_PKEY_StringValue)
+                                            Exit Sub
+                                        End If
+                                	End If
+                                End If
+                                Dim sMsg As String = LoadStringFromRes(hMod, IDS_INVALID_SIZE_MESSAGE)
+                                Dim sTitle As String = LoadStringFromRes(hMod, IDS_INVALID_SIZE_TITLE)
+                                MsgBox sMsg, vbCritical + vbOKOnly, sTitle
+                                Exit Sub
+                        End Select
+                        mRender.UpdateRenderParam pm 'updates for case 0-2
+                    End If
+                End If
+            
+            Case IDR_CMD_LAYOUTS
+                returnValue = E_FAIL
+                If verb = UI_EXECUTIONVERB_EXECUTE Then
+                	If IsEqualPKEY(pk, UI_PKEY_SelectedItem) Then
+                    	mRender.GetRenderParam pm
+                        Dim curLayout As Long
+                        VariantUI4ToI4 currentValue, curLayout
+                        pm.eViewLayout = curLayout
+                        mRender.UpdateRenderParam pm
+                        returnValue = S_OK
+                	End If
+                End If
+            
+            Case IDC_RIBBONHELP
+                ShowHelp
+                
+            Case Else
+                LogMsg "No action currently defined for commandId=" & commandId & "(" & GetCommandIdStr(commandId) & ")"
+                'returnValue = E_NOTIMPL
+        End Select
+        
+        
+    Exit Sub
+    e0:
+        LogMsg "Error in OnRibbonCmdExecute (pos=" & pos & "): " & Err.Number & ", " & Err.Description
+        Exit Sub
+
+    End Sub
+    
+    Private Sub OnRibbonUpdateProperty(ByVal commandId As Long, ByVal key As LongPtr, currentValue As Variant, ByVal bCurValWasNull As Boolean, newValue As Variant, bSetNewValue As Boolean, returnValue As Long) Handles pUIApp.OnRibbonUpdateProperty
+    On Error GoTo e0
+    Dim pos As Long
+    Dim pk As PROPERTYKEY
+    Dim i As Long
+    Dim pCol As IUICollection
+    Dim pm As RenderParam
+    Dim dpi As Long = GetDeviceCaps(GetDC(0), LOGPIXELSX)
+
+    If key Then
+        CopyMemory pk, ByVal key, LenB(Of PROPERTYKEY)
+        'Debug.Print "Unhandled PKEY: " & dbg_PKEYToString(pk)
+    End If
+
+    Select Case commandId
+        Case IDR_CMD_SHAPES
+            If IsEqualPKEY(pk, UI_PKEY_Categories) Then
+                'Must return S_FALSE (or E_NOTIMPL) to create a gallery with no categories
+                returnValue = S_FALSE
+                Exit Sub
+            ElseIf IsEqualPKEY(pk, UI_PKEY_ItemsSource) Then
+                
+                Set pCol = currentValue
+                Dim ImageIds(3) As Long
+                Dim LabelIds(3) As Long
+                
+                LabelIds(0) = IDS_RECTANGLE: LabelIds(1) = IDS_ELLIPSE: LabelIds(2) = IDS_ROUNDED_RECTANGLE: LabelIds(3) = IDS_DIAMOND
+                
+                Debug.Print "ConfigShapes, dpi=" & dpi
+                
+                If dpi > 144 Then
+                	ImageIds(0) = IDB_RECTANGLE_192
+                    ImageIds(1) = IDB_ELLIPSE_192
+                    ImageIds(2) = IDB_ROUNDED_RECTANGLE_192
+                    ImageIds(3) = IDB_DIAMOND_192
+                ElseIf dpi > 120 Then
+                    ImageIds(0) = IDB_RECTANGLE_144
+                    ImageIds(1) = IDB_ELLIPSE_144
+                    ImageIds(2) = IDB_ROUNDED_RECTANGLE_144
+                    ImageIds(3) = IDB_DIAMOND_144
+                ElseIf dpi > 96 Then
+                    ImageIds(0) = IDB_RECTANGLE_120
+                    ImageIds(1) = IDB_ELLIPSE_120
+                    ImageIds(2) = IDB_ROUNDED_RECTANGLE_120
+                    ImageIds(3) = IDB_DIAMOND_120
+                Else
+                    ImageIds(0) = IDB_RECTANGLE_96
+                    ImageIds(1) = IDB_ELLIPSE_96
+                    ImageIds(2) = IDB_ROUNDED_RECTANGLE_96
+                    ImageIds(3) = IDB_DIAMOND_96
+                End If
+                
+                For i = 0 To UBound(LabelIds)
+                	Dim pItem As New clsRibbonGalleryItem
+                    pItem.SetImageByResID ImageIds(i), hMod
+                    pItem.Label = LoadStringFromRes(hMod, LabelIds(i))
+                    pItem.CategoryID = UI_COLLECTION_INVALIDINDEX
+                    pCol.Add pItem
+                    Set pItem = Nothing
+                Next
+                Set pCol = Nothing
+                
+            ElseIf IsEqualPKEY(pk, UI_PKEY_SelectedItem) Then
+                mRender.GetRenderParam pm
+                InitPropVariantFromUInt32 pm.eShapeType, newValue
+                bSetNewValue = True
+                
+            End If
+        
+        Case IDR_CMD_SIZEANDCOLOR
+            If IsEqualPKEY(pk, UI_PKEY_Categories) Then
+            	Set pCol = currentValue
+                
+                Dim pSize As New clsRibbonGalleryItem
+                pSize.CategoryID = 0
+                pSize.Label = LoadStringFromRes(hMod, IDS_SIZE_CATEGORY)
+                pCol.Add pSize
+                Set pSize = Nothing
+                
+                Dim pColor As New clsRibbonGalleryItem
+                pColor.CategoryID = 1
+                pColor.Label = LoadStringFromRes(hMod, IDS_COLOR_CATEGORY)
+                pCol.Add pColor
+                Set pColor = Nothing
+                
+            ElseIf IsEqualPKEY(pk, UI_PKEY_ItemsSource) Then
+                Set pCol = currentValue
+                Dim scCmdIds(5) As Long
+                Dim scCatIds(5) As Long
+                
+                scCmdIds(0) = IDR_CMD_SMALL
+                scCmdIds(1) = IDR_CMD_MEDIUM
+                scCmdIds(2) = IDR_CMD_LARGE
+                scCmdIds(3) = IDR_CMD_RED
+                scCmdIds(4) = IDR_CMD_GREEN
+                scCmdIds(5) = IDR_CMD_BLUE
+                
+                scCatIds(3) = 1
+                scCatIds(4) = 1
+                scCatIds(5) = 1
+                
+                For i = 0 To UBound(scCmdIds)
+                	Dim pCommand As New clsRibbonGalleryItem
+                    pCommand.CategoryID = scCatIds(i)
+                    pCommand.CommandID = scCmdIds(i)
+                    pCommand.CommandType = UI_COMMANDTYPE_BOOLEAN
+                    pCol.Add pCommand
+                    Set pCommand = Nothing
+                Next
+            End If
+        
+        Case IDR_CMD_SMALL, IDR_CMD_MEDIUM, IDR_CMD_LARGE, IDR_CMD_RED, IDR_CMD_GREEN, IDR_CMD_BLUE
+            If IsEqualPKEY(pk, UI_PKEY_BooleanValue) Then
+            	mRender.GetRenderParam pm
+                newValue = CVar(False)
+                If (commandId = IDR_CMD_SMALL) And (pm.eShapeSize = ssSMALL) Then newValue = CVar(True): LogMsg "SetTrue " & GetCommandIdStr(commandId)
+                If (commandId = IDR_CMD_MEDIUM) And (pm.eShapeSize = ssMEDIUM) Then newValue = CVar(True): LogMsg "SetTrue " & GetCommandIdStr(commandId)
+                If (commandId = IDR_CMD_LARGE) And (pm.eShapeSize = ssLARGE) Then newValue = CVar(True): LogMsg "SetTrue " & GetCommandIdStr(commandId)
+                
+                If (commandId = IDR_CMD_RED) And (pm.eShapeColor = scRED) Then newValue = CVar(True): LogMsg "SetTrue " & GetCommandIdStr(commandId)
+                If (commandId = IDR_CMD_GREEN) And (pm.eShapeColor = scGREEN) Then newValue = CVar(True): LogMsg "SetTrue " & GetCommandIdStr(commandId)
+                If (commandId = IDR_CMD_BLUE) And (pm.eShapeColor = scBLUE) Then newValue = CVar(True): LogMsg "SetTrue " & GetCommandIdStr(commandId)
+                bSetNewValue = True
+                ' If (commandId = pm.eShapeSize + IDR_CMD_SMALL) Or (commandId = pm.eShapeColor + IDR_CMD_RED) Then
+                ' 	newValue = CVar(True)
+                ' Else
+                '     newValue = CVar(False)
+                ' End If
+            End If
+            
+        Case IDR_CMD_BORDERSTYLES
+            If IsEqualPKEY(pk, UI_PKEY_Categories) Then
+                'Must return S_FALSE (or E_NOTIMPL) to create a gallery with no categories
+                returnValue = S_FALSE
+                Exit Sub
+            ElseIf IsEqualPKEY(pk, UI_PKEY_ItemsSource) Then
+                
+                Set pCol = currentValue
+                Dim bdImageIds(2) As Long
+                Dim bdLabelIds(2) As Long
+                
+                bdLabelIds(0) = IDS_BORDER_NONE
+                bdLabelIds(1) = IDS_BORDER_SOLID
+                bdLabelIds(2) = IDS_BORDER_DASH
+                
+                If dpi > 144 Then
+                	bdImageIds(0) = IDB_NONE_192
+                    bdImageIds(1) = IDB_SOLID_192
+                    bdImageIds(2) = IDB_DASH_192
+                ElseIf dpi > 120 Then
+                    bdImageIds(0) = IDB_NONE_144
+                    bdImageIds(1) = IDB_SOLID_144
+                    bdImageIds(2) = IDB_DASH_144
+                ElseIf dpi > 96 Then
+                    bdImageIds(0) = IDB_NONE_120
+                    bdImageIds(1) = IDB_SOLID_120
+                    bdImageIds(2) = IDB_DASH_120
+                Else
+                    bdImageIds(0) = IDB_NONE_96
+                    bdImageIds(1) = IDB_SOLID_96
+                    bdImageIds(2) = IDB_DASH_96
+                End If
+                
+                For i = 0 To UBound(bdImageIds)
+                    Dim pBdItem As New clsRibbonGalleryItem
+                    pBdItem.SetImageByResID bdImageIds(i), hMod
+                    pBdItem.Label = LoadStringFromRes(hMod, bdLabelIds(i))
+                    pBdItem.CategoryID = UI_COLLECTION_INVALIDINDEX
+                    pCol.Add pBdItem
+                    Set pBdItem = Nothing
+                Next
+                
+            ElseIf IsEqualPKEY(pk, UI_PKEY_SelectedItem) Then
+                mRender.GetRenderParam pm
+                InitPropVariantFromUInt32 pm.eBorderStyle, newValue
+                
+            ElseIf IsEqualPKEY(pk, UI_PKEY_BooleanValue) Then
+                mRender.GetRenderParam pm
+                Dim bActive As Boolean = (pm.eBorderStyle <> None)
+                pFramework.InvalidateUICommand IDR_CMD_BORDERSTYLES, UI_INVALIDATIONS_PROPERTY, UI_PKEY_SelectedItem
+                newValue = CVar(bActive)
+            End If
+            
+        Case IDR_CMD_BORDERSIZES
+            If IsEqualPKEY(pk, UI_PKEY_Categories) Then
+                'Must return S_FALSE (or E_NOTIMPL) to create a gallery with no categories
+                returnValue = S_FALSE
+                Exit Sub
+            ElseIf IsEqualPKEY(pk, UI_PKEY_ItemsSource) Then
+                Set pCol = currentValue
+            	Dim cbEntries(2) As Long
+                
+                cbEntries(0) = IDS_BORDERSIZE_1
+                cbEntries(1) = IDS_BORDERSIZE_3
+                cbEntries(2) = IDS_BORDERSIZE_5
+                
+                For i = 0 To UBound(cbEntries)
+                	Dim pEntry As New clsRibbonGalleryItem
+                    pEntry.CategoryID = UI_COLLECTION_INVALIDINDEX
+                    pEntry.Label = LoadStringFromRes(hMod, cbEntries(i))
+                    pCol.Add pEntry
+                    Set pEntry = Nothing
+                Next
+                
+            ElseIf IsEqualPKEY(pk, UI_PKEY_StringValue) Then
+                mRender.GetRenderParam pm
+                InitPropVariantFromString CStr(pm.uBorderSize), newValue
+                bSetNewValue = True
+                
+            ElseIf IsEqualPKEY(pk, UI_PKEY_SelectedItem) Then
+                InitPropVariantFromUInt32 0, newValue
+                bSetNewValue = True
+                
+            ElseIf IsEqualPKEY(pk, UI_PKEY_Enabled) Then
+                mRender.GetRenderParam pm
+                Dim bsEnabled As Boolean = (pm.eBorderStyle <> bsDASH)
+                newValue = CVar(bsEnabled)
+                bSetNewValue = True
+                LogMsg "SetSizeCbxEnabled=" & bsEnabled
+                
+            ElseIf IsEqualPKEY(pk, UI_PKEY_RepresentativeString) Then
+                'For some reason, unlike the C++ version, Windows does not size our comboboxes
+                'appropriate. This is an undocumented fix-- only the spinner control is listed
+                'as supporting this key,
+                Dim szSizeSpacer As String = "2000"
+                InitPropVariantFromString szSizeSpacer, newValue
+                bSetNewValue = True
+            End If
+            
+        Case IDR_CMD_LAYOUTS
+            If IsEqualPKEY(pk, UI_PKEY_Categories) Then
+                'Must return S_FALSE (or E_NOTIMPL) to create a gallery with no categories
+                returnValue = S_FALSE
+                Exit Sub
+            ElseIf IsEqualPKEY(pk, UI_PKEY_ItemsSource) Then
+                Set pCol = currentValue
+                Dim layouts(2) As Long
+                
+                layouts(0) = IDS_LAYOUT_1
+                layouts(1) = IDS_LAYOUT_2
+                layouts(2) = IDS_LAYOUT_3
+                
+                For i = 0 To UBound(layouts)
+                	Dim pLayout As New clsRibbonGalleryItem
+                    pLayout.CategoryID = UI_COLLECTION_INVALIDINDEX
+                    pLayout.Label = LoadStringFromRes(hMod, layouts(i))
+                    pCol.Add pLayout
+                    Set pLayout = Nothing
+                Next
+                
+            ElseIf IsEqualPKEY(pk, UI_PKEY_SelectedItem) Then
+                InitPropVariantFromUInt32 0, newValue
+                bSetNewValue = True
+                
+            ElseIf IsEqualPKEY(pk, UI_PKEY_RepresentativeString) Then
+                'For some reason, unlike the C++ version, Windows does not size our comboboxes
+                'appropriate. This is an undocumented fix-- only the spinner control is listed
+                'as supporting this key,
+                Dim szLayoutSpacer As String = "700x700"
+                InitPropVariantFromString szLayoutSpacer, newValue
+                bSetNewValue = True
+                
+            End If
+    End Select
+
+
+    Exit Sub
+    e0:
+        LogMsg "Error in OnRibbonUpdateProperty (pos=" & pos & "): " & Err.Number & ", " & Err.Description
+    End Sub
+
+    
+    Private Sub OnRibbonViewChange(ByVal viewId As Long, ByVal typeID As UI_VIEWTYPE, ByVal view As IUnknown, ByVal verb As UI_VIEWVERB, ByVal uReasonCode As Long, pbHandled As Boolean, phr As Long) Handles pUIApp.OnRibbonViewChange
+        
+        If verb = UI_VIEWVERB_SIZE Then
+        	InvalidateRect Me.hWnd, vbNullPtr, CTRUE
+            phr = S_OK
+            pbHandled = True
+        End If
+        
+    End Sub
+
+
+    Private Sub OnRibbonUIEventMessage(ByVal EventType As UI_EVENTTYPE, ByVal commandId As Long, ByVal modes As Long, ByVal commandName As String, ByVal parentCommandId As Long, ByVal parentCommandName As String, ByVal selectionIndex As Long, ByVal Location As UI_EVENTLOCATION, returnValue As Long) Handles pUIApp.OnRibbonUIEventMessage
+        Debug.Print "OnRibbonUIEventMessage type=" & EventType & ", id=" & commandId & " (" & GetCommandIdStr(commandId) & "), modes=" & modes & ", parentCommandId=" & parentCommandId & " (" & GetCommandIdStr(parentCommandId) & "), selIdx=" & selectionIndex & ", loc=" & Location
+    End Sub
+    
+    
+
+    
+#Region "Helpers"
+    
+    Private Function MakeTrue(ByRef x As Boolean) As Boolean
+        x = True: MakeTrue = True
+    End Function
+
+    [ Description ("Converts a Variant/PROPVARIANT of unsupported unsigned long to a VB Long (VT_I4) as-is. Returns False if Variant has a null pointer or is not VT_UI4.") ]
+    Private Function VariantUI4ToI4(pvar As Variant, pOut As Long) As Boolean
+        'Handle unsigned long
+        Dim vt As Integer
+        If VarPtr(pvar) <> 0 Then
+            CopyMemory vt, ByVal VarPtr(pvar), 2
+            If (vt = VT_UI4) Then
+                CopyMemory pOut, ByVal PointerAdd(VarPtr(pvar), 8), 4
+                Return True
+            End If
+        End If
+    End Function
+        
+    [ Description ("Loads a string resource with the ability to specify the HMODULE") ]
+    Private Function LoadStringFromRes(hMod As LongPtr, nId As Long) As String
+    	Dim sTmp As String = String$(MAX_RESOURCE_LENGTH, 0)
+        Dim lRet As Long = LoadStringW(hMod, nId, StrPtr(sTmp), MAX_RESOURCE_LENGTH)
+        If lRet Then sTmp = Left$(sTmp, lRet)
+        'LogMsg "LoadStringFromRes(" & nId & ")=" & sTmp & "; lRet=" & lRet
+        If lRet Then Return sTmp
+    End Function
+    
+    [ Description ("Retrieves a tB-style String from an VT_LPWSTR Variant. Returns False if not VT_LPWSTR or PropVariantToStringAlloc returns a nullptr.") ]
+    Private Function VariantLPWSTRtoSTR(pVar As Variant, pOut As String) As Boolean
+        Dim vt As Integer
+        If VarPtr(pVar) <> 0 Then
+            CopyMemory vt, ByVal VarPtr(pVar), 2
+            If (vt = VT_LPWSTR) Then
+                Dim lp As LongPtr
+                PropVariantToStringAlloc pVar, lp
+                If lp Then
+                    pOut = LPWSTRtoStr(lp, True)
+                    Return True
+                End If
+            End If
+        End If
+    End Function
+        
+
+        
+    Public Function GET_X_LPARAM(ByVal lParam As LongPtr) As Long
+    GET_X_LPARAM = CLng(lParam) And &H7FFF&
+    If CLng(lParam) And &H8000& Then GET_X_LPARAM = GET_X_LPARAM Or &HFFFF8000
+    End Function
+    Public Function GET_Y_LPARAM(ByVal lParam As LongPtr) As Long
+    GET_Y_LPARAM = (CLng(lParam) And &H7FFF0000) \ &H10000
+    If CLng(lParam) And &H80000000 Then GET_Y_LPARAM = GET_Y_LPARAM Or &HFFFF8000
+    End Function
+
+
+
+    Private Function GetCommandIdStr(lVal As Long) As String
+    Dim sRet As String
+    If lVal = cmdTabHome Then sRet = "cmdTabHome"
+    If lVal = cmdShapesGroup Then sRet = "cmdShapesGroup"
+    If lVal = cmdBorderGroup Then sRet = "cmdBorderGroup"
+    If lVal = cmdLayoutGroup Then sRet = "cmdLayoutGroup"
+    If lVal = IDR_CMD_SHAPES Then sRet = "IDR_CMD_SHAPES"
+    If lVal = IDR_CMD_SIZEANDCOLOR Then sRet = "IDR_CMD_SIZEANDCOLOR"
+    If lVal = IDR_CMD_BORDERSTYLES Then sRet = "IDR_CMD_BORDERSTYLES"
+    If lVal = IDR_CMD_BORDERSIZES Then sRet = "IDR_CMD_BORDERSIZES"
+    If lVal = IDR_CMD_LAYOUTS Then sRet = "IDR_CMD_LAYOUTS"
+    If lVal = IDR_CMD_SMALL Then sRet = "IDR_CMD_SMALL"
+    If lVal = IDR_CMD_MEDIUM Then sRet = "IDR_CMD_MEDIUM"
+    If lVal = IDR_CMD_LARGE Then sRet = "IDR_CMD_LARGE"
+    If lVal = IDR_CMD_RED Then sRet = "IDR_CMD_RED"
+    If lVal = IDR_CMD_GREEN Then sRet = "IDR_CMD_GREEN"
+    If lVal = IDR_CMD_BLUE Then sRet = "IDR_CMD_BLUE"
+   If sRet = "" Then sRet = "(unknown)"
+    GetCommandIdStr = sRet
+    End Function
+    Private Function dbg_PKEYToString(tpk As PROPERTYKEY) As String
+    Dim sGID As String
+    
+    sGID = dbg_GUIDToString(tpk.fmtid, False)
+    dbg_PKEYToString = "{" & sGID & ", " & tpk.pid & "}"
+    End Function
+
+    Private Function dbg_GUIDToString(tg As UUID, Optional bBrack As Boolean = True) As String
+    'StringFromGUID2 never works, even "working" code from vbaccelerator AND MSDN
+    dbg_GUIDToString = Right$("00000000" & Hex$(tg.Data1), 8) & "-" & Right$("0000" & Hex$(tg.Data2), 4) & "-" & Right$("0000" & Hex$(tg.Data3), 4) & _
+    "-" & Right$("00" & Hex$(CLng(tg.Data4(0))), 2) & Right$("00" & Hex$(CLng(tg.Data4(1))), 2) & "-" & Right$("00" & Hex$(CLng(tg.Data4(2))), 2) & _
+    Right$("00" & Hex$(CLng(tg.Data4(3))), 2) & Right$("00" & Hex$(CLng(tg.Data4(4))), 2) & Right$("00" & Hex$(CLng(tg.Data4(5))), 2) & _
+    Right$("00" & Hex$(CLng(tg.Data4(6))), 2) & Right$("00" & Hex$(CLng(tg.Data4(7))), 2)
+    If bBrack Then dbg_GUIDToString = "{" & dbg_GUIDToString & "}"
+    End Function
+    
+    Private Function ChrW2(ByVal AscW2 As Long) As String
+        Dim s As String
+        
+        If AscW2 <= &HFFFF& Then
+            ChrW2 = ChrW(AscW2)
+        Else
+            AscW2 = AscW2 And &HFFFF&
+            s = DecToBin(AscW2)
+            s = String$(20 - Len(s), "0") & s
+            ChrW2 = ChrW(BinToDec(Left$(s, 10)) + &HD800&) & ChrW2 & ChrW(BinToDec(Right$(s, 10)) + &HDC00&)
+        End If
+    End Function
+    ' Converts decimal to binary
+    [ IgnoreWarnings (TB0003) ]
+    Private Function DecToBin(ByVal nNumber) As String
+        Do While nNumber > 0
+            DecToBin = nNumber Mod 2 & DecToBin
+            nNumber = nNumber \ 2
+        Loop
+        If DecToBin = "" Then DecToBin = "0"
+    End Function
+    
+    ' Converts binary to decimal
+    Private Function BinToDec(ByVal nBinary As String) As Long
+        Dim c As Long
+        Dim iLen As Long
+        
+        iLen = Len(nBinary)
+        For c = iLen To 1 Step -1
+            If Mid$(nBinary, c, 1) = "1" Then
+                BinToDec = BinToDec + 2 ^ (iLen - c)
+            End If
+        Next
+    End Function
+
+#End Region
+
+#Region "Subclassing"
+    Private Function Subclass2(hWnd As LongPtr, lpFN As LongPtr, Optional uId As LongPtr = 0&, Optional dwRefData As LongPtr = 0&) As Boolean
+    If uId = 0 Then uId = hWnd
+        Subclass2 = SetWindowSubclass(hWnd, lpFN, uId, dwRefData):      Debug.Assert Subclass2
+    End Function
+
+    Private Function UnSubclass2(hWnd As LongPtr, ByVal lpFN As LongPtr, pid As LongPtr) As Boolean
+        UnSubclass2 = RemoveWindowSubclass(hWnd, lpFN, pid)
+    End Function
+    
+    [ Description ("Subclassing procedure for the RichEdit control and the PictureBox hosting it.") ]
+    Private Function FrmWndProc(ByVal hWnd As LongPtr, ByVal uMsg As Long, ByVal wParam As LongPtr, ByVal lParam As LongPtr, ByVal uIdSubclass As LongPtr, ByVal dwRefData As LongPtr) As LongPtr
+        Select Case uMsg
+        
+        Case WM_NOTIFYFORMAT
+            Return NFR_UNICODE
+          
+        Case WM_SIZE
+            Dim rc As RECT
+            GetClientRect hWnd, rc
+            rc.Top = GetRibbonHeight(pFramework)
+            InvalidateRect hWnd, rc, CTRUE
+            
+        Case WM_PAINT
+            FrmWndProc = DefSubclassProc(hWnd, uMsg, wParam, lParam)
+            Dim ps As PAINTSTRUCT
+            ' BeginPaint hWnd, ps
+            Dim rct As RECT
+            GetClientRect hWnd, rct
+            rct.Top = GetRibbonHeight(pFramework)
+            If mRender IsNot Nothing Then
+                mRender.DrawShapes Me.hDC, rct
+            End If
+            ' EndPaint hWnd, ps
+            Return 0
+        Case WM_DESTROY
+            Call UnSubclass2(hWnd, AddressOf FrmWndProc, uIdSubclass)
+        End Select
+        FrmWndProc = DefSubclassProc(hWnd, uMsg, wParam, lParam)
+    End Function
+    
+    Public Function TaskDialogCallbackProc(ByVal hwnd As LongPtr, ByVal uNotification As Long, ByVal wParam As LongPtr, ByVal lParam As LongPtr, ByVal lpRefData As LongPtr) As LongPtr
+        Select Case uNotification
+            'Replace the shield icon with our app icon
+            Case TDN_DIALOG_CONSTRUCTED
+                SendMessageW hwnd, TDM_UPDATE_ICON, TDIE_ICON_MAIN, ByVal StrPtr(szHelpIconRes)
+            
+            'lParam is a pointer to the URL, so just forward it to execute with default browser.
+            Case TDN_HYPERLINK_CLICKED
+                Call ShellExecuteW(0, 0, lParam, 0, 0, SW_SHOWNORMAL)
+        End Select
+    End Function
+
+    
+#End Region
+End Class
+
+[ COMCreatable (False) ]
+Class CRenderer
+    Private Const SHAPE_MARGIN = 5
+    
+    Public Enum SHAPE_TYPE
+        stRECTANGLE = 0
+        stELLIPSE = 1
+        stROUNDED_RECTANGLE = 2
+        stDIAMOND = 3
+    End Enum
+    Public Enum SHAPE_COLOR
+        scRED = 0
+        scGREEN = 1
+        scBLUE = 2
+    End Enum
+    Public Enum SHAPE_SIZE
+        ssSMALL = 0
+        ssMEDIUM = 1
+        ssLARGE = 2
+    End Enum
+    Public Enum BORDER_STYLE
+        bsNONE = 0
+        bsSOLID = 1
+        bsDASH = 2
+    End Enum
+    Public Enum VIEW_LAYOUT
+        LAYOUT1 = 0
+        LAYOUT2 = 1
+        LAYOUT3 = 2
+    End Enum
+    Public Type RenderParam
+        eShapeType As SHAPE_TYPE
+        eShapeColor As SHAPE_COLOR
+        eShapeSize As SHAPE_SIZE
+        eBorderStyle As BORDER_STYLE
+        uBorderSize As Long
+        eViewLayout As VIEW_LAYOUT
+    End Type
+            
+	Private mHwnd As LongPtr
+    Private param As RenderParam
+    
+    Private aColors(2) As Long
+    
+    Sub New(hWnd As LongPtr)
+    	mHwnd = hWnd
+        aColors(0) = RGB(255, 0, 0)
+        aColors(1) = RGB(0, 255, 0)
+        aColors(2) = RGB(0, 0, 255)
+    End Sub
+    
+    Public Sub GetRenderParam(pParam As RenderParam)
+    	pParam = param
+    End Sub
+    
+    Public Sub UpdateRenderParam(parameter As RenderParam)
+    	param = parameter
+        frmMain.Cls
+        
+        InvalidateRect mHwnd, vbNullPtr, CTRUE
+    End Sub
+    
+    Public Sub DrawShapes(ByVal hDC As LongPtr, rc As RECT)
+    	
+        Dim nCount As Long = param.eViewLayout + 1
+        Dim sz As SIZE
+        sz.cx = rc.Right - rc.Left
+        sz.cy = rc.Bottom - rc.Top
+        
+        Dim hBrush As LongPtr = CreateSolidBrush(aColors(param.eShapeColor))
+        
+        Dim hOldBrush As LongPtr = SelectObject(hDC, hBrush)
+        
+        Dim nPenStyle As GdiPenStyles
+        Dim nBorderSize As Long = param.uBorderSize
+        
+        Select Case param.eBorderStyle
+        	Case bsDASH
+                nPenStyle = PS_DASH
+                nBorderSize = 1
+            Case bsSOLID
+                nPenStyle = PS_SOLID
+            Case Else
+                nPenStyle = PS_NULL
+        End Select
+        
+        Dim hPen As LongPtr = CreatePen(nPenStyle, nBorderSize, RGB(0, 0, 0))
+        Dim hOldPen As LongPtr = SelectObject(hDC, hPen)
+        Debug.Print "Created border pen style=" & param.eBorderStyle & "/" & nPenStyle & ", size=" & nBorderSize & ", handle=" & hPen
+        Dim nLength As Long = If(sz.cx < sz.cy, sz.cx, sz.cy) / nCount
+        nLength -= SHAPE_MARGIN
+        
+        If nLength > 0 Then
+        	nLength = nLength * (param.eShapeSize + 1) / 3
+        Else
+            nLength = 0
+        End If
+        
+        Dim i As Long, j As Long
+        For i = 0 To nCount - 1
+            For j = 0 To nCount - 1
+            	Dim ptCenter As POINT
+                ptCenter.y = rc.Top + (2 * i + 1) * sz.cy / (2 * nCount)
+                ptCenter.x = rc.Left + (2 * j + 1) * sz.cx / (2 * nCount)
+                
+                Select Case param.eShapeType
+                	Case stRECTANGLE, stROUNDED_RECTANGLE
+                        DrawRectangle hDC, ptCenter, nLength, param.eShapeType = stROUNDED_RECTANGLE
+                    Case stELLIPSE
+                        DrawEllipse hDC, ptCenter, nLength
+                    Case stDIAMOND
+                        DrawDiamond hDC, ptCenter, nLength
+                End Select
+            Next
+        Next
+        
+        SelectObject hDC, hOldPen
+        SelectObject hDC, hOldBrush
+        
+        DeleteObject hPen
+        DeleteObject hBrush
+    End Sub
+    
+    
+    Private Sub DrawRectangle(hDC As LongPtr, ptCtr As POINT, nBoxLen As Long, bRounded As Boolean)
+        'Debug.Print "DrawRect"
+    	If bRounded Then
+            Dim nRoundLen As Long = nBoxLen / 10
+            If nRoundLen < 2 Then nRoundLen = 2
+            
+            RoundRect hDC, ptCtr.x - nBoxLen / 2, ptCtr.y - nBoxLen / 2, _
+                        ptCtr.x + nBoxLen / 2, ptCtr.y + nBoxLen / 2, _
+                        nRoundLen, nRoundLen
+                        
+        Else
+            Rectangle hDC, ptCtr.x - nBoxLen / 2, ptCtr.y - nBoxLen / 2, _
+                        ptCtr.x + nBoxLen / 2, ptCtr.y + nBoxLen / 2
+        End If
+
+    End Sub
+    
+    Private Sub DrawEllipse(hDC As LongPtr, ptCtr As POINT, nBoxLen As Long)
+        Debug.Print "DrawEllipse"
+        Ellipse(hDC, ptCtr.x - nBoxLen / 2, ptCtr.y - nBoxLen / 2, _
+                ptCtr.x + nBoxLen / 2, ptCtr.y + nBoxLen / 2)
+    End Sub
+    
+    Private Sub DrawDiamond(hDC As LongPtr, ptCtr As POINT, nBoxLen As Long)
+        Debug.Print "DrawDiamond"
+    	Dim pt(3) As POINT
+        Dim nLength As Long = nBoxLen / 2
+        
+        pt(0).x = ptCtr.x
+        pt(0).y = ptCtr.y - nLength
+        
+        pt(1).x = ptCtr.x - nLength
+        pt(1).y = ptCtr.y
+
+        pt(2).x = ptCtr.x
+        pt(2).y = ptCtr.y + nLength
+
+        pt(3).x = ptCtr.x + nLength
+        pt(3).y = ptCtr.y
+        
+        Polygon hDC, pt(0), 4
+    End Sub
+
+End Class
