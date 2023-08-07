@@ -1,7 +1,7 @@
 # UIRibbonDemos
 ## Windows UI Ribbon Framework Demos
 
-**Update (Augest 7th): Gallery Intro Demo Released!** The finished project is UIRibbonDemoSGallery.twinproj,and all the intermediates are in \UIRibbonDemoSGallery. More info down at the bottom after the Intermediate demo.
+**Update (Augest 7th): Gallery Intro Demo Released!** The finished project is UIRibbonDemoSGallery.twinproj,and all the intermediates are in \UIRibbonDemoSGallery. More info down at the bottom after the Intermediate demo. **Update:** Same day minor bug fix, custom border size (1-15) now works.
 
 
 **Update (August 1st): Intermediate Demo updated.**\
