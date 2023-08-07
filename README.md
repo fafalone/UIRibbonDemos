@@ -1,6 +1,9 @@
 # UIRibbonDemos
 ## Windows UI Ribbon Framework Demos
 
+**Update (Augest 7th): Gallery Intro Demo Released!** The finished project is UIRibbonDemoSGallery.twinproj,and all the intermediates are in \UIRibbonDemoSGallery. More info down at the bottom after the Intermediate demo.
+
+
 **Update (August 1st): Intermediate Demo updated.**\
 Bug fix: Toggle button for context tabs wasn't working. \
 Bug fix: Shield icon wasn't replaced with app icon when running from IDE.\
@@ -364,6 +367,70 @@ We're not supplying real files for the demo, because I don't know what's where y
 We manually set it's type, copy the array, and then copy the pointer to the data part of the `PROPVARIANT` before destroying the original.
 
 And that's it... once that's done, we just listen for clicks on `IDC_RECENTITEMS`, our XML command for the list. The item number is given by `VariantUI4ToI4(currentValue, nItem)`. 
+
+## Intro to Galleries Demo
+
+![GalleriesSS](https://i.imgur.com/L81AQSI.gif)
+
+Galleries are one of the nicest features of the Ribbon, but also the most complicated to implement after the Font Control. So before jumping right into the planned Advanced Demo,  which will tread new ground rather than be a simple port of an existing sample, I wanted  to get a handle on basic Gallery use by following the SDK example for them.\
+This demo covers 3 types of galleries: In-ribbon, drop down command gallery, and dropdown item gallery. In addition it covers editable and non-editable comboboxes, which are handled the same way as galleries.
+
+These are all a bit of a pain to use as they're mostly populated during runtime, so you need to insert the resources yourself or load them from elsewhere. This can be slow and tedious so for simplicity I just used the existing resource file from the SDK example since this is about how to write the code.
+
+These all work the same basic way: When created, they raise an Update Property request where you're passed an item collect object, then fill it with instances of a class implementing IUISimplePropertySet, which respond to PROPERTYKEYs for images, labels, command ids, command types, and/or category IDs, depending on the specific gallery type. To help with this, a new generic class has been added: clsRibbonGalleryItem. You need only create one of these for each item and use the property lets. For the image, it has helpers to set by either resource id, by HBITMAP, or directly by IUIImage. If you do specify an HBITMAP yourself, note that the Ribbon will take ownership of it; do not free it yourself. 
+
+By this point you should be familiar enough with the XML it's self-explanatory, so let's jump straight to the code.\
+For most of these, we're not using categories, and must return `S_FALSE` to indicate that. For Size/Color, we do want categories though. We create a gallery item class using only the labels:
+
+```
+        Case IDR_CMD_SIZEANDCOLOR
+            If IsEqualPKEY(pk, UI_PKEY_Categories) Then
+                Set pCol = currentValue
+                
+                Dim pSize As New clsRibbonGalleryItem
+                pSize.CategoryID = 0
+                pSize.Label = LoadStringFromRes(hMod, IDS_SIZE_CATEGORY)
+                pCol.Add pSize
+                Set pSize = Nothing
+                
+                Dim pColor As New clsRibbonGalleryItem
+                pColor.CategoryID = 1
+                pColor.Label = LoadStringFromRes(hMod, IDS_COLOR_CATEGORY)
+                pCol.Add pColor
+                Set pColor = Nothing
+```
+
+A custom API-based function, `LoadStringFromRes`, is used through this project, rather than the intrinsic `LoadResString`, to support running from the IDE or loading from an external DLL like the rest of the Ribbon data. Next we respond to the request for the item source... when we receive this, the `currentValue` has an object implementing `IUICollection`, which we add our items too, again, each an instance of the helper `clsRibbonGalleryItem` helper class:
+
+```
+            ElseIf IsEqualPKEY(pk, UI_PKEY_ItemsSource) Then
+                Set pCol = currentValue
+                Dim scCmdIds(5) As Long
+                Dim scCatIds(5) As Long
+                
+                scCmdIds(0) = IDR_CMD_SMALL
+                scCmdIds(1) = IDR_CMD_MEDIUM
+                scCmdIds(2) = IDR_CMD_LARGE
+                scCmdIds(3) = IDR_CMD_RED
+                scCmdIds(4) = IDR_CMD_GREEN
+                scCmdIds(5) = IDR_CMD_BLUE
+                
+                scCatIds(3) = 1
+                scCatIds(4) = 1
+                scCatIds(5) = 1
+                
+                For i = 0 To UBound(scCmdIds)
+                    Dim pCommand As New clsRibbonGalleryItem
+                    pCommand.CategoryID = scCatIds(i)
+                    pCommand.CommandID = scCmdIds(i)
+                    pCommand.CommandType = UI_COMMANDTYPE_BOOLEAN
+                    pCol.Add pCommand
+                    Set pCommand = Nothing
+                Next
+```
+
+All of the galleries, and comboboxes, proceed similarly, each using a slightly different set of properties. For images, the Ribbon Framework uses the `IUIImage` interface and helpfully has a factory to automatically create one from an `HBITMAP`. The helper class further abstracts this away, allowing you to specify just a resource ID. The rest should be pretty straightforward to understand from the code. One oddity encountered... inexplicably, the ComboBoxes were initially way too tiny. This is set by the ribbon, and we use the exact same strings as the C++ version, so it's a complete mystery why our app got tiny ones. Fortunately I was able to find an undocumented workaround; contrary to MSDN documentation, ComboBox controls, not just Spinner controls, receive a request for `UI_PKEY_RepresentativeString`, where you supply a string representing the longest expected contents to be used for sizing it. 
+
 
 ---
 
