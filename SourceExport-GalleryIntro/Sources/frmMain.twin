@@ -42,7 +42,8 @@ Class frmMain
         Author: Jon Johnson (fafalone)
         Project repository: https://github.com/fafalone/UIRibbonDemos
         License: CC0 1.0 Universal, see LICENCE.md for more info.
-        Last updated: 07 August 2023 :: Initial release, v1.3.5
+        Last updated: 07 August 2023 :: v1.3.6, Bug fix: Custom border size (1-15) now works.
+        Initial release 07 August 2023, v1.3.5
         
         This project was developed exclusively in twinBASIC; there's no VB6 version, and the code
         takes advantage of new language features wheverever beneficial, so it's possible to back
@@ -268,12 +269,12 @@ Class frmMain
                 VariantUI4ToI4 currentValue, nSel
                 LogMsg "IDR_CMD_SHAPES set shape=" & nSel
                 Select Case verb
-                	' Case UI_EXECUTIONVERB_PREVIEW
-                    '     pm.eShapeType = nSel
-                    '     mRender.UpdateRenderParam pm
-                    ' Case UI_EXECUTIONVERB_CANCELPREVIEW
-                    '     pm.eShapeType = nSel
-                    '     mRender.UpdateRenderParam pm
+                	Case UI_EXECUTIONVERB_PREVIEW
+                        pm.eShapeType = nSel
+                        mRender.UpdateRenderParam pm
+                    Case UI_EXECUTIONVERB_CANCELPREVIEW
+                        pm.eShapeType = nSel
+                        mRender.UpdateRenderParam pm
                     Case UI_EXECUTIONVERB_EXECUTE
                         If IsEqualPKEY(pk, UI_PKEY_SelectedItem) Then
                             pm.eShapeType = nSel
@@ -344,21 +345,32 @@ Class frmMain
                                 Dim vr As Variant
                                 commandExecutionProperties.GetValue UI_PKEY_Label, vr
                                 Dim psz As String
-                                If VariantLPWSTRtoSTR(vr, psz) Then
-                                	If IsNumeric(psz) Then
-                                    	Dim newSize As Long = CLng(psz)
-                                        If (newSize > 0) AndAlso (newSize < 16) Then
-                                        	pm.uBorderSize = newSize
-                                            mRender.UpdateRenderParam pm
-                                            pFramework.InvalidateUICommand(IDR_CMD_BORDERSIZES, UI_INVALIDATIONS_PROPERTY, UI_PKEY_StringValue)
-                                            Exit Sub
+                                Dim newSize As Long
+                                If VarType(vr) = VT_LPWSTR Then
+                                	If VariantLPWSTRtoSTR(vr, psz) Then
+                                        If IsNumeric(psz) Then
+                                            newSize = CLng(psz)
                                         End If
-                                	End If
+                                    End If
+                                ElseIf VarType(vr) = VT_BSTR Then
+                                	psz = CStr(vr)
+                                    If IsNumeric(psz) Then
+                                        newSize = CLng(psz)
+                                    End If
                                 End If
-                                Dim sMsg As String = LoadStringFromRes(hMod, IDS_INVALID_SIZE_MESSAGE)
-                                Dim sTitle As String = LoadStringFromRes(hMod, IDS_INVALID_SIZE_TITLE)
-                                MsgBox sMsg, vbCritical + vbOKOnly, sTitle
-                                Exit Sub
+                                Debug.Print "newSize=" & newSize
+                                If (newSize > 0) AndAlso (newSize < 16) Then
+                                    pm.uBorderSize = newSize
+                                    mRender.UpdateRenderParam pm
+                                    pFramework.InvalidateUICommand(IDR_CMD_BORDERSIZES, UI_INVALIDATIONS_PROPERTY, UI_PKEY_StringValue)
+                                    Exit Sub
+                                Else
+                                    Dim sMsg As String = LoadStringFromRes(hMod, IDS_INVALID_SIZE_MESSAGE)
+                                    Dim sTitle As String = LoadStringFromRes(hMod, IDS_INVALID_SIZE_TITLE)
+                                    MsgBox sMsg, vbCritical + vbOKOnly, sTitle
+                                    Exit Sub
+                                End If
+
                         End Select
                         mRender.UpdateRenderParam pm 'updates for case 0-2
                     End If
@@ -722,8 +734,14 @@ Class frmMain
                 If lp Then
                     pOut = LPWSTRtoStr(lp, True)
                     Return True
+                Else
+                    Debug.Print "Propvar2strAlloc return nullptr"
                 End If
+            Else
+                Debug.Print "VariantLPWSTRtoSTR->Not VT_LPWSTR; vt=" & VTtoStr(vt)
             End If
+        Else
+            Debug.Print "VariantLPWSTRtoSTR received nullptr"
         End If
     End Function
         
