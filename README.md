@@ -55,7 +55,7 @@ Once you have the ribbon.xml file and the \Res folder containing the bitmap imag
 #### The Basic Demo
 1) The form sets everything up, then the class handles the events the ribbon raises to let us know about command clicks and other information.
 2) The Form code declares a variable for the UI Ribbon Framework coclass, the events class, and a handler for the command click it raises:
-   ```
+   ```vb6
     Private pFramework As UIRibbonFramework
     Private WithEvents pUIApp As clsRibbonEvents
     
@@ -78,7 +78,7 @@ Once you have the ribbon.xml file and the \Res folder containing the bitmap imag
    ```
    
    All of those interfaces and the GetModuleHandle API are already declared in tbShellLib; that's the entirety of the form code. In the class, we have:
-   ```
+   ```vb6
         Private Sub IUICommandHandler_Execute(ByVal commandId As Long, ByVal verb As UI_EXECUTIONVERB, key As PROPERTYKEY, currentValue As Variant, ByVal commandExecutionProperties As IUISimplePropertySet) Implements IUICommandHandler.Execute
             Dim hr As Long
             Dim pv As Variant
@@ -173,7 +173,7 @@ Since these are mutually exclusive, when one changes, we need to update the othe
 pFramework.InvalidateUICommand IDC_LINESPACE1, UI_INVALIDATIONS_VALUE, vbNullPtr`\
 When it's invalidated, it triggers the `RibbonUpdateProperty` event, where we compare them against the module level setting and set their property manually:
 
-```
+```vb6
     If (commandId = IDC_LINESPACE1) Or (commandId = IDC_LINESPACE115) Or (commandId = IDC_LINESPACE115) Or (commandId = IDC_LINESPACE2) Then
         If key Then
             CopyMemory pk, ByVal key, LenB(Of PROPERTYKEY)
@@ -233,7 +233,7 @@ This is another command where the image is provided for us. It's a direct child 
 ### Context Tabs: 
 Astute observers may have noticed an earlier pic with a Tab outlined in green you don't initially see on the form. These are the two 'Context Tabs': Tabs that are only shown when you want to display extra features for some part of your program.  From the Main tab, you can use Select to Show, Unselect to Hide, or Toggle to switch back and forth. These are defined in the `<Ribbon.ContextualTabs>` element. Controlling their visibility is simple, you just set the ContextAvailable property key of their parent command: `pFramework.SetUICommandProperty(IDC_TABTABLE, UI_PKEY_ContextAvailable, vNew)`. This is one place we have to deal with a VT_UI4 Variant. You have to be very careful with these; if VB so much as glances at them it throws an automation error. How it's generally handled in this project, it to manually change the type without touching the data by overwriting the first 2 bytes; tbShellLib has a helper for this replicating an inline available to C/C++ programmers:
 
-```
+```vb6
 Public Function InitPropVariantFromUInt32(ByVal ulVal As Long, ppropvar As Variant) As Long
 ppropvar = ulVal
 Dim vt As Integer = VT_UI4
@@ -261,7 +261,7 @@ The entire popup is generated for you; you need only supply the button and icon 
 
 "Automatic" is an excuse to get the color from Windows with `GetSysColor(COLOR_WINDOWTEXT)`. Otherwise, besides none, an RGB value is specified. It's also a VT_UI4 variant, but it's a COLORREF, so we want the data as-is. Again, we simply overwrite the data type. But this time, we need to get the data from the `commandExecutionProperties`, since the command is the dropdown parent, not an individual button:
 
-```
+```vb6
 ElseIf type = UI_SWATCHCOLORTYPE_RGB Then
     Dim vClr As Variant
     If commandExecutionProperties IsNot Nothing Then
@@ -325,7 +325,7 @@ Once you done that, you map them to a context to define which one can show. You 
 ```
 The id of those commands is what we pass in mCtx to display the popup:
 
-```
+```vb6
         If mCtx = 0 Then Exit Sub
         Dim pt As POINT
         Dim pCtxMenu As IUIContextualUI
@@ -347,7 +347,7 @@ The way this works is when you use the `New` keyword, you can specify arguments:
 
 Now that the class is set up, lets look at how to create them in response to the UpdateProperty request and supply them to the Ribbon. The key is looking for a SAFEARRAY of IUnknown, an array of our classes. Since this is a little above tB's native array handling, we'll use the low level `SAFEARRAY` APIs:
 
-```
+```vb6
     Dim pItems() As clsRibbonMRUFile
     ReDim pItems(nMRUItems - 1)
     Dim i As Long
@@ -359,7 +359,7 @@ Now that the class is set up, lets look at how to create them in response to the
 ```
 We're not supplying real files for the demo, because I don't know what's where your computer. The first item is pinned just to show that functionality. Now that has to be put into the `PROPVARIANT` that's returned:
 
-```
+```vb6
     Dim ppsa As LongPtr
     VariantSetType newValue, VT_ARRAY Or VT_UNKNOWN
     SafeArrayCopy psa, ppsa
@@ -385,7 +385,7 @@ These all work the same basic way: When created, they raise an Update Property r
 By this point you should be familiar enough with the XML it's self-explanatory, so let's jump straight to the code.\
 For most of these, we're not using categories, and must return `S_FALSE` to indicate that. For Size/Color, we do want categories though. We create a gallery item class using only the labels:
 
-```
+```vb6
         Case IDR_CMD_SIZEANDCOLOR
             If IsEqualPKEY(pk, UI_PKEY_Categories) Then
                 Set pCol = currentValue
@@ -405,7 +405,7 @@ For most of these, we're not using categories, and must return `S_FALSE` to indi
 
 A custom API-based function, `LoadStringFromRes`, is used through this project, rather than the intrinsic `LoadResString`, to support running from the IDE or loading from an external DLL like the rest of the Ribbon data. Next we respond to the request for the item source... when we receive this, the `currentValue` has an object implementing `IUICollection`, which we add our items too, again, each an instance of the helper `clsRibbonGalleryItem` helper class:
 
-```
+```vb6
             ElseIf IsEqualPKEY(pk, UI_PKEY_ItemsSource) Then
                 Set pCol = currentValue
                 Dim scCmdIds(5) As Long
