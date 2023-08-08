@@ -22,7 +22,10 @@ Windows applications frequently make use of the UI Ribbon in newer applications,
 1) Windows 7 or newer
 2) You'll need either the Windows SDK v7.0 or newer, or to otherwise have obtained uicc.exe and rc.exe from it or Visual Studio.
 3) An up to date twinBASIC; not sure where the cutoff would be but always good to have a more recent release.
-4) Becoming familiar with the XML-based [Ribbon Markup Language](https://learn.microsoft.com/en-us/windows/win32/windowsribbon/windowsribbon-schema) to create the .xml files describing controls and commands. A good example for learning the syntax [also accompanies this demo](https://www.codeproject.com/Articles/160542/Windows-7-Goodies-in-C-Introduction-to-the-Ribbon), although the example itself is C++. 
+4) Becoming familiar with the XML-based [Ribbon Markup Language](https://learn.microsoft.com/en-us/windows/win32/windowsribbon/windowsribbon-schema) to create the .xml files describing controls and commands. A good example for learning the syntax [also accompanies this demo](https://www.codeproject.com/Articles/160542/Windows-7-Goodies-in-C-Introduction-to-the-Ribbon), although the example itself is C++.
+
+> [!NOTE]
+> I recommend the Ribbon Designer in the Delphi Ribbon Frame by JAM-Software. [an open source project here on GitHub](https://github.com/JAM-Software/RibbonFramework). While it's not written in tB or VB6, it can be compiled without issue from source if you don't want to download the binary from the free Delphi IDE. It's a GUI-based designer that greatly simplifies the process of generating the XML, although you will still want to familiaring yourself with it, since the tool doesn't explain how it all works.
 
 ### First demo - Hello Ribbon!
 
