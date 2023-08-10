@@ -22,9 +22,7 @@ Class Form1
         Else
             pFramework.LoadUI GetModuleHandleW(), StrPtr("APPLICATION_RIBBON")
         End If
-        
-        Debug.Print App.LastBuildPath
-        Debug.Print App.EXEName
+    
     End Sub
     
     Private Sub Form_Terminate() Handles Form.Terminate
