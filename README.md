@@ -1,9 +1,9 @@
 # UIRibbonDemos
 ## Windows UI Ribbon Framework Demos
 
-**Update (August 10h):** Basic Demo (UIRibbonDemo.twinproj) was not working when compiled to exe (and run as that). This was due to a weird edge case with Debug.Print statements.
+**Update (August 10th):** Basic Demo (UIRibbonDemo.twinproj) was not working when compiled to exe (and run as that). This was due to a weird edge case with Debug.Print statements.
 
-**Update (Augest 7th): Gallery Intro Demo Released!** The finished project is UIRibbonDemoSGallery.twinproj,and all the intermediates are in \UIRibbonDemoSGallery. More info down at the bottom after the Intermediate demo. **Update:** Same day minor bug fix, custom border size (1-15) now works.
+**Update (August 7th): Gallery Intro Demo Released!** The finished project is UIRibbonDemoSGallery.twinproj,and all the intermediates are in \UIRibbonDemoSGallery. More info down at the bottom after the Intermediate demo. **Update:** Same day minor bug fix, custom border size (1-15) now works.
 
 
 **Update (August 1st): Intermediate Demo updated.**\
