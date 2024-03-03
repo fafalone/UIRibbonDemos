@@ -1,6 +1,8 @@
 # UIRibbonDemos
 ## Windows UI Ribbon Framework Demos
 
+**Update (Mar 3rd):** All .twinproj files updated to update reference to WinDevLib (formerly tbShellLib) 7.6; this gets rid of package errors that tB didn't raise at the time of release. Hopefully will get to advanced demo soon.
+
 **Update (Dec 19th):** All .twinproj files updated to update reference to WinDevLib (formerly tbShellLib) 7.0; this gets rid of package errors that tB didn't raise at the time of release. Hopefully will get to advanced demo in the new year.
 
 **Status (Nov 11th):** Sorry the advanced demo has been delayed, there's just so many cool things I'm working on. I'm absolutely still planning it and have recently begone some prelimary work definining the markup.
