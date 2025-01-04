@@ -1,6 +1,6 @@
-[ Description ("Windows UI Ribbon Framework Demo - Intermediate") ]
-[ FormDesignerId ("E49F24B9-B08B-4999-B944-F6F945E18407") ]
-[ PredeclaredId ]
+[Description("Windows UI Ribbon Framework Demo - Intermediate")]
+[FormDesignerId("E49F24B9-B08B-4999-B944-F6F945E18407")]
+[PredeclaredId]
 Class frmMain
  
     #Const dbg_enablefont = 1 'Enable interaction with the font control
@@ -116,11 +116,11 @@ Class frmMain
         
         Requirements: 
         -The UI Ribbon is a Windows 7 and newer feature.
-        -The code in this app depends on tbShellLib, my expansive library for Windows programming
+        -The code in this app depends on WinDevLib, my expansive library for Windows programming
          which covers large swathes of built in COM interfaces and APIs from major system DLLs,
          they for instance cover everything used in this project, which is why you see no Declares
          or UDTs here. It's included as a twinBASIC Package, which you can add to our own projects
-         from the twinSERV package server; more info at https://github.com/fafalone/tbShellLib
+         from the twinSERV package server; more info at https://github.com/fafalone/WinDevLib
          
         Thanks:
         -This project is based on just about every C/C++ Ribbon project I could find, including:
@@ -136,31 +136,31 @@ Class frmMain
     */
     #End Region
     
-    [ Description ("Main object for the UI Ribbon Framework") ]
+    [Description("Main object for the UI Ribbon Framework")]
     Private pFramework As UIRibbonFramework
     
-    [ Description ("Our class that handles events from the Ribbon and fowards them to us.") ]
+    [Description("Our class that handles events from the Ribbon and fowards them to us.")]
     Private WithEvents pUIApp As clsRibbonEvents
    
-    [ Description ("Handle to our exe, or if IDE the last exe build to enable running from the IDE.") ]
+    [Description("Handle to our exe, or if IDE the last exe build to enable running from the IDE.")]
     Private hMod As LongPtr
     
-    [ Description ("Handle to the RichEdit DLL") ]
+    [Description("Handle to the RichEdit DLL")]
     Private hREDll As LongPtr
 
-    [ Description ("The hWnd of the RichEdit control.") ]
+    [Description("The hWnd of the RichEdit control.")]
     Private hRE As LongPtr
 
-    [ Description ("Handle to the IBeam cursor for the RichEdit window.") ]
+    [Description("Handle to the IBeam cursor for the RichEdit window.")]
     Private hCurRE As LongPtr
     
-    [ Description ("The default font settings for the RichEdit control.") ]
+    [Description("The default font settings for the RichEdit control.")]
     Private tDefChFmt As CHARFORMAT2W
 
-    [ Description ("The current font settings for the RichEdit control.") ]
+    [Description("The current font settings for the RichEdit control.")]
     Private tCurChFmt As CHARFORMAT2W
 
-    [ Description ("The context id for which Context Popup will be displayed.") ]
+    [Description("The context id for which Context Popup will be displayed.")]
     Private mCtx As Long
     
     Private nMRUItems As Long = 7 'NOTE: THIS MUST NOT EXCEED THE MAX COUNT DEFINED IN THE XML.
@@ -420,7 +420,7 @@ Class frmMain
     End Sub
 
     
-    [ Description ("Returns an HFONT for an StdFont") ]
+    [Description("Returns an HFONT for an StdFont")]
     Public Function CreateGDIFontFromOLEFont(ByVal Font As IFont) As LongPtr
     If Font Is Nothing Then Exit Function
     Dim LF As LOGFONT
@@ -429,7 +429,7 @@ Class frmMain
     CreateGDIFontFromOLEFont = CreateFontIndirect(LF)
     End Function
     
-    [ Description ("Retrieve a CHARFORMAT2W type from properties in an IPropertyStore interface.") ]
+    [Description("Retrieve a CHARFORMAT2W type from properties in an IPropertyStore interface.")]
     Private Function PropStoreToCHRFMT(pps As IPropertyStore, tCFMT As CHARFORMAT2W) As Boolean
         On Error GoTo e0
         Dim propvar As Variant
@@ -538,7 +538,8 @@ Class frmMain
             pos += 1
             If SUCCEEDED(pps.GetValue(UI_PKEY_FontProperties_BackgroundColorType, propvar)) Then
                 If VariantUI4ToI4(propvar, uValue) Then
-                    If uValue = UI_SWATCHCOLORTYPE_AUTOMATIC Then
+                    Debug.Print "Set UI_PKEY_FontProperties_BackgroundColorType uValue=" & uValue
+                    If uValue = UI_SWATCHCOLORTYPE_NOCOLOR Then
                         .dwMask = .dwMask Or CFM_BACKCOLOR
                         .dwEffects = .dwEffects Or CFE_AUTOBACKCOLOR
                     End If
@@ -548,6 +549,7 @@ Class frmMain
             pos += 1
             If SUCCEEDED(pps.GetValue(UI_PKEY_FontProperties_BackgroundColor, propvar)) Then
                 If VariantUI4ToI4(propvar, uValue) Then
+                    Debug.Print "Set UI_PKEY_FontProperties_BackgroundColor uValue=" & uValue
                     .dwMask = .dwMask Or CFM_BACKCOLOR
                     .crBackColor = uValue
                 End If
@@ -560,7 +562,7 @@ Class frmMain
         Return False
     End Function
     
-    [ Description ("Configure an IPropertyStore interface from properties in a CHARFORMAT2W type.") ]
+    [Description("Configure an IPropertyStore interface from properties in a CHARFORMAT2W type.")]
     Private Function CHRFMTToPropStore(pps As IPropertyStore, tCFMT As CHARFORMAT2W) As Boolean
         Dim propvar As Variant
         Dim psz As String
@@ -760,7 +762,7 @@ Class frmMain
         End If
     End Sub
     
-    [ Description ("Synchronizes the ribbon alignment selection when the selection in the RichEdit box changes.") ]
+    [Description("Synchronizes the ribbon alignment selection when the selection in the RichEdit box changes.")]
     Private Sub SyncAlignment()
         Dim tPF As PARAFORMAT2
         tPF.cbSize = LenB(Of PARAFORMAT2)
@@ -780,7 +782,7 @@ Class frmMain
         pFramework.InvalidateUICommand IDC_JUSTIFY, UI_INVALIDATIONS_VALUE, vbNullPtr
     End Sub
     
-    [ Description ("Sets the paragraph alignment of the RichEdit control's current selection.") ]
+    [Description("Sets the paragraph alignment of the RichEdit control's current selection.")]
     Private Sub SetAlignment()
         Dim tPF As PARAFORMAT2
         tPF.cbSize = LenB(Of PARAFORMAT2)
@@ -794,7 +796,7 @@ Class frmMain
         SendMessage(hRE, EM_SETPARAFORMAT, 0, tPF)
     End Sub
     
-    [ Description ("Updates the line spacing indicated by the ribbon in reponse to a selchange on the RichEdit control.") ]
+    [Description("Updates the line spacing indicated by the ribbon in reponse to a selchange on the RichEdit control.")]
     Private Sub SyncLineSpacing()
     	Dim pf As PARAFORMAT2
         pf.cbSize = LenB(Of PARAFORMAT2)
@@ -812,7 +814,7 @@ Class frmMain
         pFramework.InvalidateUICommand IDC_LINESPACE2, UI_INVALIDATIONS_VALUE, vbNullPtr
     End Sub
     
-    [ Description ("Increments or decrements the current paragraph indent on the RichEdit control. Note: RichEdit indenting works quite different from here :)") ]
+    [Description("Increments or decrements the current paragraph indent on the RichEdit control. Note: RichEdit indenting works quite different from here :)")]
     Private Sub AdjustIndent(bOutdent As Boolean)
         If bOutdent Then
     	    mCurIndent -= mDefTab
@@ -827,7 +829,7 @@ Class frmMain
         SendMessage(hRE, EM_SETPARAFORMAT, 0, tPF)
     End Sub
         
-    [ Description ("Sets the line spacing of the RichEdit control.") ]
+    [Description("Sets the line spacing of the RichEdit control.")]
     Private Sub SetLineSpacing()
         'Use the tom COM interfaces here since it lets us specify a Single for spacing multiple
     	Dim pRichOle As IRichEditOle
@@ -853,10 +855,10 @@ Class frmMain
                     End Select
                     pPara.SetLineSpacing tomLineSpaceMultiple, fSpace
                 Else
-                    LogMsg "Error: Failed to get ITextPara from ITextRange. " & Err.LastHResult
+                    LogMsg "Error: Failed to get ITextPara from ITextRange. " & Err.LastHresult
                 End If
             Else
-                LogMsg "Error: Failed to get ITextSelection from ITextDocument" & Err.LastHResult
+                LogMsg "Error: Failed to get ITextSelection from ITextDocument" & Err.LastHresult
             End If
         Else
             LogMsg "Error: Failed to get IRichEditOle from RichEdit control. " & Err.LastDllError
@@ -891,7 +893,7 @@ Class frmMain
                 pos += 1
                 If commandExecutionProperties IsNot Nothing Then
                     commandExecutionProperties.GetValue(UI_PKEY_FontProperties_ChangedProperties, vChanges)
-                    hr = Err.LastHResult
+                    hr = Err.LastHresult
                     pos += 1
                     If SUCCEEDED(hr) Then
                         Set pChanges = vChanges
@@ -905,7 +907,7 @@ Class frmMain
                 pos += 10
                 If commandExecutionProperties IsNot Nothing Then
                     commandExecutionProperties.GetValue(UI_PKEY_FontProperties_ChangedProperties, vChanges)
-                    hr = Err.LastHResult
+                    hr = Err.LastHresult
                     pos += 1
                     If SUCCEEDED(hr) Then
                         Set pChanges = vChanges
@@ -1288,7 +1290,7 @@ Class frmMain
     End Function
     
 #Region "Helpers"
-    [ Description ("Converts a Variant/PROPVARIANT of unsupported unsigned long to a VB Long (VT_I4) as-is. Returns False if Variant has a null pointer or is not VT_UI4.") ]
+    [Description("Converts a Variant/PROPVARIANT of unsupported unsigned long to a VB Long (VT_I4) as-is. Returns False if Variant has a null pointer or is not VT_UI4.")]
     Private Function VariantUI4ToI4(pvar As Variant, pOut As Long) As Boolean
         'Handle unsigned long
         Dim vt As Integer
@@ -1301,8 +1303,8 @@ Class frmMain
         End If
     End Function
         
-    [ Description ("Sets a Variant to the specified type without any alteration to the data. WARNING: Many data formats are incompatible, use VariantChangeType unless you have a specific need for this.") ]
-    Private Sub VariantSetType(pvar As Variant, [ TypeHint (VARENUM) ] ByVal vt As Integer, [ TypeHint (VARENUM) ] Optional ByVal vtOnlyIf As Integer = -1)
+    [Description("Sets a Variant to the specified type without any alteration to the data. WARNING: Many data formats are incompatible, use VariantChangeType unless you have a specific need for this.")]
+    Private Sub VariantSetType(pvar As Variant, [TypeHint(VARENUM)] ByVal vt As Integer, [TypeHint(VARENUM)] Optional ByVal vtOnlyIf As Integer = -1)
         If VarPtr(pvar) = 0 Then Exit Sub
         If vtOnlyIf <> -1 Then
             If VarType(pvar) <> vtOnlyIf Then
@@ -1314,7 +1316,7 @@ Class frmMain
     End Sub
         
         
-    [ Description ("Retrieves a tB-style String from an VT_LPWSTR Variant. Returns False if not VT_LPWSTR or PropVariantToStringAlloc returns a nullptr.") ]
+    [Description("Retrieves a tB-style String from an VT_LPWSTR Variant. Returns False if not VT_LPWSTR or PropVariantToStringAlloc returns a nullptr.")]
     Private Function VariantLPWSTRtoSTR(pVar As Variant, pOut As String) As Boolean
         Dim vt As Integer
         If VarPtr(pVar) <> 0 Then
@@ -1330,7 +1332,7 @@ Class frmMain
         End If
     End Function
         
-    [ Description ("Performs an unsigned add on a LongPtr (Long or LongLong)") ]
+    [Description("Performs an unsigned add on a LongPtr (Long or LongLong)")]
     Private Function PointerAdd(ByVal Start As LongPtr, ByVal Incr As LongPtr) As LongPtr
         #If Win64 Then
         Return ((Start Xor &H8000000000000000) + Incr) Xor &H8000000000000000
@@ -1348,8 +1350,8 @@ Class frmMain
     If CLng(lParam) And &H80000000 Then GET_Y_LPARAM = GET_Y_LPARAM Or &HFFFF8000
     End Function
 
-    [ Description ("Converts a VARENUM value from VarType() to it's string form.") ]
-    Private Function VTtoStr([ TypeHint (VARENUM) ] ByVal lVal As Integer) As String
+    [Description("Converts a VARENUM value from VarType() to it's string form.")]
+    Private Function VTtoStr([TypeHint(VARENUM)] ByVal lVal As Integer) As String
     Dim sRet As String
     If (lVal And VT_VECTOR) = VT_VECTOR Then
         sRet = sRet & "VT_VECTOR Or "
@@ -1544,7 +1546,7 @@ Class frmMain
         End If
     End Function
     ' Converts decimal to binary
-    [ IgnoreWarnings (TB0003) ]
+    [IgnoreWarnings(TB0003)]
     Private Function DecToBin(ByVal nNumber) As String
         Do While nNumber > 0
             DecToBin = nNumber Mod 2 & DecToBin
@@ -1578,7 +1580,7 @@ Class frmMain
         UnSubclass2 = RemoveWindowSubclass(hWnd, lpFN, pid)
     End Function
     
-    [ Description ("Subclassing procedure for the RichEdit control and the PictureBox hosting it.") ]
+    [Description("Subclassing procedure for the RichEdit control and the PictureBox hosting it.")]
     Private Function PBWndProc(ByVal hWnd As LongPtr, ByVal uMsg As Long, ByVal wParam As LongPtr, ByVal lParam As LongPtr, ByVal uIdSubclass As LongPtr, ByVal dwRefData As LongPtr) As LongPtr
         Select Case uMsg
         
