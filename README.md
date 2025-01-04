@@ -1,6 +1,8 @@
 # UIRibbonDemos
 ## Windows UI Ribbon Framework Demos
 
+**Update (Jan 4th, 2025):** Bug fix for Intermediate demo that in some circumstances caused the font background color to change to black when unrelated settings were applied.
+
 **Update (Mar 3rd):** All .twinproj files updated to update reference to WinDevLib (formerly tbShellLib) 7.6; this gets rid of package errors that tB didn't raise at the time of release. Hopefully will get to advanced demo soon.
 
 **Update (Dec 19th):** All .twinproj files updated to update reference to WinDevLib (formerly tbShellLib) 7.0; this gets rid of package errors that tB didn't raise at the time of release. Hopefully will get to advanced demo in the new year.
