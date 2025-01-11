@@ -1,6 +1,11 @@
 # UIRibbonDemos
 ## Windows UI Ribbon Framework Demos
 
+**Update (Jan 11th, 2025):** NEW VERSION OF MY INTERMEDIATE DEMO! This new demo supports the new richedit control with color emoji support. It requires the two included dlls, signed by Microsoft. Contained in the 'UIRibbonDemoIntermediateD2D' folder (since the RichEdit uses a Direct2D rendering pathway).
+
+![image](https://github.com/user-attachments/assets/3f39c675-1f34-46b0-a578-c8eb02b231fc)
+
+
 **Update (Jan 4th, 2025):** Bug fix for Intermediate demo that in some circumstances caused the font background color to change to black when unrelated settings were applied.
 
 **Update (Mar 3rd):** All .twinproj files updated to update reference to WinDevLib (formerly tbShellLib) 7.6; this gets rid of package errors that tB didn't raise at the time of release. Hopefully will get to advanced demo soon.
