@@ -1,0 +1,749 @@
+    /*
+        RibbonClasses.twin
+        A generic Windows Ribbon Framework UI event host that relays events to the hosting window 
+        and provides helper classes for MRU and Gallery items.
+        
+        Author: Jon Johnson (fafalone)
+        Project repository: https://github.com/fafalone/UIRibbonDemos
+        Last updated: 09 Aug 2025 :: Includes all classes for all demos and additional helpers.
+    */
+ 
+Module RibbonHelpers
+    Option Explicit
+    
+    [Description("Main object for the UI Ribbon Framework")]
+    Public pFramework As UIRibbonFramework
+ 
+    Public Function GetRibbonHeight(lpFramework As IUIFramework) As Long
+        Dim pRibbon As IUIRibbon
+        If lpFramework IsNot Nothing Then
+            lpFramework.GetView 0, IID_IUIRibbon, pRibbon
+            pRibbon.GetHeight GetRibbonHeight
+            Set pRibbon = Nothing
+        End If
+    End Function
+    
+    Public Function IsRibbonMinimized(ByVal lpFramework As IUIFramework) As Boolean
+        If lpFramework IsNot Nothing Then
+            Dim bVal As Boolean
+            Dim pStore As IPropertyStore
+            Set pStore = lpFramework
+            pStore.GetValue(UI_PKEY_Minimized, bVal)
+            Return bVal
+        End If
+    End Function
+    Public Function IsRibbonVisible(ByVal lpFramework As IUIFramework) As Boolean
+        If lpFramework IsNot Nothing Then
+            Dim bVal As Boolean
+            Dim pStore As IPropertyStore
+            Set pStore = lpFramework
+            pStore.GetValue(UI_PKEY_Viewable, bVal)
+            Return bVal
+        End If
+    End Function
+    Public Function SetRibbonDarkMode(ByVal fDark As Boolean) As Long
+        'Thanks to https://github.com/stefankueng/BowPad for this technique
+        On Error Resume Next
+        If pFramework Is Nothing Then Return E_FAIL
+        Dim ps As IPropertyStore
+        Set ps = pFramework
+        If ps IsNot Nothing Then
+            Dim pvDark As Variant
+            InitPropVariantFromBoolean If(fDark, CTRUE, CFALSE), pvDark
+            ps.SetValue(UI_PKEY_DarkModeRibbon, pvDark)
+            ps.Commit()
+            Return Err.LastHresult
+        End If
+    End Function
+    Public Function SetRibbonColors(ByVal pFramework As IUIFramework, ByVal clrBackground As OLE_COLOR, ByVal clrText As OLE_COLOR, ByVal clrHighlight As OLE_COLOR) As Long
+        If pFramework IsNot Nothing Then
+            Dim pStore As IPropertyStore
+            Set pStore = pFramework
+            
+            Dim v As Variant
+            Dim h As Byte, s As Byte, b As Byte
+            Dim hsbBackground As Long
+            v = RGBToHSB(clrBackground)
+            hsbBackground = UI_HSB(v(0), v(1), v(2))
+            ' RGBToHSB(clrBackground, h, s, b)
+            ' hsbBackground = UI_HSB(h, s, b)
+            
+            Dim hsbHighlight As Long
+            v = RGBToHSB(clrHighlight)
+            hsbHighlight = UI_HSB(v(0), v(1), v(2))
+            ' RGBToHSB(clrHighlight, h, s, b)
+            ' hsbHighlight = UI_HSB(h, s, b)
+                       
+            Dim hsbText As Long
+            v = RGBToHSB(clrText)
+            hsbText = UI_HSB(v(0), v(1), v(2))
+            ' RGBToHSB(clrText, h, s, b)
+            ' hsbText = UI_HSB(h, s, b)
+                       
+                                   
+            Dim propvarBackground As Variant
+            InitPropVariantFromUInt32 hsbBackground, propvarBackground
+            Dim propvarHighlight As Variant
+            InitPropVariantFromUInt32 hsbHighlight, propvarHighlight
+            Dim propvarText As Variant
+            InitPropVariantFromUInt32 hsbText, propvarText
+            
+            pStore.SetValue(UI_PKEY_GlobalBackgroundColor, propvarBackground)
+            pStore.SetValue(UI_PKEY_GlobalTextColor, propvarText)
+            pStore.SetValue(UI_PKEY_GlobalHighlightColor, propvarHighlight)
+            pStore.Commit()
+            Return Err.LastHresult
+        End If
+        Return E_POINTER
+        End Function
+    Public Function SetRibbonBackgroundColor(ByVal pFramework As IUIFramework, ByVal clrBackground As OLE_COLOR) As Long
+        If pFramework IsNot Nothing Then
+            Dim pStore As IPropertyStore
+            Set pStore = pFramework
+            
+            Dim v As Variant
+            Dim h As Byte, s As Byte, b As Byte
+            Dim hsbBackground As Long
+            v = RGBToHSB(clrBackground)
+            hsbBackground = UI_HSB(v(0), v(1), v(2))
+            ' RGBToHSB(clrBackground, h, s, b)
+            ' hsbBackground = UI_HSB(h, s, b)
+            
+            Dim propvarBackground As Variant
+            UIInitPropertyFromUInt32 UI_PKEY_GlobalBackgroundColor, hsbBackground, propvarBackground
+            pStore.SetValue(UI_PKEY_GlobalBackgroundColor, propvarBackground)
+            pStore.Commit()
+            Return Err.LastHresult
+        End If
+        Return E_POINTER
+    End Function
+    Public Function SetRibbonTextColor(ByVal pFramework As IUIFramework, ByVal clrText As OLE_COLOR) As Long
+        If pFramework IsNot Nothing Then
+            Dim pStore As IPropertyStore
+            Set pStore = pFramework
+            
+            Dim v As Variant
+            Dim h As Byte, s As Byte, b As Byte
+            Dim hsbText As Long
+            v = RGBToHSB(clrText)
+            hsbText = UI_HSB(v(0), v(1), v(2))
+            ' RGBToHSB(clrText, h, s, b)
+            ' hsbText = UI_HSB(h, s, b)
+            
+            Dim propvarText As Variant
+            UIInitPropertyFromUInt32 UI_PKEY_GlobalTextColor, hsbText, propvarText
+            pStore.SetValue(UI_PKEY_GlobalTextColor, propvarText)
+            pStore.Commit()
+            Return Err.LastHresult
+        End If
+        Return E_POINTER
+    End Function
+    Public Function SetRibbonHighlightColor(ByVal pFramework As IUIFramework, ByVal clrHighlight As OLE_COLOR) As Long
+        If pFramework IsNot Nothing Then
+            Dim pStore As IPropertyStore
+            Set pStore = pFramework
+            
+            Dim v As Variant
+            Dim h As Byte, s As Byte, b As Byte
+            Dim hsbHighlight As Long
+            v = RGBToHSB(clrHighlight)
+            hsbHighlight = UI_HSB(v(0), v(1), v(2))
+            ' RGBToHSB(clrHighlight, h, s, b)
+            ' hsbHighlight = UI_HSB(h, s, b)
+            
+            Dim propvarHighlight As Variant
+            UIInitPropertyFromUInt32 UI_PKEY_GlobalHighlightColor, hsbHighlight, propvarHighlight
+            pStore.SetValue(UI_PKEY_GlobalHighlightColor, propvarHighlight)
+            pStore.Commit()
+            Return Err.LastHresult
+        End If
+        Return E_POINTER
+    End Function
+    Private Function RGBToHSB(ByVal clrValue As OLE_COLOR) As Variant
+        Const IDX_HUE       As Long = 0
+        Const IDX_SAT       As Long = 1
+        Const IDX_BRI       As Long = 2
+        Dim nTemp           As Double
+        Dim lMin            As Long
+        Dim lMax            As Long
+        Dim lDelta          As Long
+        Dim rgbValue        As RGBQUAD
+        Dim vRetVal         As Variant
+  
+        ReDim vRetVal(0 To 2) As Double
+        Call OleTranslateColorPtr(clrValue, 0, ByVal VarPtr(rgbValue))
+        lMax = IIf(rgbValue.rgbRed > rgbValue.rgbGreen, IIf(rgbValue.rgbRed > rgbValue.rgbBlue, rgbValue.rgbRed, rgbValue.rgbBlue), IIf(rgbValue.rgbGreen > rgbValue.rgbBlue, rgbValue.rgbGreen, rgbValue.rgbBlue))
+        lMin = IIf(rgbValue.rgbRed < rgbValue.rgbGreen, IIf(rgbValue.rgbRed < rgbValue.rgbBlue, rgbValue.rgbRed, rgbValue.rgbBlue), IIf(rgbValue.rgbGreen < rgbValue.rgbBlue, rgbValue.rgbGreen, rgbValue.rgbBlue))
+        lDelta = lMax - lMin
+        vRetVal(IDX_BRI) = (lMax * 100) / 255
+        If lMax > 0 Then
+            vRetVal(IDX_SAT) = (lDelta / lMax) * 100
+            If lDelta > 0 Then
+                If lMax = rgbValue.rgbRed Then
+                    nTemp = (CLng(rgbValue.rgbGreen) - rgbValue.rgbBlue) / lDelta
+                ElseIf lMax = rgbValue.rgbGreen Then
+                    nTemp = 2 + (CLng(rgbValue.rgbBlue) - rgbValue.rgbRed) / lDelta
+                Else
+                    nTemp = 4 + (CLng(rgbValue.rgbRed) - rgbValue.rgbGreen) / lDelta
+                End If
+                vRetVal(IDX_HUE) = nTemp * 60
+                If vRetVal(IDX_HUE) < 0 Then
+                    vRetVal(IDX_HUE) = vRetVal(IDX_HUE) + 360
+                End If
+            End If
+        End If
+        RGBToHSB = vRetVal
+    End Function
+    ' ' void CTheme::RGBToHSB(COLORREF rgb, BYTE& hue, BYTE& saturation, BYTE& brightness)
+    ' ' {
+    '     ' BYTE r = GetRValue(rgb);
+    '     ' BYTE g = GetGValue(rgb);
+    '     ' BYTE b = GetBValue(rgb);
+    '     ' BYTE minRGB = min(min(r, g), b);
+    '     ' BYTE maxRGB = max(max(r, g), b);
+    '    ' BYTE delta = maxRGB - minRGB;
+    '     ' double l = maxRGB;
+    '     ' double s = 0.0;
+    '     ' double h = 0.0;
+    '     ' if (maxRGB == 0)
+    '     ' {
+    '         ' hue = 0;
+    '         ' saturation = 0;
+    '         ' brightness = 0;
+    '         ' return;
+    '     ' }
+    '     ' if (maxRGB)
+    '         ' s = (255.0 * delta) / maxRGB;
+    '     ' if (static_cast<BYTE>(s) != 0)
+    '     ' {
+    '         ' if (r == maxRGB)
+    '             ' h = 0 + 43 * static_cast<double>(g - b) / delta;
+    '         ' else if (g == maxRGB)
+    '             ' h = 85 + 43 * static_cast<double>(b - r) / delta;
+    '         ' else if (b == maxRGB)
+    '             ' h = 171 + 43 * static_cast<double>(r - g) / delta;
+    '     ' }
+    '     ' else
+    '         ' h = 0.0;
+    '     ' hue = static_cast<BYTE>(h);
+    '     ' saturation = static_cast<BYTE>(s);
+    '     ' brightness = static_cast<BYTE>(l);
+    ' ' }
+    Private Sub RGBToHSB(ByVal rgbOrig As OLE_COLOR, hue As Byte, saturation As Byte, brightness As Byte)
+        Dim rgb As Long
+        OleTranslateColor rgbOrig, 0, rgb
+        Dim r As Byte = GetRValue(rgb)
+        Dim g As Byte = GetGValue(rgb)
+        Dim b As Byte = GetBValue(rgb)
+        Dim minRGB As Byte = min(min(r, g), b)
+        Dim maxRGB As Byte = max(max(r, g), b)
+         Dim delta As Byte = maxRGB - minRGB
+        Dim l As Double = maxRGB
+        Dim s As Double = 0.0
+        Dim h As Double = 0.0
+        If maxRGB = 0 Then
+            hue = 0
+            saturation = 0
+            brightness = 0
+            Exit Sub
+        End If
+        If (maxRGB) Then s = (255.0 * delta) \ maxRGB
+        If CByte(s) <> 0 Then
+            If (r = maxRGB) Then
+                h = 0 + 43 * CDbl(g - b) \ delta
+            ElseIf (g = maxRGB) Then
+                h = 85 + 43 * CDbl(b - r) \ delta
+            ElseIf (b = maxRGB) Then
+                h = 171 + 43 * CDbl(r - g) \ delta
+            End If
+        Else
+            h = 0.0
+        End If
+        hue = CByte(h)
+        saturation = CByte(s)
+        brightness = CByte(l)
+    End Sub
+    
+    Public Function WCHARtoStr(aCh() As Integer) As String
+    Dim i As Long
+    Dim sz As String
+    For i = LBound(aCh) To UBound(aCh)
+        If aCh(i) <> 0 Then
+            sz = sz & ChrW2(CLng(aCh(i)))
+        End If
+    Next
+    WCHARtoStr = sz
+    End Function
+    Private Function ChrW2(ByVal AscW2 As Long) As String
+        Dim s As String
+        
+        If AscW2 <= &HFFFF& Then
+            ChrW2 = ChrW(AscW2)
+        Else
+            AscW2 = AscW2 And &HFFFF&
+            s = DecToBin(AscW2)
+            s = String$(20 - Len(s), "0") & s
+            ChrW2 = ChrW(BinToDec(Left$(s, 10)) + &HD800&) & ChrW2 & ChrW(BinToDec(Right$(s, 10)) + &HDC00&)
+        End If
+    End Function
+    ' Converts decimal to binary
+    [IgnoreWarnings(TB0003)]
+    Private Function DecToBin(ByVal nNumber) As String
+        Do While nNumber > 0
+            DecToBin = nNumber Mod 2 & DecToBin
+            nNumber = nNumber \ 2
+        Loop
+        If DecToBin = "" Then DecToBin = "0"
+    End Function
+    
+    ' Converts binary to decimal
+    Private Function BinToDec(ByVal nBinary As String) As Long
+        Dim c As Long
+        Dim iLen As Long
+        
+        iLen = Len(nBinary)
+        For c = iLen To 1 Step -1
+            If Mid$(nBinary, c, 1) = "1" Then
+                BinToDec = BinToDec + 2 ^ (iLen - c)
+            End If
+        Next
+    End Function
+End Module
+ 
+[Description("Main Ribbon Framework helper class to simplify using the ribbon on a Form.")]
+Class clsRibbonEvents
+    Option Explicit
+    
+    Implements IUIApplication
+    Implements IUICommandHandler
+    Implements IUIEventLogger
+    
+    Private mRibbon As IUIRibbon
+    
+    [Description("Raised when the Application.Views set changes. If you handle this event, you must set bHandled to True and hr to the HRESULT.")]
+    Public Event OnRibbonViewChange(ByVal viewId As Long, ByVal typeID As UI_VIEWTYPE, ByVal view As IUnknown, ByVal verb As UI_VIEWVERB, ByVal uReasonCode As Long, pbHandled As Boolean, phr As Long)
+    [Description("Raised when a ribbon control is destroyed.")]
+    Public Event OnRibbonDestroyUICommand(ByVal commandId As Long, ByVal typeID As UI_COMMANDTYPE, ByVal commandHandler As IUICommandHandler, returnValue As Long)
+    [Description("Raised when a ribbon control is created. IMPORTANT: The commandHandler should not be changed by the user.")]
+    Public Event OnRibbonCreateUICommand(ByVal commandId As Long, ByVal typeID As UI_COMMANDTYPE, ByVal commandHandler As IUICommandHandler, returnValue As Long)
+    [Description("Raised when a command is executed. key is a pointer to a PROPERTYKEY you can copy if needed.")]
+    Public Event OnRibbonCmdExecute(ByVal commandId As Long, ByVal verb As UI_EXECUTIONVERB, ByVal key As LongPtr, currentValue As Variant, ByVal bCurValWasNull As Boolean, ByVal commandExecutionProperties As IUISimplePropertySet, returnValue As Long)
+    [Description("Raised when a property is updated. key is a pointer to a PROPERTYKEY. If you set newValue, set bValid to True. bCurValWasNull indicates if currentValue was NULL, since it can't be passed in that case.")]
+    Public Event OnRibbonUpdateProperty(ByVal commandId As Long, ByVal key As LongPtr, currentValue As Variant, ByVal bCurValWasNull As Boolean, newValue As Variant, bSetNewValue As Boolean, returnValue As Long)
+    [Description("Relays messages from the Eventing Manager. Modes is only set if the EventType is a mode change; in this case, all other values will be 0.")]
+    Public Event OnRibbonUIEventMessage(ByVal EventType As UI_EVENTTYPE, ByVal commandId As Long, ByVal modes As Long, ByVal commandName As String, ByVal parentCommandId As Long, ByVal parentCommandName As String, ByVal selectionIndex As Long, ByVal Location As UI_EVENTLOCATION, ByRef returnValue As Long)
+    [Description("Sent when the Ribbon is minimized or maximized.")]
+    Public Event OnRibbonMinMax(ByVal bMinimized As Boolean)
+    [Description("Sent when the Ribbon is shown or hidden.")]
+    Public Event OnRibbonShowHide(ByVal bVisible As Boolean)
+    
+    Private mFirstVW As Boolean 'First viewable event has fired
+    Private mCurView As Boolean 'Currently visible 
+    Private mCurMin As Boolean 'Currently minimized
+    Private mSettingsFileName As String
+    Private mHandleVC As Boolean
+    
+    Public Property Get SettingsFileName() As String: Return mSettingsFileName: End Property
+    Public Property Let SettingsFileName(ByVal sFile As String)
+        mSettingsFileName = sFile
+    End Property
+    Public Property Get HandleViewChange() As Boolean: Return mHandleVC: End Property
+    Public Property Let HandleViewChange(ByVal bHandledByUser As Boolean): mHandleVC = bHandledByUser: End Property
+    
+    Private Sub IUIApplication_OnViewChanged(ByVal viewId As Long, ByVal typeID As UI_VIEWTYPE, ByVal view As IUnknown, ByVal verb As UI_VIEWVERB, ByVal uReasonCode As Long) Implements IUIApplication.OnViewChanged
+        Dim bHandled As Boolean
+        Dim hr As Long
+        If mHandleVC = False Then
+            hr = E_NOTIMPL
+            If verb = UI_VIEWVERB_SIZE Then
+                If pFramework IsNot Nothing Then
+                    Dim bValM As Boolean, bValV As Boolean
+                    Dim pStore As IPropertyStore
+                    Set pStore = mRibbon
+                    pStore.GetValue(UI_PKEY_Minimized, bValM)
+                    pStore.GetValue(UI_PKEY_Viewable, bValV)
+                    Debug.Print "ViewChanged.Size UI_PKEY_Viewable=" & bValV & ", UI_PKEY_Minimized=" & bValM & ", mFirstVW=" & mFirstVW
+                    If mFirstVW = False Then
+                        mCurView = bValV
+                        mCurMin = bValM
+                        mFirstVW = True
+                        RaiseEvent OnRibbonMinMax(mCurMin)
+                        RaiseEvent OnRibbonShowHide(mCurView)
+                    Else
+                        If bValM <> mCurMin Then
+                            mCurMin = bValM
+                            RaiseEvent OnRibbonMinMax(mCurMin)
+                        End If
+                        If bValV <> mCurView Then
+                            mCurView = bValV
+                            RaiseEvent OnRibbonShowHide(mCurView)
+                        End If
+                    End If
+                End If
+                hr = S_OK
+            ElseIf verb = UI_VIEWVERB_CREATE Then
+                Debug.Print "UI_VIEWVERB_CREATE"
+                If mRibbon Is Nothing Then
+                    Set mRibbon = view
+                    hr = Err.LastHresult
+                End If
+                If mSettingsFileName <> "" Then
+                    If (mRibbon IsNot Nothing) Then
+                        hr = LoadRibbonViewSettings(mRibbon)
+                        If SUCCEEDED(hr) Then
+                            Debug.Print "LoadRibbonViewSettings OK"
+                        Else
+                            Debug.Print "LoadRibbonViewSettings error 0x" & Hex$(hr) & ", " & GetSystemErrorString(hr)
+                        End If
+                    End If
+                End If
+                Err.ReturnHResult = hr
+            ElseIf verb = UI_VIEWVERB_DESTROY Then
+                '??? we don't seem to receive this
+                Debug.Print "UI_VIEWVERB_DESTROY"
+                ' If mSettingsFileName <> "" Then
+                '     If (mRibbon IsNot Nothing) Then
+                '         hr = SaveRibbonViewSettings(mRibbon)
+                '         If SUCCEEDED(hr) Then
+                '             Debug.Print "SaveRibbonViewSettings OK"
+                '         Else
+                '             Debug.Print "SaveRibbonViewSettings error 0x" & Hex$(hr) & ", " & GetSystemErrorString(hr)
+                '         End If
+                '     End If
+                ' End If
+                Set mRibbon = Nothing
+            End If
+        Else
+            RaiseEvent OnRibbonViewChange(viewId, typeID, view, verb, uReasonCode, bHandled, hr)
+            If bHandled Then
+                Err.ReturnHResult = hr
+            Else
+                Err.ReturnHResult = E_NOTIMPL
+            End If
+        End If
+    End Sub
+    
+    Public Sub MinimizeRibbon(ByVal bMinimized As Boolean)
+        Dim pStore As IPropertyStore
+        Set pStore = mRibbon
+        pStore.SetValue UI_PKEY_Minimized, CVar(bMinimized)
+        Debug.Print "MinimizeRibbon SetValue=0x" & Hex$(Err.LastHresult)
+        pStore.Commit()
+        Debug.Print "MinimizeRibbon Commit=0x" & Hex$(Err.LastHresult)
+    End Sub
+    Public Sub HideRibbon(ByVal bShow As Boolean)
+        Dim pStore As IPropertyStore
+        Set pStore = mRibbon
+        pStore.SetValue UI_PKEY_Viewable, CVar(bShow)
+        Debug.Print "HideRibbon SetValue=0x" & Hex$(Err.LastHresult)
+        pStore.Commit()
+        Debug.Print "HideRibbon Commit=0x" & Hex$(Err.LastHresult)
+    End Sub
+    
+    Private Function LoadRibbonViewSettings(ByVal pRibbon As IUIRibbon) As Long
+        Dim stream As IStream
+        Dim hr As Long = SHCreateStreamOnFileEx(StrPtr(mSettingsFileName), STGM_READ, FILE_ATTRIBUTE_NORMAL, CFALSE, Nothing, stream)
+        If FAILED(hr) Then Return hr
+        On Error Resume Next
+        pRibbon.LoadSettingsFromStream(stream)
+        Return Err.LastHresult
+    End Function
+    Private Function SaveRibbonViewSettings(ByVal pRibbon As IUIRibbon) As Long
+        Dim stream As IStream
+        Dim hr As Long = SHCreateStreamOnFileEx(StrPtr(mSettingsFileName), STGM_WRITE Or STGM_CREATE, FILE_ATTRIBUTE_NORMAL, CTRUE, Nothing, stream)
+        If FAILED(hr) Then Return hr
+        On Error Resume Next
+        pRibbon.SaveSettingsToStream(stream)
+        hr = Err.LastHresult
+        If FAILED(hr) Then
+            stream.Revert()
+            Return hr
+        End If
+        stream.Commit(STGC_DEFAULT)
+        Return Err.LastHresult
+    End Function
+    Public Function SaveRibbonSettings(Optional sFile As String = "") As Long
+        If sFile = "" Then sFile = mSettingsFileName
+        Dim stream As IStream
+        Dim hr As Long = SHCreateStreamOnFileEx(StrPtr(sFile), STGM_WRITE Or STGM_CREATE, FILE_ATTRIBUTE_NORMAL, CTRUE, Nothing, stream)
+        If FAILED(hr) Then Return hr
+        On Error Resume Next
+        mRibbon.SaveSettingsToStream(stream)
+        hr = Err.LastHresult
+        If FAILED(hr) Then
+            stream.Revert()
+            Return hr
+        End If
+        stream.Commit(STGC_DEFAULT)
+        Return Err.LastHresult
+    End Function
+    
+    Private Sub IUIApplication_OnDestroyUICommand(ByVal commandId As Long, ByVal typeID As UI_COMMANDTYPE, ByVal commandHandler As IUICommandHandler) Implements IUIApplication.OnDestroyUICommand
+        Dim hr As Long
+        RaiseEvent OnRibbonDestroyUICommand(commandId, typeID, commandHandler, hr)
+        Err.ReturnHResult = hr
+    End Sub
+
+    Private Sub IUIApplication_OnCreateUICommand(ByVal commandId As Long, ByVal typeID As UI_COMMANDTYPE, commandHandler As IUICommandHandler) Implements IUIApplication.OnCreateUICommand
+        Set commandHandler = Me
+        Dim hr As Long
+        RaiseEvent OnRibbonCreateUICommand(commandId, typeID, commandHandler, hr)
+        Err.ReturnHResult = hr
+    End Sub
+
+
+    Private Sub IUICommandHandler_Execute(ByVal commandId As Long, ByVal verb As UI_EXECUTIONVERB, key As PROPERTYKEY, currentValue As Variant, ByVal commandExecutionProperties As IUISimplePropertySet) Implements IUICommandHandler.Execute
+        Dim hr As Long
+        Dim pv As Variant 'A true NULL Variant has VarPtr to it == 0 
+        Dim bNull As Boolean
+        If VarPtr(key) Then
+            If IsEqualPKEY(UI_PKEY_Minimized, key) Then
+                Debug.Print "Ribbon_Execute UI_PKEY_Minimized=" & currentValue
+            End If
+            If IsEqualPKEY(UI_PKEY_Minimized, key) Then
+                Debug.Print "Ribbon_Execute UI_PKEY_Viewable=" & currentValue
+            End If
+        End If
+        If VarPtr(currentValue) <> 0 Then /* It's not the same as a declared but unused Variant, which has a valid pointer and type VT_EMPTY. */
+            RaiseEvent OnRibbonCmdExecute(commandId, verb, VarPtr(key), currentValue, bNull, commandExecutionProperties, hr)
+            'VariantCopy pv, currentValue
+        Else
+            'Can't pass a true NULL; crashes
+            bNull = True
+            RaiseEvent OnRibbonCmdExecute(commandId, verb, VarPtr(key), pv, bNull, commandExecutionProperties, hr)
+        End If
+        Err.ReturnHResult = hr
+    End Sub
+
+    Private Sub IUICommandHandler_UpdateProperty(ByVal commandId As Long, key As PROPERTYKEY, currentValue As Variant, newValue As Variant) Implements IUICommandHandler.UpdateProperty
+        Dim hr As Long
+        Dim pv As Variant
+        Dim pnv As Variant
+        Dim bNull As Boolean
+        Dim bValid As Boolean
+        If VarPtr(currentValue) <> 0 Then
+            'VariantCopy pv, currentValue
+            If VarPtr(newValue <> 0) Then
+                RaiseEvent OnRibbonUpdateProperty(commandId, VarPtr(key), currentValue, bNull, newValue, bValid, hr)
+            Else
+                RaiseEvent OnRibbonUpdateProperty(commandId, VarPtr(key), currentValue, bNull, pnv, bValid, hr)
+                If bValid Then
+                    VariantCopy newValue, pnv
+                End If
+            End If
+                
+        Else
+            bNull = True
+            If VarPtr(newValue <> 0) Then
+                RaiseEvent OnRibbonUpdateProperty(commandId, VarPtr(key), pv, bNull, newValue, bValid, hr)
+            Else
+                RaiseEvent OnRibbonUpdateProperty(commandId, VarPtr(key), pv, bNull, pnv, bValid, hr)
+                If bValid Then
+                    VariantCopy newValue, pnv
+                End If
+            End If
+        End If
+        
+        Err.ReturnHResult = hr
+    End Sub
+
+ 
+    Private Sub IUIEventLogger_OnUIEvent(pEventParams As UI_EVENTPARAMS) Implements IUIEventLogger.OnUIEvent
+        If VarPtr(pEventParams) = 0 Then Exit Sub
+        
+        Dim hr As Long
+        If pEventParams.EventType = UI_EVENTTYPE_ApplicationModeSwitched Then
+            RaiseEvent OnRibbonUIEventMessage(pEventParams.EventType, 0, pEventParams.Params.CommandID, "", 0, "", 0, 0, hr)
+        Else
+            Dim sName As String, sParName As String
+            If pEventParams.Params.CommandName Then sName = LPWSTRtoStr(pEventParams.Params.CommandName, False)
+            If pEventParams.Params.ParentCommandName Then sParName = LPWSTRtoStr(pEventParams.Params.ParentCommandName, False)
+            RaiseEvent OnRibbonUIEventMessage(pEventParams.EventType, pEventParams.Params.CommandID, 0, sName, pEventParams.Params.ParentCommandID, sParName, pEventParams.Params.SelectionIndex, pEventParams.Params.Location, hr)
+        End If
+
+        Err.ReturnHResult = hr
+    
+    End Sub
+ 
+End Class
+ 
+[COMCreatable(False)]
+[Description("A generic class to represent a Ribbon Gallery Item")]
+Class clsRibbonGalleryItem
+    Option Explicit
+    
+    Implements IUISimplePropertySet
+    
+    Private pImg As IUIImage
+    Private pImgFact As UIRibbonImageFromBitmapFactory
+    Private mLabel As String
+    Private mCategory As Long
+    Private mCommand As Long
+    Private mCmdType As UI_COMMANDTYPE
+    
+    Private Sub IUISimplePropertySet_GetValue(key As PROPERTYKEY, value As Variant) Implements IUISimplePropertySet.GetValue
+        If VarPtr(key) = 0 Then
+            Err.ReturnHResult = E_POINTER
+            Exit Sub
+        End If
+        
+        If IsEqualPKEY(key, UI_PKEY_ItemImage) Then
+            If pImg IsNot Nothing Then
+                Set value = pImg
+            Else
+                Err.ReturnHResult = S_FALSE
+            End If
+        ElseIf IsEqualPKEY(key, UI_PKEY_Label) Then
+            InitPropVariantFromString mLabel, value
+        ElseIf IsEqualPKEY(key, UI_PKEY_CategoryId) Then
+            InitPropVariantFromUInt32 mCategory, value
+        ElseIf IsEqualPKEY(key, UI_PKEY_CommandId) Then
+            If mCommand <> -1 Then
+                InitPropVariantFromUInt32 mCommand, value
+            Else
+                Err.ReturnHResult = S_FALSE
+            End If
+        ElseIf IsEqualPKEY(key, UI_PKEY_CommandType) Then
+            InitPropVariantFromUInt32 mCmdType, value
+        Else
+            Err.ReturnHResult = E_FAIL
+        End If
+    End Sub
+    
+    Public Function SetImageByObject(pI As IUIImage) As Long
+        Set pImg = pI
+    End Function
+    
+    Public Function SetImageByResID(ByVal nID As Long, Optional ByVal hModule As LongPtr = 0) As Long
+        Dim hBmp As LongPtr
+        If hModule = 0 Then hModule = App.hInstance
+        hBmp = LoadImageW(hModule, nID, IMAGE_BITMAP, 0, 0, LR_CREATEDIBSECTION)
+        If hBmp = 0 Then
+            Debug.Print "Failed to load image " & nID & ", err=" & Err.LastDllError
+            Return Err.LastDllError
+        End If
+        SetImageByResID = SetImageByBitmap(hBmp)
+        ' DeleteObject hBmp
+    End Function
+    [Description("Sets the item image by HBITMAP. NOTE: It is the callers responsibility to free the bitmap.")]
+    Public Function SetImageByBitmap(ByVal hbm As LongPtr) As Long
+        pImgFact.CreateImage hbm, UI_OWNERSHIP_TRANSFER, pImg
+        Debug.Print "SetImageByBitmap(" & hbm & ")=0x" & Hex$(Err.LastHresult)
+        Return Err.LastHresult
+    End Function
+    
+    Public Property Let CategoryID(ByVal nID As Long): mCategory = nID: End Property
+    Public Property Get CategoryID() As Long: CategoryID = mCategory: End Property
+    
+    Public Property Let CommandID(ByVal nID As Long): mCommand = nID: End Property
+    Public Property Get CommandID() As Long: CommandID = mCommand: End Property
+    
+    Public Property Let CommandType(ByVal nType As UI_COMMANDTYPE): mCmdType = nType: End Property
+    Public Property Get CommandType() As UI_COMMANDTYPE: CommandType = mCmdType: End Property
+    
+    Public Property Let Label(ByVal sLabel As String): mLabel = sLabel: End Property
+    Public Property Get Label() As String: Label = mLabel: End Property
+    
+    
+    
+    Private Sub Class_Initialize()
+        Set pImgFact = New UIRibbonImageFromBitmapFactory
+        mCategory = -1
+        mCommand = -1
+    End Sub
+    
+    Private Sub Class_Terminate()
+        Set pImg = Nothing
+        Set pImgFact = Nothing
+    End Sub
+    
+End Class
+ 
+[COMCreatable(False)]
+[Description("A generic class to represent files in Ribbon Recent Items. If you specify a label override, automatic description will be ignored, you need not specify a file path, and you must manually specify a label description if you want one.")]
+Class clsRibbonMRUFile
+	'Populates the MRU list
+    
+    Implements IUISimplePropertySet
+    
+    Private mFullPath As String
+    Private mDisplayName As String
+    Private mLabelOvr As String, mDesc As String
+    Private bAutoDesc As Boolean
+    Private mPinned As Boolean
+    
+    [Description("A generic class to represent files in Ribbon Recent Items. If you specify a label override, automatic description will be ignored, you need not specify a file path, and you must manually specify a label description if you want one.")]
+    Sub New(sFileFullPath As String, Optional sLabelOverride As String = "", Optional bAutomaticDescriptionOfType As Boolean = True, Optional sLabelDescription As String = "", Optional bPinned As Boolean = False)
+    	mFullPath = sFileFullPath
+        mPinned = bPinned
+        If sLabelOverride <> "" Then
+        	mDisplayName = sLabelOverride
+            mDesc = sLabelDescription
+            ' Debug.Print "Class constructor set manual disp=" & mDisplayName ",desc=" & mDesc
+            Exit Sub
+        End If
+        Dim psi As IShellItem, psi2 As IShellItem2
+        SHCreateItemFromParsingName StrPtr(mFullPath), Nothing, IID_IShellItem, psi
+        If psi IsNot Nothing Then
+        	Set psi2 = psi
+            Dim propvar As Variant, pv As Variant
+            psi2.GetProperty PKEY_ItemNameDisplay, propvar
+            PropVariantChangeType pv, propvar, PVCHF_DEFAULT, VT_BSTR
+            mDisplayName = pv
+            VariantClear pv
+            PropVariantClear propvar
+            
+            If bAutomaticDescriptionOfType Then
+                psi2.GetProperty PKEY_ItemTypeText, propvar
+                PropVariantChangeType pv, propvar, PVCHF_DEFAULT, VT_BSTR
+                mDesc = pv
+                VariantClear pv
+                PropVariantClear propvar
+            Else
+                mDesc = sLabelDescription
+            End If
+            Set psi2 = Nothing
+            Set psi = Nothing
+        End If
+        Debug.Print "Class constructor set auto disp=" & mDisplayName ",desc=" & mDesc
+    End Sub
+        
+    Private Sub IUISimplePropertySet_GetValue(key As PROPERTYKEY, value As Variant) Implements IUISimplePropertySet.GetValue
+        'Debug.Print "MRUInstance received GetValue, keyptr=" & VarPtr(key)
+        If (VarPtr(key) = 0) Then
+            Err.ReturnHResult = E_POINTER
+            Exit Sub
+        End If
+        
+        Dim hr As Long = HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED)
+        
+        If IsEqualPKEY(key, UI_PKEY_Label) Then
+        	InitPropVariantFromString mDisplayName, value
+            hr = S_OK
+        End If
+        
+        If IsEqualPKEY(key, UI_PKEY_LabelDescription) Then
+        	If bAutoDesc OrElse (mDesc <> "") Then
+                InitPropVariantFromString mDesc, value
+                hr = S_OK
+        	End If
+        End If
+        
+        If IsEqualPKEY(key, UI_PKEY_Pinned) Then
+        	value = CVar(mPinned)
+            hr = S_OK
+        End If
+        
+        Err.ReturnHResult = hr
+    End Sub
+    
+    Public Property Get File() As String
+    	Return mFullPath
+    End Property
+    
+    [Description("Whether the item is pinned to the MRU list.")]
+    Public Property Get Pinned() As Boolean: Pinned = mPinned: End Property
+    Public Property Let Pinned(fPinned As Boolean): mPinned = fPinned: End Property
+  	
+End Class
+ 
