@@ -1,6 +1,8 @@
 # UIRibbonDemos
 ## Windows UI Ribbon Framework Demos
 
+**Update (Aug 29th, 2025):** Updated .twinprojs to use latest WinDevLib package and to clear new errors
+
 **Update (Feb 17th, 2025):** The Advanced Demo is now out!! It has its own repository, and there's way too much to cover here, so if you're a fan of these demos, just [head over there](https://github.com/fafalone/UIRibbonDemoAdvanced)!
 
 ![image](https://github.com/user-attachments/assets/9dd07ecd-28f0-4511-9110-7ae23778e017)
