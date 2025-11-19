@@ -1,6 +1,6 @@
-[ Description ("") ]
-[ FormDesignerId ("6D393482-82F0-45C3-B441-A8093D57E3AB") ]
-[ PredeclaredId ]
+[Description("Windows UI Ribbon Framework Demo")]
+[FormDesignerId("6D393482-82F0-45C3-B441-A8093D57E3AB")]
+[PredeclaredId]
 Class Form1
     Private pFramework As UIRibbonFramework
     Private WithEvents pUIApp As clsRibbonEvents
@@ -21,8 +21,7 @@ Class Form1
             End If
         Else
             pFramework.LoadUI GetModuleHandleW(), StrPtr("APPLICATION_RIBBON")
-        End If
-    
+        End If 
     End Sub
     
     Private Sub Form_Terminate() Handles Form.Terminate
@@ -37,8 +36,8 @@ Class Form1
     End Sub
     
     Private Sub Form_Resize() Handles Form.Resize
-        InvalidateRect Me.hWnd, vbNullPtr, 0
-        RedrawWindow Me.hWnd, vbNullPtr, 0, RDW_UPDATENOW
+        InvalidateRect Me.hWnd, ByVal vbNullPtr, 0
+        RedrawWindow Me.hWnd, ByVal vbNullPtr, 0, RDW_UPDATENOW
         Me.Refresh
     End Sub
 
